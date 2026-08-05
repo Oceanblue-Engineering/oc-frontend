@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <link rel="icon" href="/autologo.jpg" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OceanBlue CMS</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            // Ocean Blue Engineering — Brand Palette
+            ocean: {
+              50: "#f0f9ff",
+              100: "#e0f2fe",
+              200: "#bae6fd",
+              300: "#7dd3fc",
+              400: "#38bdf8",
+              500: "#00b4d8", // Accent cyan / wave
+              600: "#0077b6", // Secondary ocean blue
+              700: "#0369a1",
+              800: "#0f2a4a", // Primary deep navy
+              900: "#0c1e36",
+              DEFAULT: "#0077b6",
+            },
+            // Primary — alias of ocean (deep navy → ocean-800)
+            primary: {
+              50: "#f0f9ff",
+              100: "#e0f2fe",
+              200: "#bae6fd",
+              300: "#7dd3fc",
+              400: "#38bdf8",
+              500: "#00b4d8",
+              600: "#0077b6",
+              700: "#0369a1",
+              800: "#0f2a4a",
+              900: "#0c1e36",
+              950: "#0c1e36",
+              DEFAULT: "#0077b6",
+            },
+            // Dark - Black/Gray
+            dark: {
+              50: "#F9FAFB",
+              100: "#F3F4F6",
+              200: "#E5E7EB",
+              300: "#D1D5DB",
+              400: "#9CA3AF",
+              500: "#6B7280",
+              600: "#4B5563",
+              700: "#374151",
+              800: "#1F2937",
+              900: "#111827",
+              950: "#030712",
+              DEFAULT: "#111827",
+            },
+            // Button colors — ocean brand
+            btn: {
+              primary: "#0077b6",
+              "primary-hover": "#0369a1",
+              secondary: "#111827",
+              "secondary-hover": "#1F2937",
+              danger: "#EF4444",
+              "danger-hover": "#DC2626",
+              success: "#22C55E",
+              "success-hover": "#16A34A",
+            },
+            // Status colors
+            status: {
+              success: "#22C55E",
+              warning: "#F59E0B",
+              error: "#EF4444",
+              info: "#0077b6",
+            },
+          },
+          fontFamily: {
+            sans: ["Inter", "system-ui", "sans-serif"],
+          },
+          boxShadow: {
+            glow: "0 0 20px rgba(0, 119, 182, 0.3)",
+            "glow-sm": "0 0 10px rgba(0, 119, 182, 0.2)",
+          },
+        },
+      },
+    };
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    @font-face {
+      font-family: 'Z06-Walone';
+      src: url('/font/Z06-Walone Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    @font-face {
+      font-family: 'Helvetica-Custom';
+      src: url('/font/Helvetica.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    body {
+      font-family: "Helvetica-Custom", "Inter", sans-serif;
+    }
+
+    /* Apply Z06-Walone font to all elements when html has lang-my class */
+    .lang-my, 
+    .lang-my body, 
+    .lang-my button, 
+    .lang-my input, 
+    .lang-my select, 
+    .lang-my textarea, 
+    .lang-my div, 
+    .lang-my span, 
+    .lang-my p, 
+    .lang-my h1, 
+    .lang-my h2, 
+    .lang-my h3, 
+    .lang-my h4, 
+    .lang-my h5, 
+    .lang-my h6, 
+    .lang-my td, 
+    .lang-my th, 
+    .lang-my a {
+      font-family: 'Z06-Walone', "Inter", sans-serif !important;
+    }
+
+    /* Apply Helvetica font to all elements when html has lang-en class */
+    .lang-en, 
+    .lang-en body, 
+    .lang-en button, 
+    .lang-en input, 
+    .lang-en select, 
+    .lang-en textarea, 
+    .lang-en div, 
+    .lang-en span, 
+    .lang-en p, 
+    .lang-en h1, 
+    .lang-en h2, 
+    .lang-en h3, 
+    .lang-en h4, 
+    .lang-en h5, 
+    .lang-en h6, 
+    .lang-en td, 
+    .lang-en th, 
+    .lang-en a {
+      font-family: 'Helvetica-Custom', "Inter", sans-serif !important;
+    }
+
+    /* Print styles for receipt */
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+
+      .print-only {
+        display: block !important;
+      }
+
+      body {
+        background: white;
+      }
+    }
+
+    .print-only {
+      display: none;
+    }
+
+    /* Scrollbar styling */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .no-scrollbar {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 3px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+  </style>
+  <script type="importmap">
+      {
+        "imports": {
+          "uuid": "https://aistudiocdn.com/uuid@^13.0.0",
+          "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+          "react/": "https://aistudiocdn.com/react@^19.2.0/",
+          "react": "https://aistudiocdn.com/react@^19.2.0",
+          "lucide-react": "https://aistudiocdn.com/lucide-react@^0.554.0",
+          "recharts": "https://aistudiocdn.com/recharts@^3.5.0"
+        }
+      }
+    </script>
+  <link rel="stylesheet" href="/index.css" />
+</head>
+
+<body class="bg-gray-50 text-slate-900 antialiased">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
+</body>
+
+</html>

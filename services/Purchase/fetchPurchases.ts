@@ -1,0 +1,64 @@
+import axios from "../axios";
+import { ApiPurchaseOrder } from "../../types";
+
+interface PaginationData {
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  itemsPerPage: number;
+}
+
+interface FetchPurchasesResponse {
+  success: boolean;
+  message: string;
+  data: ApiPurchaseOrder[];
+  pagination: PaginationData;
+}
+
+export interface FetchPurchasesParams {
+  page?: number;
+  limit?: number;
+  isDeleted?: boolean;
+  status?: "pending" | "arrived" | "confirmed" | "cancelled" | "completed";
+  paymentType?: "all" | "paid" | "credit";
+  paymentStatus?: "all" | "paid" | "partial" | "unpaid";
+}
+
+export const fetchPurchases = async (
+  params?: FetchPurchasesParams
+): Promise<FetchPurchasesResponse> => {
+  try {
+    const {
+      page = 1,
+      limit = 10,
+      isDeleted,
+      status,
+      paymentType,
+      paymentStatus,
+    } = params || {};
+    let url = `/purchase?page=${page}&limit=${limit}`;
+
+    if (isDeleted !== undefined) {
+      url += `&isDeleted=${isDeleted}`;
+    }
+
+    if (status) {
+      url += `&status=${status}`;
+    }
+
+    if (paymentType && paymentType !== "all") {
+      url += `&paymentType=${paymentType}`;
+    }
+
+    if (paymentStatus && paymentStatus !== "all") {
+      url += `&paymentStatus=${paymentStatus}`;
+    }
+
+    const response = await axios.get(url);
+
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching purchases:", error);
+    throw error;
+  }
+};
