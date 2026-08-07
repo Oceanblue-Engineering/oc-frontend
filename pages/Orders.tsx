@@ -37,6 +37,7 @@ export const Orders: React.FC = () => {
     useState<string>("all");
   const [paymentTypeFilter, setPaymentTypeFilter] = useState<string>("all");
   const [paymentMethodFilter, setPaymentMethodFilter] = useState<string>("all");
+  const [deliveryStatusFilter, setDeliveryStatusFilter] = useState<string>("all");
   const [creditPersonas, setCreditPersonas] = useState<CreditPersona[]>([]);
   const [showCreditPersonModal, setShowCreditPersonModal] = useState(false);
   const [selectedOrderForCredit, setSelectedOrderForCredit] =
@@ -164,7 +165,15 @@ export const Orders: React.FC = () => {
     const matchesPaymentMethod =
       paymentMethodFilter === "all" ||
       order.paymentMethod?.toLowerCase() === paymentMethodFilter.toLowerCase();
-    return matchesSearch && matchesPaymentType && matchesPaymentMethod;
+    const matchesDeliveryStatus =
+      deliveryStatusFilter === "all" ||
+      (order.deliveryStatus || "pending") === deliveryStatusFilter;
+    return (
+      matchesSearch &&
+      matchesPaymentType &&
+      matchesPaymentMethod &&
+      matchesDeliveryStatus
+    );
   });
 
   const handleViewOrder = async (orderId: string) => {
@@ -287,6 +296,8 @@ export const Orders: React.FC = () => {
           onPaymentTypeChange={setPaymentTypeFilter}
           paymentMethodFilter={paymentMethodFilter}
           onPaymentMethodChange={setPaymentMethodFilter}
+          deliveryStatusFilter={deliveryStatusFilter}
+          onDeliveryStatusChange={setDeliveryStatusFilter}
           orders={orders}
           filteredOrders={filteredOrders}
         />

@@ -13,6 +13,8 @@ import {
   Gift,
   Bot,
   Settings,
+  Target,
+  Briefcase,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -128,22 +130,22 @@ export const navigationItems: NavigationItem[] = [
     path: "/purchasing",
     color: "bg-lime-50 text-lime-700",
   },
-  {
-    id: "lucky-draw",
-    titleKey: "sidebar.luckyDraw",
-    descKey: "home.desc.luckyDraw",
-    icon: Gift,
-    path: "/lucky-draw",
-    color: "bg-pink-50 text-pink-700",
-  },
-  {
-    id: "ai-chat",
-    titleKey: "sidebar.aiChat",
-    descKey: "home.desc.aiChat",
-    icon: Bot,
-    path: "/ai-chat",
-    color: "bg-fuchsia-50 text-fuchsia-700",
-  },
+  // {
+  //   id: "lucky-draw",
+  //   titleKey: "sidebar.luckyDraw",
+  //   descKey: "home.desc.luckyDraw",
+  //   icon: Gift,
+  //   path: "/lucky-draw",
+  //   color: "bg-pink-50 text-pink-700",
+  // },
+  // {
+  //   id: "ai-chat",
+  //   titleKey: "sidebar.aiChat",
+  //   descKey: "home.desc.aiChat",
+  //   icon: Bot,
+  //   path: "/ai-chat",
+  //   color: "bg-fuchsia-50 text-fuchsia-700",
+  // },
   {
     id: "settings",
     titleKey: "sidebar.settings",
@@ -151,6 +153,30 @@ export const navigationItems: NavigationItem[] = [
     icon: Settings,
     path: "/settings",
     color: "bg-gray-100 text-gray-700",
+  },
+  {
+    id: "clientLeads",
+    titleKey: "sidebar.clientLeads",
+    descKey: "home.desc.clientLeads",
+    icon: Target,
+    path: "/clients",
+    color: "bg-ocean-50 text-ocean-600",
+  },
+  {
+    id: "delivery",
+    titleKey: "sidebar.delivery",
+    descKey: "home.desc.delivery",
+    icon: Truck,
+    path: "/delivery",
+    color: "bg-ocean-50 text-ocean-600",
+  },
+  {
+    id: "clientProjects",
+    titleKey: "sidebar.clientProjects",
+    descKey: "home.desc.clientProjects",
+    icon: Briefcase,
+    path: "/client-projects",
+    color: "bg-teal-50 text-teal-700",
   },
 ];
 

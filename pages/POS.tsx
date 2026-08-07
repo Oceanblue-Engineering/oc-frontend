@@ -35,6 +35,10 @@ import {
   CreditPersona,
 } from "../services/Credit/fetchCreditPersonas";
 import { createCreditPersona } from "../services/Credit/createCreditPersona";
+import {
+  fetchTownships,
+  Township,
+} from "../services/Township/fetchTownships";
 import { deviceDetect } from "react-device-detect";
 
 // Payment methods
@@ -93,17 +97,21 @@ export const POS: React.FC = () => {
   const [successOrderNumber, setSuccessOrderNumber] = useState("");
   const [showMobileCart, setShowMobileCart] = useState(false);
   const [discount, setDiscount] = useState(0);
-  const [markup, setMarkup] = useState(0);
-  const [markupAmount, setMarkupAmount] = useState(0);
   const [note, setNote] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
   const [showStorefrontMenu, setShowStorefrontMenu] = useState(false);
-  const [useMarkup, setUseMarkup] = useState(false); // Toggle between discount and markup
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
     PaymentMethod.CASH,
   );
+  // ── Delivery State ────────────────────────────────
+  const [isDelivery, setIsDelivery] = useState(false);
+  const [townships, setTownships] = useState<Township[]>([]);
+  const [selectedTownshipId, setSelectedTownshipId] = useState("");
+  const [deliveryFee, setDeliveryFee] = useState(0);
+  const [recipientName, setRecipientName] = useState("");
+  const [recipientPhone, setRecipientPhone] = useState("");
+  const [deliveryAddress, setDeliveryAddress] = useState("");
   const [showDiscountCalculator, setShowDiscountCalculator] = useState(false);
-  const [showMarkupCalculator, setShowMarkupCalculator] = useState(false);
   const [activeWholesalePopoverId, setActiveWholesalePopoverId] = useState<
     string | null
   >(null);
@@ -153,6 +161,18 @@ export const POS: React.FC = () => {
 
     // Load credit personas separately
     loadCreditPersonas();
+
+    // Load active townships for delivery
+    loadTownships();
+  };
+
+  const loadTownships = async () => {
+    try {
+      const res = await fetchTownships(true);
+      if (res.success) setTownships(res.data.townships);
+    } catch (error) {
+      console.error("Error loading townships:", error);
+    }
   };
 
   const loadCreditPersonas = async () => {
@@ -433,12 +453,11 @@ export const POS: React.FC = () => {
   const totalAfterDiscount = Math.round(
     subtotal * (1 - (Number(discount) || 0) / 100),
   );
-  const totalAfterMarkup = subtotal + markupAmount;
 
-  const total = useMarkup ? totalAfterMarkup : totalAfterDiscount;
-  const combinedDiscountAmount = useMarkup
-    ? 0
-    : Math.round(subtotal - totalAfterDiscount);
+  // Delivery fee is added on top of the discounted line total
+  const total =
+    totalAfterDiscount + (isDelivery ? Number(deliveryFee) || 0 : 0);
+  const combinedDiscountAmount = Math.round(subtotal - totalAfterDiscount);
 
   // Auto-update paid amount when discount or subtotal changes in checkout modal
   useEffect(() => {
@@ -488,9 +507,11 @@ export const POS: React.FC = () => {
         [PaymentMethod.MMQR]: "MMQR",
       };
 
-      const discountAmount = useMarkup
-        ? 0
-        : Math.round(subtotal - totalAfterDiscount);
+      const discountAmount = Math.round(subtotal - totalAfterDiscount);
+
+      const selectedTownship = townships.find(
+        (t) => t._id === selectedTownshipId,
+      );
 
       const orderPayload = {
         storefrontId: selectedStorefrontId,
@@ -509,6 +530,17 @@ export const POS: React.FC = () => {
         ...(selectedCreditPersonId
           ? { creditPersonId: selectedCreditPersonId }
           : {}),
+        // Delivery details
+        deliveryDetails: isDelivery
+          ? {
+              township: selectedTownshipId || null,
+              townshipName: selectedTownship?.name || "",
+              deliveryFee: Number(deliveryFee) || 0,
+              recipientName: recipientName || "",
+              recipientPhone: recipientPhone || "",
+              deliveryAddress: deliveryAddress || "",
+            }
+          : undefined,
       };
 
       const result = await createOrder(orderPayload);
@@ -578,8 +610,6 @@ export const POS: React.FC = () => {
 
         setCart([]);
         setDiscount(0);
-        setMarkup(0);
-        setMarkupAmount(0);
         setNote("");
         setPaidAmount(0);
         setPaymentMethod(PaymentMethod.CASH);
@@ -1439,74 +1469,112 @@ export const POS: React.FC = () => {
                 </select>
               </div>
 
-              {/* Discount/Markup Toggle */}
+              {/* Delivery / Pickup */}
               <div>
-                <label className="block text-sm font-semibold text-slate-500 mb-2">
-                  Pricing Option
+                <label className="block text-sm font-semibold text-slate-500 mb-1.5">
+                  {t("pos.deliveryMethod")}
                 </label>
-                <div className="flex gap-4">
-                  <label className="flex items-center cursor-pointer font-semibold text-slate-600">
-                    <input
-                      type="radio"
-                      name="pricingOption"
-                      checked={!useMarkup}
-                      onChange={() => setUseMarkup(false)}
-                      className="mr-2 accent-[#0077b6]"
-                    />
-                    <span className="text-sm">Discount</span>
-                  </label>
-                  <label className="flex items-center cursor-pointer font-semibold text-slate-600">
-                    <input
-                      type="radio"
-                      name="pricingOption"
-                      checked={useMarkup}
-                      onChange={() => setUseMarkup(true)}
-                      className="mr-2 accent-[#0077b6]"
-                    />
-                    <span className="text-sm">Markup</span>
-                  </label>
+                <div className="inline-flex bg-slate-100 rounded-xl p-1 w-full">
+                  {[
+                    { id: false, label: t("pos.pickup") },
+                    { id: true, label: t("pos.delivery") },
+                  ].map((opt) => (
+                    <button
+                      key={String(opt.id)}
+                      type="button"
+                      onClick={() => {
+                        setIsDelivery(opt.id);
+                        if (!opt.id) setDeliveryFee(0);
+                      }}
+                      className={`flex-1 px-4 py-2 text-sm font-semibold rounded-lg transition-all cursor-pointer ${
+                        isDelivery === opt.id
+                          ? "bg-ocean-600 text-white shadow-sm"
+                          : "text-slate-500 hover:bg-white"
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  ))}
                 </div>
               </div>
 
-              {/* Discount */}
-              {!useMarkup && (
-                <div>
-                  <label className="block text-sm font-semibold text-slate-500 mb-1.5 flex items-center">
-                    {t("pos.discount")} (%)
-                    <button
-                      onClick={() => setShowDiscountCalculator(true)}
-                      className="ml-2 text-[#0077b6] hover:text-[#0077b6]/80 transition-colors"
-                      title="Calculate discount percentage"
+              {isDelivery && (
+                <div className="space-y-3 p-4 border border-ocean-100 bg-ocean-50/40 rounded-xl">
+                  {/* Township selector */}
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-500 mb-1.5">
+                      {t("pos.township")}
+                    </label>
+                    <select
+                      className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none transition-all"
+                      value={selectedTownshipId}
+                      onChange={(e) => {
+                        const id = e.target.value;
+                        setSelectedTownshipId(id);
+                        const tw = townships.find((t) => t._id === id);
+                        setDeliveryFee(tw ? Number(tw.deliveryFee) || 0 : 0);
+                      }}
                     >
-                      <Calculator className="w-4 h-4" />
-                    </button>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    className="discount-input w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
-                    value={discount}
-                    onChange={(e) => setDiscount(Number(e.target.value))}
+                      <option value="">{t("pos.selectTownship")}</option>
+                      {townships.map((tw) => (
+                        <option key={tw._id} value={tw._id}>
+                          {tw.name} — {tw.deliveryFee.toLocaleString()} MMK
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <input
+                      className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none"
+                      placeholder={t("pos.recipientName")}
+                      value={recipientName}
+                      onChange={(e) => setRecipientName(e.target.value)}
+                    />
+                    <input
+                      className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none"
+                      placeholder={t("pos.recipientPhone")}
+                      value={recipientPhone}
+                      onChange={(e) => setRecipientPhone(e.target.value)}
+                    />
+                  </div>
+                  <textarea
+                    className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none"
+                    placeholder={t("pos.deliveryAddress")}
+                    value={deliveryAddress}
+                    onChange={(e) => setDeliveryAddress(e.target.value)}
+                    rows={2}
                   />
+                  {selectedTownshipId && (
+                    <p className="text-xs font-semibold text-ocean-700">
+                      {t("pos.deliveryFee")}:{" "}
+                      {(Number(deliveryFee) || 0).toLocaleString()} MMK
+                    </p>
+                  )}
                 </div>
               )}
 
-              {/* Markup */}
-              {useMarkup && (
-                <div>
-                  <label className="block text-sm font-semibold text-slate-500 mb-1.5">
-                    Markup Amount (MMK)
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
-                    value={markupAmount}
-                    onChange={(e) => setMarkupAmount(Number(e.target.value))}
-                  />
-                </div>
-              )}
+              {/* Discount */}
+              <div>
+                <label className="block text-sm font-semibold text-slate-500 mb-1.5 flex items-center">
+                  {t("pos.discount")} (%)
+                  <button
+                    onClick={() => setShowDiscountCalculator(true)}
+                    className="ml-2 text-[#0077b6] hover:text-[#0077b6]/80 transition-colors"
+                    title="Calculate discount percentage"
+                  >
+                    <Calculator className="w-4 h-4" />
+                  </button>
+                </label>
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  className="discount-input w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  value={discount}
+                  onChange={(e) => setDiscount(Number(e.target.value))}
+                />
+              </div>
 
               {/* Paid Amount */}
               <div>
@@ -1563,18 +1631,12 @@ export const POS: React.FC = () => {
                   <span>{t("common.subtotal")}</span>
                   <span>{subtotal.toLocaleString()} MMK</span>
                 </div>
-                {!useMarkup && discount > 0 && (
+                {discount > 0 && (
                   <div className="flex justify-between text-sm text-green-600 font-semibold">
                     <span>
                       {t("common.discount")} ({discount}%)
                     </span>
                     <span>-{combinedDiscountAmount.toLocaleString()} MMK</span>
-                  </div>
-                )}
-                {useMarkup && markupAmount > 0 && (
-                  <div className="flex justify-between text-sm text-[#0077b6] font-semibold">
-                    <span>Markup Amount</span>
-                    <span>+{markupAmount.toLocaleString()} MMK</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base font-bold text-slate-800 pt-2.5 border-t border-slate-150">
@@ -1624,105 +1686,6 @@ export const POS: React.FC = () => {
               >
                 {t("common.cancel")}
               </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Markup Calculator Modal */}
-      {showMarkupCalculator && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-            <div className="p-6 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-primary" />
-                Fixed Amount Markup
-              </h2>
-              <button
-                onClick={() => {
-                  setShowMarkupCalculator(false);
-                }}
-                className="text-slate-400 hover:text-slate-600 p-1"
-              >
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            <div className="p-6 space-y-4">
-              {/* Current Subtotal */}
-              <div className="bg-slate-50 p-4 rounded-lg">
-                <p className="text-sm text-slate-500 mb-1">Current Subtotal</p>
-                <p className="text-2xl font-bold text-slate-800">
-                  {subtotal.toLocaleString()} MMK
-                </p>
-              </div>
-
-              {/* Markup Amount Input */}
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Markup Amount (MMK)
-                </label>
-                <input
-                  type="number"
-                  min="0"
-                  className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
-                  placeholder="Enter markup amount..."
-                  value={markupAmount}
-                  onChange={(e) => setMarkupAmount(Number(e.target.value))}
-                />
-              </div>
-              {/* Calculated Percentage */}
-              {markupAmount && Number(markupAmount) > 0 && (
-                <div className="bg-blue-50 border border-blue-200 p-4 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-slate-600">
-                      Markup Amount:
-                    </span>
-                    <span className="font-bold text-blue-700">
-                      {Number(markupAmount).toLocaleString()} MMK
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-slate-600">Percentage:</span>
-                    <span className="font-bold text-blue-700">
-                      {((Number(markupAmount) / subtotal) * 100).toFixed(2)}%
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-600">Final Total:</span>
-                    <span className="font-bold text-slate-800">
-                      {(subtotal + Number(markupAmount)).toLocaleString()} MMK
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* Actions */}
-              <div className="flex justify-end gap-3 pt-4 border-t">
-                <button
-                  onClick={() => {
-                    setShowMarkupCalculator(false);
-                  }}
-                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
-                >
-                  Cancel
-                </button>
-                <button
-                  onClick={() => {
-                    if (markupAmount && Number(markupAmount) > 0) {
-                      setMarkupAmount(Number(markupAmount));
-                      setShowMarkupCalculator(false);
-                      toast.success(
-                        `Markup set to ${Number(markupAmount).toLocaleString()} MMK`,
-                      );
-                    }
-                  }}
-                  disabled={!markupAmount || Number(markupAmount) <= 0}
-                  className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  Apply Markup
-                </button>
-              </div>
             </div>
           </div>
         </div>

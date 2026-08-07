@@ -14,6 +14,8 @@ interface OrdersFiltersProps {
   onPaymentTypeChange: (value: string) => void;
   paymentMethodFilter: string;
   onPaymentMethodChange: (value: string) => void;
+  deliveryStatusFilter: string;
+  onDeliveryStatusChange: (value: string) => void;
   orders: Order[];
   filteredOrders: Order[];
 }
@@ -28,6 +30,8 @@ export const OrdersFilters: React.FC<OrdersFiltersProps> = ({
   onPaymentTypeChange,
   paymentMethodFilter,
   onPaymentMethodChange,
+  deliveryStatusFilter,
+  onDeliveryStatusChange,
   orders,
   filteredOrders,
 }) => {
@@ -84,6 +88,22 @@ export const OrdersFilters: React.FC<OrdersFiltersProps> = ({
                 <option value="normal">Normal</option>
                 <option value="hot">Hot</option>
                 <option value="foc">FOC</option>
+              </select>
+            </div>
+
+            {/* Delivery Status Filter */}
+            <div className="flex items-center gap-2">
+              <select
+                className="border border-gray-200/80 rounded-full px-4 py-2.5 bg-white focus:ring-2 focus:ring-ocean-500 focus:border-ocean-500 outline-none text-xs sm:text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-50 transition-all"
+                value={deliveryStatusFilter}
+                onChange={(e) => onDeliveryStatusChange(e.target.value)}
+              >
+                <option value="all">{t("orders.allDelivery")}</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="out_for_delivery">Out for Delivery</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
               </select>
             </div>
           </div>

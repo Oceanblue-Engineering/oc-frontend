@@ -60,6 +60,15 @@ export interface Order {
   totalPaidAmount?: Record<string, unknown>;
   remainingBalance?: number;
   note?: string;
+  deliveryStatus?: string;
+  deliveryDetails?: {
+    township?: string | null;
+    townshipName?: string;
+    deliveryFee?: number;
+    recipientName?: string;
+    recipientPhone?: string;
+    deliveryAddress?: string;
+  };
   id?: string;
 }
 

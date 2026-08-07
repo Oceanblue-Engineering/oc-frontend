@@ -306,6 +306,69 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 </div>
               </div>
 
+              {/* Delivery Details */}
+              {order.deliveryDetails || order.deliveryStatus ? (
+                <div className="mb-6 bg-cyan-50 p-4 rounded-lg border border-cyan-200">
+                  <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
+                    <Package className="w-4 h-4 text-cyan-600" />
+                    Delivery Details
+                  </h4>
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    <div className="flex flex-col">
+                      <span className="text-xs text-slate-500">Status</span>
+                      <span
+                        className={`inline-block w-fit mt-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+                          {
+                            pending: "bg-amber-50 text-amber-700 border border-amber-100",
+                            processing: "bg-blue-50 text-blue-700 border border-blue-100",
+                            out_for_delivery: "bg-sky-50 text-sky-700 border border-sky-100",
+                            delivered: "bg-emerald-50 text-emerald-700 border border-emerald-100",
+                            cancelled: "bg-red-50 text-red-600 border border-red-100",
+                          }[order.deliveryStatus || "pending"] || "bg-slate-50 text-slate-600"
+                        }`}
+                      >
+                        {(order.deliveryStatus || "pending")
+                          .replace(/_/g, " ")
+                          .toUpperCase()}
+                      </span>
+                    </div>
+                    {order.deliveryDetails?.townshipName && (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-500">Township</span>
+                        <span className="font-medium text-slate-800">
+                          {order.deliveryDetails.townshipName}
+                        </span>
+                      </div>
+                    )}
+                    {order.deliveryDetails?.deliveryFee ? (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-500">Delivery Fee</span>
+                        <span className="font-semibold text-cyan-700">
+                          {order.deliveryDetails.deliveryFee.toLocaleString()} MMK
+                        </span>
+                      </div>
+                    ) : null}
+                    {order.deliveryDetails?.recipientName && (
+                      <div className="flex flex-col">
+                        <span className="text-xs text-slate-500">Recipient</span>
+                        <span className="font-medium text-slate-800">
+                          {order.deliveryDetails.recipientName}
+                          {order.deliveryDetails.recipientPhone
+                            ? ` (${order.deliveryDetails.recipientPhone})`
+                            : ""}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                  {order.deliveryDetails?.deliveryAddress && (
+                    <p className="text-sm text-slate-700 mt-2 border-t border-cyan-100 pt-2">
+                      <span className="text-xs text-slate-500 block mb-0.5">Address</span>
+                      {order.deliveryDetails.deliveryAddress}
+                    </p>
+                  )}
+                </div>
+              ) : null}
+
               {/* Payment Summary */}
               <div className="bg-slate-50 p-4 rounded-lg border">
                 <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
@@ -329,18 +392,12 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                       <span>-{order.discount?.toLocaleString()} MMK</span>
                     </div>
                   )}
-                  {order.discount === 0 &&
-                    order.finalAmount > order.subTotal && (
-                      <div className="flex justify-between text-green-600">
-                        <span>Markup</span>
-                        <span>
-                          {(
-                            order.finalAmount - order.subTotal
-                          ).toLocaleString()}{" "}
-                          MMK
-                        </span>
-                      </div>
-                    )}
+                  {order.deliveryDetails?.deliveryFee ? (
+                    <div className="flex justify-between text-cyan-600">
+                      <span>Delivery Fee</span>
+                      <span>{order.deliveryDetails.deliveryFee?.toLocaleString()} MMK</span>
+                    </div>
+                  ) : null}
                   <div className="border-t pt-2 flex justify-between font-bold text-lg">
                     <span>Final Amount</span>
                     <span>{order.finalAmount?.toLocaleString()} MMK</span>

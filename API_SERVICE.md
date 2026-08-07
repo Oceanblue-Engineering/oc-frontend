@@ -202,6 +202,41 @@ All report functions come in pairs: single-storefront (requires `storefrontId`) 
 
 ---
 
+## Client (Lifecycle Pipeline)
+
+| Function | Method | Endpoint | Parameters | Returns |
+|----------|--------|----------|------------|---------|
+| `createClient` | POST | `/clients` | `{ name, phone?, email?, companyName?, businessName?, industry?, sourceChannel?, currentProblems?, desiredOutcome?, inquiryDate? }` | Client (defaults `isPostSale:false`, `status:"Inquiry"`) |
+| `fetchClients` | GET | `/clients` | `isPostSale?`, `search?`, `status?`, `page?`, `limit?` | `{ clients }` + pagination |
+| `fetchClientById` | GET | `/clients/:clientId` | - | Client |
+| `updateClient` | PATCH | `/clients/:clientId` | Client fields + `status` | Updated client |
+| `softDeleteClient` | PATCH | `/clients/:clientId/soft-delete` | - | - |
+
+**Lifecycle:** When `status` → `Signed`, the backend automatically sets `isPostSale:true` and **creates a POS Credit Person** (linked via `creditPersonId`), so the client becomes selectable in POS credit orders.
+
+**Status enum:** `Inquiry`, `Service Explained`, `Product Explained`, `Meeting Made`, `Sent Proposal`, `Sent Contract`, `Follow-up needed`, `Ghosted`, `Signed`, `In-Development`, `Delivered`
+
+---
+
+## Township / Delivery
+
+| Function | Method | Endpoint | Parameters | Returns |
+|----------|--------|----------|------------|---------|
+| `fetchTownships` | GET | `/townships` | `isActive?` | `{ townships }` |
+| `createTownship` | POST | `/townships` | `{ name, deliveryFee, isActive? }` | Township |
+| `updateTownship` | PATCH | `/townships/:townshipId` | `{ name?, deliveryFee?, isActive? }` | Updated township |
+| `deleteTownship` | DELETE | `/townships/:townshipId` | - | - |
+
+**Order delivery:**
+| Function | Method | Endpoint | Parameters | Returns |
+|----------|--------|----------|------------|---------|
+| `createOrder` (with delivery) | POST | `/order` | `deliveryDetails: { township, townshipName, deliveryFee, recipientName, recipientPhone, deliveryAddress }` | Order |
+| `updateOrderDeliveryStatus` | PATCH | `/order/:orderId/delivery-status` | `{ deliveryStatus }` | Updated order |
+
+**`deliveryStatus` enum:** `pending`, `processing`, `out_for_delivery`, `delivered`, `cancelled` (default `pending`). `totalAmount = itemsTotal + deliveryFee - discount`.
+
+---
+
 ## Common Patterns
 
 ### Soft-Delete / Restore

@@ -14,6 +14,10 @@ import {
 import { Order } from "../../services/Order/fetchOrders";
 import { deleteOrder } from "../../services/Order/deleteOrder";
 import {
+  updateOrderDeliveryStatus,
+  DeliveryStatus,
+} from "../../services/Order/updateOrderDeliveryStatus";
+import {
   getStatusColor,
   getPaymentTypeLabel,
   getPaymentMethodLabel,
@@ -76,6 +80,35 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
       setDeletingOrderId(null);
     }
   };
+
+  const [updatingStatusId, setUpdatingStatusId] = useState<string | null>(null);
+
+  const handleUpdateDeliveryStatus = async (
+    orderId: string,
+    status: DeliveryStatus,
+  ) => {
+    setUpdatingStatusId(orderId);
+    try {
+      const res = await updateOrderDeliveryStatus(orderId, status);
+      if (res.success) {
+        toast.success("Delivery status updated");
+        if (onOrderDeleted) onOrderDeleted(); // reuse refresh callback
+      } else {
+        toast.error(res.message || "Failed to update delivery status");
+      }
+    } finally {
+      setUpdatingStatusId(null);
+    }
+  };
+
+  const deliveryStatusColor: Record<string, string> = {
+    pending: "bg-amber-50 text-amber-700 border-amber-100",
+    processing: "bg-blue-50 text-blue-700 border-blue-100",
+    out_for_delivery: "bg-sky-50 text-sky-700 border-sky-100",
+    delivered: "bg-emerald-50 text-emerald-700 border-emerald-100",
+    cancelled: "bg-red-50 text-red-600 border-red-100",
+  };
+
   if (loading) {
     return (
       <div className="bg-white rounded-xl shadow-sm border p-8 text-center">
@@ -107,6 +140,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
               <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Final Amount</th>
               <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Paid</th>
               <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Method</th>
+              <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Delivery</th>
               <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Actions</th>
             </tr>
           </thead>
@@ -150,6 +184,34 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                     <span className="text-xs sm:text-sm text-slate-600 font-medium">
                       {getPaymentMethodLabel(order.paymentMethod)}
                     </span>
+                  </div>
+                </td>
+
+                {/* Delivery Status */}
+                <td className="px-4 py-4">
+                  <div className="flex items-center gap-2 min-w-[150px]">
+                    <select
+                      value={order.deliveryStatus || "pending"}
+                      disabled={updatingStatusId === order._id}
+                      onChange={(e) =>
+                        handleUpdateDeliveryStatus(
+                          order._id,
+                          e.target.value as DeliveryStatus,
+                        )
+                      }
+                      className={`text-xs font-semibold border rounded-full px-2 py-1 outline-none cursor-pointer transition-all ${deliveryStatusColor[order.deliveryStatus || "pending"]}`}
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="processing">Processing</option>
+                      <option value="out_for_delivery">Out for Delivery</option>
+                      <option value="delivered">Delivered</option>
+                      <option value="cancelled">Cancelled</option>
+                    </select>
+                    {order.deliveryDetails?.deliveryFee ? (
+                      <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
+                        +{order.deliveryDetails.deliveryFee.toLocaleString()} MMK
+                      </span>
+                    ) : null}
                   </div>
                 </td>
 

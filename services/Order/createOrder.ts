@@ -16,6 +16,14 @@ interface CreateOrderRequest {
   paymentType: "credit" | "paid";
   paymentMethod: string;
   creditPersonId?: string;
+  deliveryDetails?: {
+    township?: string | null;
+    townshipName?: string;
+    deliveryFee?: number;
+    recipientName?: string;
+    recipientPhone?: string;
+    deliveryAddress?: string;
+  };
 }
 
 interface CreateOrderResponse {

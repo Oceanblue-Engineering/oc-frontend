@@ -30,6 +30,10 @@ import { AIChat } from "./components/AIChat";
 import { DailyReports } from "./pages/DailyReports";
 import MobilePrint from "./pages/MobilePrint";
 import { LuckyDraw } from "./pages/LuckyDraw";
+import { ClientLeads } from "./pages/ClientLeads";
+import { ClientProjects } from "./pages/ClientProjects";
+import { DeliveryManagement } from "./pages/DeliveryManagement";
+import { ScrollToTop } from "./components/ScrollToTop";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -214,6 +218,30 @@ const AppLayout: React.FC = () => {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/clients"
+            element={
+              <ProtectedRoute>
+                <ClientLeads />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/client-projects"
+            element={
+              <ProtectedRoute>
+                <ClientProjects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/delivery"
+            element={
+              <ProtectedRoute>
+                <DeliveryManagement />
+              </ProtectedRoute>
+            }
+          />
           <Route path="*" element={<Navigate to="/login" replace />} />
           <Route path="/mobile-print/:orderId" element={<MobilePrint />} />
           <Route path="/print-receipt/:orderId" element={<PrintReceipt />} />
@@ -244,6 +272,7 @@ const App: React.FC = () => {
           }} 
         />
         <BrowserRouter>
+          <ScrollToTop />
           <Routes>
             <Route path="/login" element={<Login />} />
             <Route path="*" element={<AppLayout />} />
