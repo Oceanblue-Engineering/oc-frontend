@@ -15,6 +15,7 @@ import {
   Settings,
   Target,
   Briefcase,
+  Ticket,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -168,6 +169,14 @@ export const navigationItems: NavigationItem[] = [
     descKey: "home.desc.delivery",
     icon: Truck,
     path: "/delivery",
+    color: "bg-ocean-50 text-ocean-600",
+  },
+  {
+    id: "tickets",
+    titleKey: "sidebar.tickets",
+    descKey: "home.desc.tickets",
+    icon: Ticket,
+    path: "/tickets",
     color: "bg-ocean-50 text-ocean-600",
   },
   {

@@ -34,6 +34,8 @@ import { ClientLeads } from "./pages/ClientLeads";
 import { ClientProjects } from "./pages/ClientProjects";
 import { DeliveryManagement } from "./pages/DeliveryManagement";
 import { ScrollToTop } from "./components/ScrollToTop";
+import { Tickets } from "./pages/Tickets";
+import { TicketDetail } from "./pages/TicketDetail";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -239,6 +241,22 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <DeliveryManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tickets"
+            element={
+              <ProtectedRoute>
+                <Tickets />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tickets/:id"
+            element={
+              <ProtectedRoute>
+                <TicketDetail />
               </ProtectedRoute>
             }
           />
