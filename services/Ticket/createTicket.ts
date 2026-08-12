@@ -5,7 +5,15 @@ interface CreateTicketRequest {
   title: string;
   description: string;
   priority?: string;
-  department_id?: string;
+  type?: string;
+  project_details?: {
+    project_name?: string;
+    time?: string;
+    desc?: string;
+    number_of_worker?: number;
+    time_duration?: string;
+    note?: string;
+  };
 }
 
 interface CreateTicketResponse {

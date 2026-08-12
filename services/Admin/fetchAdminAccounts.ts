@@ -14,6 +14,7 @@ export interface AdminAccount {
   _id: string;
   name: string;
   role: string;
+  telegramChatId?: string | null;
   locationId: LocationInfo | null;
   lastActiveAt: string | null;
   softDeleted: boolean;

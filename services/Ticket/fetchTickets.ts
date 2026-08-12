@@ -4,9 +4,17 @@ export interface Ticket {
   _id: string;
   title: string;
   description: string;
+  type?: "Retail Sale" | "Project";
+  project_details?: {
+    project_name?: string;
+    time?: string;
+    desc?: string;
+    number_of_worker?: number;
+    time_duration?: string;
+    note?: string;
+  };
   status: "Open" | "In Progress" | "Pending" | "Resolved";
   priority: "Low" | "Medium" | "High";
-  department_id?: { _id: string; name: string } | string | null;
   assigned_to?: { _id: string; name: string } | string | null;
   created_by: { _id: string; name: string };
   createdAt?: string;
@@ -30,8 +38,8 @@ export const fetchTickets = async (
     search?: string;
     status?: string;
     priority?: string;
-    department_id?: string;
     assigned_to?: string;
+    type?: string;
     page?: number;
     limit?: number;
   }
@@ -42,8 +50,8 @@ export const fetchTickets = async (
     if (params?.search) qs.append("search", params.search);
     if (params?.status) qs.append("status", params.status);
     if (params?.priority) qs.append("priority", params.priority);
-    if (params?.department_id) qs.append("department_id", params.department_id);
     if (params?.assigned_to) qs.append("assigned_to", params.assigned_to);
+    if (params?.type) qs.append("type", params.type);
     if (params?.page) qs.append("page", String(params.page));
     if (params?.limit) qs.append("limit", String(params.limit));
     if (qs.toString()) url += `?${qs.toString()}`;
