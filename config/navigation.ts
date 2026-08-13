@@ -116,6 +116,14 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-slate-100 text-slate-700",
   },
   {
+    id: "workers",
+    titleKey: "sidebar.workerManagement",
+    descKey: "home.desc.workers",
+    icon: Users,
+    path: "/workers",
+    color: "bg-teal-50 text-teal-700",
+  },
+  {
     id: "daily-reports",
     titleKey: "sidebar.dailyReports",
     descKey: "home.desc.dailyReports",

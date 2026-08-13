@@ -43,6 +43,13 @@ export const Tickets: React.FC = () => {
       time_duration: "",
       note: "",
     },
+    retail_details: {
+      deli_location: "",
+      deli_time: "",
+      number_of_people: "",
+      deli_expense: "",
+      note: "",
+    },
   });
   const [saving, setSaving] = useState(false);
   const [admins, setAdmins] = useState<{ _id: string; name: string }[]>([]);
@@ -123,6 +130,21 @@ export const Tickets: React.FC = () => {
               },
             }
           : {}),
+        ...(form.type !== "Project"
+          ? {
+              retail_details: {
+                deli_location: form.retail_details.deli_location,
+                deli_time: form.retail_details.deli_time || undefined,
+                number_of_people: form.retail_details.number_of_people
+                  ? Number(form.retail_details.number_of_people)
+                  : undefined,
+                deli_expense: form.retail_details.deli_expense
+                  ? Number(form.retail_details.deli_expense)
+                  : undefined,
+                note: form.retail_details.note,
+              },
+            }
+          : {}),
       });
       if (res.success) {
         toast.success(t("tickets.created"));
@@ -138,6 +160,13 @@ export const Tickets: React.FC = () => {
             desc: "",
             number_of_worker: "",
             time_duration: "",
+            note: "",
+          },
+          retail_details: {
+            deli_location: "",
+            deli_time: "",
+            number_of_people: "",
+            deli_expense: "",
             note: "",
           },
         });
@@ -335,6 +364,61 @@ export const Tickets: React.FC = () => {
               </select>
             </div>
           </div>
+
+          {form.type !== "Project" && (
+            <div className="space-y-3 p-4 border border-ocean-100 bg-ocean-50/40 rounded-xl">
+              <h4 className="text-sm font-bold text-ocean-700">{t("tickets.retailDetails")}</h4>
+              <input
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none"
+                placeholder={t("tickets.deliLocation")}
+                value={form.retail_details.deli_location}
+                onChange={(e) =>
+                  setForm({ ...form, retail_details: { ...form.retail_details, deli_location: e.target.value } })
+                }
+              />
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="datetime-local"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none"
+                  value={form.retail_details.deli_time}
+                  onChange={(e) =>
+                    setForm({ ...form, retail_details: { ...form.retail_details, deli_time: e.target.value } })
+                  }
+                />
+                <input
+                  type="number"
+                  min="0"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none"
+                  placeholder={t("tickets.numberOfPeople")}
+                  value={form.retail_details.number_of_people}
+                  onChange={(e) =>
+                    setForm({ ...form, retail_details: { ...form.retail_details, number_of_people: e.target.value } })
+                  }
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <input
+                  type="number"
+                  min="0"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none"
+                  placeholder={t("tickets.deliExpense")}
+                  value={form.retail_details.deli_expense}
+                  onChange={(e) =>
+                    setForm({ ...form, retail_details: { ...form.retail_details, deli_expense: e.target.value } })
+                  }
+                />
+              </div>
+              <textarea
+                rows={2}
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none"
+                placeholder={t("tickets.note")}
+                value={form.retail_details.note}
+                onChange={(e) =>
+                  setForm({ ...form, retail_details: { ...form.retail_details, note: e.target.value } })
+                }
+              />
+            </div>
+          )}
 
           {form.type === "Project" && (
             <div className="space-y-3 p-4 border border-ocean-100 bg-ocean-50/40 rounded-xl">

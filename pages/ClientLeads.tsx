@@ -1,28 +1,27 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Plus, Target, CheckCircle2, Search } from "lucide-react";
-import { fetchClients, Client } from "../services/Client/fetchClients";
-import { ClientModal } from "../components/Client/ClientModal";
+import { Plus, Target, Search } from "lucide-react";
+import { fetchLeads, Lead } from "../services/Lead/lead.service";
+import { LeadModal } from "../components/Lead/LeadModal";
 import { useLanguage } from "../context/LanguageContext";
 import { PIPELINES, TABS, LeadType } from "../config/clientPipelines";
 
 /**
- * ClientLeads — Pre-Sale Pipeline view (isPostSale = false).
+ * ClientLeads — Pre-Sale Pipeline view (Leads).
  * Tabbed Sales / Service pipeline. Each tab renders its own stage columns.
  */
 export const ClientLeads: React.FC = () => {
   const { t } = useLanguage();
   const [activeTab, setActiveTab] = useState<LeadType>("sales");
-  const [clients, setClients] = useState<Client[]>([]);
+  const [clients, setClients] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [modalOpen, setModalOpen] = useState(false);
-  const [selected, setSelected] = useState<Client | null>(null);
+  const [selected, setSelected] = useState<Lead | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchClients({
-        isPostSale: false,
+      const res = await fetchLeads({
         leadType: activeTab,
         search,
       });
@@ -44,7 +43,7 @@ export const ClientLeads: React.FC = () => {
     setModalOpen(true);
   };
 
-  const handleEdit = (c: Client) => {
+  const handleEdit = (c: Lead) => {
     setSelected(c);
     setModalOpen(true);
   };
@@ -139,9 +138,6 @@ export const ClientLeads: React.FC = () => {
                           <span className="font-semibold text-slate-800 text-sm truncate">
                             {c.name}
                           </span>
-                          {c.creditPersonId && (
-                            <CheckCircle2 className="w-4 h-4 text-teal-600 flex-shrink-0" />
-                          )}
                         </div>
                         {c.companyName && (
                           <p className="text-xs text-slate-500 mt-1 truncate">{c.companyName}</p>
@@ -159,10 +155,10 @@ export const ClientLeads: React.FC = () => {
         )}
       </div>
 
-      <ClientModal
+      <LeadModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        client={selected}
+        lead={selected}
         defaultLeadType={activeTab}
         onSaved={handleSaved}
       />

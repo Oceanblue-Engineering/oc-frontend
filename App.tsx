@@ -23,6 +23,7 @@ import { SupplierDetail } from "./pages/SupplierDetail";
 import { Orders } from "./pages/Orders";
 import { CreditOrders } from "./pages/CreditOrders";
 import { AccountManagement } from "./pages/AccountManagement";
+import { WorkerManagement } from "./pages/WorkerManagement";
 import { Login } from "./pages/Login";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import PrintReceipt from "./pages/PrintReceipt";
@@ -36,6 +37,7 @@ import { DeliveryManagement } from "./pages/DeliveryManagement";
 import { ScrollToTop } from "./components/ScrollToTop";
 import { Tickets } from "./pages/Tickets";
 import { TicketDetail } from "./pages/TicketDetail";
+import { ProjectAttendance } from "./pages/ProjectAttendance";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -197,6 +199,14 @@ const AppLayout: React.FC = () => {
             }
           />
           <Route
+            path="/workers"
+            element={
+              <ProtectedRoute>
+                <WorkerManagement />
+              </ProtectedRoute>
+            }
+          />
+          <Route
             path="/ai-chat"
             element={
               <ProtectedRoute>
@@ -233,6 +243,14 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <ClientProjects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projects/:projectId/attendance"
+            element={
+              <ProtectedRoute>
+                <ProjectAttendance />
               </ProtectedRoute>
             }
           />

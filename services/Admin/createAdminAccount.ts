@@ -6,6 +6,7 @@ export interface CreateAdminAccountPayload {
   confirmPassword: string;
   locationId?: string;
   role: string;
+  position?: string;
   telegramChatId?: string;
 }
 

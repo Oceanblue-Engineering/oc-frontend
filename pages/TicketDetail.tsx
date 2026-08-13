@@ -9,6 +9,7 @@ import { assignTicket } from "../services/Ticket/assignTicket";
 import { addTicketComment } from "../services/Ticket/addTicketComment";
 import { deleteTicket } from "../services/Ticket/deleteTicket";
 import { fetchAdminAccounts } from "../services/Admin/fetchAdminAccounts";
+import { fetchWorkers, Worker as WorkerType } from "../services/Worker/worker.service";
 import { useLanguage } from "../context/LanguageContext";
 
 const statusColor: Record<string, string> = {
@@ -28,9 +29,13 @@ export const TicketDetail: React.FC = () => {
   const [comments, setComments] = useState<TicketComment[]>([]);
   const [history, setHistory] = useState<TicketHistoryLog[]>([]);
   const [admins, setAdmins] = useState<{ _id: string; name: string }[]>([]);
+  const [workers, setWorkers] = useState<WorkerType[]>([]);
   const [adminData, setAdminData] = useState<any>(null);
   const [commentText, setCommentText] = useState("");
   const [savingComment, setSavingComment] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [assigning, setAssigning] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem("adminData");
@@ -43,9 +48,9 @@ export const TicketDetail: React.FC = () => {
 
   const isAdminOrOwner = adminData?.role === "admin" || adminData?.role === "owner";
 
-  const load = async () => {
+  const load = async (showFullPageLoader = false) => {
     if (!id) return;
-    setLoading(true);
+    if (showFullPageLoader) setLoading(true);
     try {
       const res = await fetchTicketById(id);
       if (res.success && res.data) {
@@ -56,12 +61,12 @@ export const TicketDetail: React.FC = () => {
         toast.error(res.message || t("tickets.loadFailed"));
       }
     } finally {
-      setLoading(false);
+      if (showFullPageLoader) setLoading(false);
     }
   };
 
   useEffect(() => {
-    load();
+    load(true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -69,6 +74,9 @@ export const TicketDetail: React.FC = () => {
     if (isAdminOrOwner) {
       fetchAdminAccounts().then((r) => {
         if (r.success && r.data) setAdmins(r.data.accounts);
+      });
+      fetchWorkers().then((r) => {
+        if (r.success && r.data) setWorkers(r.data.workers);
       });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -87,12 +95,19 @@ export const TicketDetail: React.FC = () => {
 
   const handleAssign = async (assignedTo: string) => {
     if (!id) return;
-    const res = await assignTicket(id, assignedTo || null);
-    if (res.success) {
-      toast.success(t("tickets.assigned"));
-      load();
-    } else {
-      toast.error(res.message || t("tickets.assignFailed"));
+    setAssigning(true);
+    try {
+      const res = await assignTicket(id, assignedTo || null);
+      if (res.success) {
+        toast.success(t("tickets.assigned"));
+        load();
+      } else {
+        toast.error(res.message || t("tickets.assignFailed"));
+      }
+    } catch (err: any) {
+      toast.error(err.message || t("tickets.assignFailed"));
+    } finally {
+      setAssigning(false);
     }
   };
 
@@ -113,14 +128,26 @@ export const TicketDetail: React.FC = () => {
     }
   };
 
-  const handleDelete = async () => {
-    if (!id || !window.confirm(t("tickets.deleteConfirm"))) return;
-    const res = await deleteTicket(id);
-    if (res.success) {
-      toast.success(t("tickets.deleted"));
-      navigate("/tickets");
-    } else {
-      toast.error(res.message || t("tickets.deleteFailed"));
+  const handleDeleteClick = () => {
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!id) return;
+    setDeleting(true);
+    try {
+      const res = await deleteTicket(id);
+      if (res.success) {
+        toast.success(t("tickets.deleted"));
+        navigate("/tickets");
+      } else {
+        toast.error(res.message || t("tickets.deleteFailed"));
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete ticket");
+    } finally {
+      setDeleting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
@@ -178,6 +205,27 @@ export const TicketDetail: React.FC = () => {
                 </div>
               </div>
               <p className="text-slate-600 mt-4 whitespace-pre-wrap text-sm">{ticket.description}</p>
+
+              {ticket.type !== "Project" && ticket.retail_details && (
+                <div className="mt-4 p-4 bg-ocean-50/40 border border-ocean-100 rounded-xl space-y-2">
+                  <h4 className="text-sm font-bold text-ocean-700">{t("tickets.retailDetails")}</h4>
+                  {ticket.retail_details.deli_location && (
+                    <p className="text-sm text-slate-700"><span className="font-semibold text-slate-500">{t("tickets.deliLocation")}: </span>{ticket.retail_details.deli_location}</p>
+                  )}
+                  {ticket.retail_details.deli_time && (
+                    <p className="text-sm text-slate-700"><span className="font-semibold text-slate-500">{t("tickets.deliTime")}: </span>{new Date(ticket.retail_details.deli_time).toLocaleString()}</p>
+                  )}
+                  {ticket.retail_details.number_of_people != null && (
+                    <p className="text-sm text-slate-700"><span className="font-semibold text-slate-500">{t("tickets.numberOfPeople")}: </span>{ticket.retail_details.number_of_people}</p>
+                  )}
+                  {ticket.retail_details.deli_expense != null && (
+                    <p className="text-sm text-slate-700"><span className="font-semibold text-slate-500">{t("tickets.deliExpense")}: </span>{ticket.retail_details.deli_expense}</p>
+                  )}
+                  {ticket.retail_details.note && (
+                    <p className="text-sm text-slate-700"><span className="font-semibold text-slate-500">{t("tickets.note")}: </span>{ticket.retail_details.note}</p>
+                  )}
+                </div>
+              )}
 
               {ticket.type === "Project" && ticket.project_details && (
                 <div className="mt-4 p-4 bg-violet-50/50 border border-violet-100 rounded-xl space-y-2">
@@ -268,18 +316,29 @@ export const TicketDetail: React.FC = () => {
             {/* Assignment */}
             {isAdminOrOwner && (
               <div className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm">
-                <h3 className="font-semibold text-ocean-800 text-sm mb-3 flex items-center gap-2">
-                  <User className="w-4 h-4 text-ocean-600" /> {t("tickets.assign")}
+                <h3 className="font-semibold text-ocean-800 text-sm mb-3 flex items-center justify-between">
+                  <span className="flex items-center gap-2">
+                    <User className="w-4 h-4 text-ocean-600" /> {t("tickets.assign")}
+                  </span>
+                  {assigning && <Loader2 className="w-4 h-4 animate-spin text-ocean-600" />}
                 </h3>
                 <select
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none"
+                  disabled={assigning}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none disabled:opacity-60 disabled:cursor-not-allowed"
                   value={assignedId(ticket.assigned_to)}
                   onChange={(e) => handleAssign(e.target.value)}
                 >
                   <option value="">—</option>
-                  {admins.map((a) => (
-                    <option key={a._id} value={a._id}>{a.name}</option>
-                  ))}
+                  <optgroup label="System Users">
+                    {admins.map((a) => (
+                      <option key={a._id} value={a._id}>{a.name}</option>
+                    ))}
+                  </optgroup>
+                  <optgroup label="Workers">
+                    {workers.map((w) => (
+                      <option key={w._id} value={w._id}>{w.name} ({w.position || "General"})</option>
+                    ))}
+                  </optgroup>
                 </select>
                 <p className="text-[10px] text-slate-400 mt-2">{t("tickets.assignerNotify")}</p>
               </div>
@@ -307,7 +366,7 @@ export const TicketDetail: React.FC = () => {
             {isAdminOrOwner && (
               <div className="bg-white rounded-2xl border border-red-100 p-5 shadow-sm">
                 <button
-                  onClick={handleDelete}
+                  onClick={handleDeleteClick}
                   className="w-full flex items-center justify-center gap-2 px-3 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 cursor-pointer"
                 >
                   <Trash2 className="w-4 h-4" /> {t("tickets.delete")}
@@ -317,6 +376,32 @@ export const TicketDetail: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {showDeleteConfirm && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+          <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
+            <h3 className="text-lg font-bold text-slate-800 mb-2">Delete Ticket?</h3>
+            <p className="text-sm text-slate-500 mb-6">
+              Are you sure you want to delete this ticket? This will permanently remove its comments and history. This action cannot be undone.
+            </p>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setShowDeleteConfirm(false)}
+                className="px-4 py-2 text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-full transition-all cursor-pointer border-none"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmDelete}
+                disabled={deleting}
+                className="px-4 py-2 text-xs font-bold text-white bg-red-600 hover:bg-red-700 rounded-full shadow-md shadow-red-600/10 transition-all cursor-pointer disabled:opacity-50 border-none"
+              >
+                {deleting ? "Deleting..." : "Confirm Delete"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 

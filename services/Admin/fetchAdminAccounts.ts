@@ -14,6 +14,8 @@ export interface AdminAccount {
   _id: string;
   name: string;
   role: string;
+  position?: string | null;
+  dailyRate?: number;
   telegramChatId?: string | null;
   locationId: LocationInfo | null;
   lastActiveAt: string | null;
@@ -32,9 +34,10 @@ interface FetchAdminAccountsResponse {
 }
 
 export const fetchAdminAccounts =
-  async (): Promise<FetchAdminAccountsResponse> => {
+  async (role?: string): Promise<FetchAdminAccountsResponse> => {
     try {
-      const response = await axios.get("/admin");
+      const url = role ? `/admin?role=${role}` : "/admin";
+      const response = await axios.get(url);
       return response.data;
     } catch (error: any) {
       console.error("Error fetching admin accounts:", error);

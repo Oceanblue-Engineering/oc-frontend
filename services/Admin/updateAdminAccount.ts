@@ -3,7 +3,9 @@ import axios from "../axios";
 export interface UpdateAdminAccountPayload {
   name?: string;
   role?: string;
+  position?: string;
   telegramChatId?: string;
+  dailyRate?: number;
 }
 
 export interface UpdateAdminAccountResponse {
@@ -13,6 +15,7 @@ export interface UpdateAdminAccountResponse {
     _id: string;
     name: string;
     role: string;
+    position?: string | null;
     telegramChatId?: string | null;
     locationId: any;
     lastActiveAt: string | null;

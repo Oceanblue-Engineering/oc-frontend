@@ -1,65 +1,73 @@
 import React, { useEffect, useState } from "react";
-import { X, User, Save, Plus, MessageSquare, History, Info, Send } from "lucide-react";
+import { X, User, Briefcase, Save, Plus, MessageSquare, History, Info, Send } from "lucide-react";
 import { toast } from "sonner";
-import { Client } from "../../services/Client/fetchClients";
-import { updateClient, UpdateClientRequest } from "../../services/Client/updateClient";
-import { addClientLog } from "../../services/Client/addClientLog";
-import { fetchClientById, AuditLog } from "../../services/Client/fetchClientById";
+import { Lead, createLead, updateLead, addLeadLog, fetchLeadById } from "../../services/Lead/lead.service";
 import { useLanguage } from "../../context/LanguageContext";
+import { PIPELINES, initialStageFor, LeadType } from "../../config/clientPipelines";
 
-export const POST_SALE_STATUSES = ["Signed", "In-Development", "Delivered"];
-
-interface ClientModalProps {
+interface LeadModalProps {
   isOpen: boolean;
   onClose: () => void;
-  client: Client | null;
-  onSaved: (client: Client) => void;
+  lead: Lead | null; // null => create mode
+  defaultLeadType?: LeadType;
+  onSaved: (lead: Lead) => void;
 }
 
-/**
- * Simplified post-sale client modal focused on active projects
- */
-export const ClientModal: React.FC<ClientModalProps> = ({
+export const LeadModal: React.FC<LeadModalProps> = ({
   isOpen,
   onClose,
-  client,
+  lead,
+  defaultLeadType = "sales",
   onSaved,
 }) => {
   const { t } = useLanguage();
   const [form, setForm] = useState<any>(
-    client ? { ...client } : { status: "Signed" }
+    lead
+      ? { ...lead }
+      : { status: initialStageFor(defaultLeadType) }
   );
   const [saving, setSaving] = useState(false);
+  const [leadType, setLeadType] = useState<LeadType>(
+    lead?.leadType || defaultLeadType
+  );
   const [activeTab, setActiveTab] = useState<"details" | "logs" | "audit">("details");
-  const [auditLogs, setAuditLogs] = useState<AuditLog[]>([]);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
   const [logsLoading, setLogsLoading] = useState(false);
   const [logText, setLogText] = useState("");
   const [addingLog, setAddingLog] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setForm(client ? { ...client } : { status: "Signed" });
+      const type = lead?.leadType || defaultLeadType;
+      setLeadType(type);
+      setForm(
+        lead
+          ? { ...lead }
+          : { status: initialStageFor(type) }
+      );
       setActiveTab("details");
       setAuditLogs([]);
-      if (client) {
-        loadAudit(client._id);
+      if (lead) {
+        loadAudit(lead._id);
       }
     }
-  }, [isOpen, client]);
+  }, [isOpen, lead, defaultLeadType]);
 
   if (!isOpen) return null;
 
   const set = (field: string, value: any) =>
     setForm((f: any) => ({ ...f, [field]: value }));
 
-  const loadAudit = async (clientId: string) => {
+  const loadAudit = async (leadId: string) => {
     setLogsLoading(true);
     try {
-      const res = await fetchClientById(clientId);
+      const res = await fetchLeadById(leadId);
       if (res.success && res.data) {
         setAuditLogs(res.data.auditLogs || []);
         setForm((f: any) => ({ ...f, conversationLogs: res.data!.client.conversationLogs || [] }));
       }
+    } catch (error) {
+      console.error(error);
     } finally {
       setLogsLoading(false);
     }
@@ -70,52 +78,74 @@ export const ClientModal: React.FC<ClientModalProps> = ({
       toast.error(t("clients.nameRequired"));
       return;
     }
-    if (!client) return; // Client Projects modal is edit-only since projects are born from converted leads
 
     setSaving(true);
     try {
-      const payload: UpdateClientRequest = {
-        name: form.name,
-        phone: form.phone,
-        address: form.address,
-        email: form.email,
-        companyName: form.companyName,
-        businessName: form.businessName,
-        industry: form.industry,
-        status: form.status,
-        projectId: form.projectId,
-        projectStartDate: form.projectStartDate,
-        projectDeliveryDate: form.projectDeliveryDate,
-        deliverablesSummary: form.deliverablesSummary,
-        purchasedServices: form.purchasedServices,
-      };
-      const res = await updateClient(client._id, payload);
-      if (res.success && res.data) {
-        toast.success(t("clients.updated"));
-        onSaved(res.data.client);
-        onClose();
+      if (lead) {
+        const payload = {
+          name: form.name,
+          phone: form.phone,
+          address: form.address,
+          email: form.email,
+          companyName: form.companyName,
+          businessName: form.businessName,
+          industry: form.industry,
+          leadType,
+          status: form.status,
+          desiredOutcome: form.desiredOutcome,
+          currentProblems: form.currentProblems,
+          sourceChannel: form.sourceChannel,
+        };
+        const res = await updateLead(lead._id, payload);
+        if (res.success && res.data) {
+          toast.success(res.data.converted ? "Lead converted to Client successfully!" : t("clients.updated"));
+          onSaved(res.data.client);
+          onClose();
+        } else {
+          toast.error(res.message || t("clients.updateFailed"));
+        }
       } else {
-        toast.error(res.message || t("clients.updateFailed"));
+        const payload = {
+          name: form.name,
+          phone: form.phone,
+          address: form.address,
+          email: form.email,
+          companyName: form.companyName,
+          businessName: form.businessName,
+          industry: form.industry,
+          sourceChannel: form.sourceChannel,
+          desiredOutcome: form.desiredOutcome,
+          currentProblems: form.currentProblems,
+          leadType,
+        };
+        const res = await createLead(payload);
+        if (res.success && res.data) {
+          toast.success(t("clients.created"));
+          onSaved(res.data.lead);
+          onClose();
+        } else {
+          toast.error(res.message || t("clients.createFailed"));
+        }
       }
     } catch (error: any) {
-      toast.error(error.message || "Failed to save project details");
+      toast.error(error.message || "Operation failed");
     } finally {
       setSaving(false);
     }
   };
 
   const handleAddLog = async () => {
-    if (!client || !logText.trim()) {
+    if (!lead || !logText.trim()) {
       toast.error(t("clientLogs.enterNote"));
       return;
     }
     setAddingLog(true);
     try {
-      const res = await addClientLog(client._id, logText.trim());
-      if (res.success && res.data) {
+      const res = await addLeadLog(lead._id, logText.trim());
+      if (res.success) {
         toast.success(t("clientLogs.added"));
         setLogText("");
-        loadAudit(client._id);
+        loadAudit(lead._id);
       }
     } catch (error: any) {
       toast.error(error.message || "Failed to add note");
@@ -124,31 +154,14 @@ export const ClientModal: React.FC<ClientModalProps> = ({
     }
   };
 
-  const handleAddService = () => {
-    const services = form.purchasedServices || [];
-    set("purchasedServices", [...services, { name: "", type: "", status: "pending" }]);
-  };
-
-  const handleServiceChange = (idx: number, field: string, value: string) => {
-    const services = [...(form.purchasedServices || [])];
-    services[idx] = { ...services[idx], [field]: value };
-    set("purchasedServices", services);
-  };
-
-  const handleRemoveService = (idx: number) => {
-    const services = [...(form.purchasedServices || [])];
-    services.splice(idx, 1);
-    set("purchasedServices", services);
-  };
-
+  const availableStatuses = [...PIPELINES[leadType], "Signed"];
   const logs = form.conversationLogs || [];
 
   const renderDetails = () => (
     <div className="space-y-4">
-      {/* Identity Fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <input
-          className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white font-semibold"
+          className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white"
           placeholder={t("clients.name")}
           value={form.name || ""}
           onChange={(e) => set("name", e.target.value)}
@@ -185,113 +198,83 @@ export const ClientModal: React.FC<ClientModalProps> = ({
         />
       </div>
 
-      <div className="border-t border-slate-100 pt-4 space-y-4">
-        <h3 className="text-sm font-bold text-slate-800">Project Specifics</h3>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Project Status</label>
-            <select
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white font-semibold text-slate-700 cursor-pointer"
-              value={form.status || "Signed"}
-              onChange={(e) => set("status", e.target.value)}
+      <div>
+        <label className="block text-sm font-semibold text-slate-500 mb-1.5">
+          {t("clients.leadType")}
+        </label>
+        <div className="inline-flex bg-slate-100 rounded-xl p-1 gap-1">
+          {(["sales", "service"] as const).map((type) => (
+            <button
+              key={type}
+              type="button"
+              onClick={() => {
+                setLeadType(type);
+                set("status", initialStageFor(type));
+              }}
+              className={`px-4 py-1.5 text-sm font-semibold rounded-lg transition-all cursor-pointer ${leadType === type
+                ? "bg-ocean-600 text-white shadow-sm"
+                : "text-slate-500 hover:bg-white"
+                }`}
             >
-              {POST_SALE_STATUSES.map((st) => (
-                <option key={st} value={st}>
-                  {st}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Project Code/ID</label>
-            <input
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white"
-              placeholder="e.g. PJ-101"
-              value={form.projectId || ""}
-              onChange={(e) => set("projectId", e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Start Date</label>
-            <input
-              type="date"
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white cursor-pointer"
-              value={form.projectStartDate ? form.projectStartDate.split("T")[0] : ""}
-              onChange={(e) => set("projectStartDate", e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Delivery Date</label>
-            <input
-              type="date"
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white cursor-pointer"
-              value={form.projectDeliveryDate ? form.projectDeliveryDate.split("T")[0] : ""}
-              onChange={(e) => set("projectDeliveryDate", e.target.value)}
-            />
-          </div>
+              {type === "sales" ? t("clients.tabSales") : t("clients.tabService")}
+            </button>
+          ))}
         </div>
-
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-[11px] font-bold text-slate-400 uppercase mb-1">Deliverables Summary</label>
-          <textarea
-            className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white h-20 resize-none"
-            placeholder="Summarize key contract deliverables..."
-            value={form.deliverablesSummary || ""}
-            onChange={(e) => set("deliverablesSummary", e.target.value)}
+          <label className="block text-sm font-semibold text-slate-500 mb-1.5">
+            {t("clients.status")}
+          </label>
+          <select
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white font-semibold text-slate-700 cursor-pointer"
+            value={form.status || ""}
+            onChange={(e) => set("status", e.target.value)}
+          >
+            {availableStatuses.map((st) => (
+              <option key={st} value={st}>
+                {st}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="block text-sm font-semibold text-slate-500 mb-1.5">
+            Source Channel
+          </label>
+          <input
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white"
+            placeholder="Source Channel"
+            value={form.sourceChannel || ""}
+            onChange={(e) => set("sourceChannel", e.target.value)}
           />
         </div>
       </div>
 
-      {/* Services Milestones */}
-      <div className="border-t border-slate-100 pt-4 space-y-3">
-        <div className="flex justify-between items-center">
-          <h3 className="text-sm font-bold text-slate-800">Milestone Tasks / Purchased Services</h3>
-          <button
-            type="button"
-            onClick={handleAddService}
-            className="text-xs font-bold text-ocean-600 hover:text-ocean-700 flex items-center gap-1 cursor-pointer"
-          >
-            <Plus className="w-3.5 h-3.5" /> Add Task
-          </button>
+
+      <div className="grid grid-cols-1 gap-4">
+        <div>
+          <label className="block text-sm font-semibold text-slate-500 mb-1.5">
+            Current Problems
+          </label>
+          <textarea
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white"
+            placeholder="Current Problems"
+            value={form.currentProblems || ""}
+            onChange={(e) => set("currentProblems", e.target.value)}
+          />
         </div>
 
-        <div className="space-y-2">
-          {(!form.purchasedServices || form.purchasedServices.length === 0) ? (
-            <p className="text-xs text-slate-400 italic">No milestones defined yet.</p>
-          ) : (
-            form.purchasedServices.map((s: any, idx: number) => (
-              <div key={idx} className="flex gap-2 items-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-                <input
-                  className="flex-1 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none bg-white"
-                  placeholder="Task/Service name"
-                  value={s.name || ""}
-                  onChange={(e) => handleServiceChange(idx, "name", e.target.value)}
-                />
-                <input
-                  className="w-24 px-2.5 py-1.5 border border-slate-200 rounded-lg text-xs outline-none bg-white"
-                  placeholder="Type"
-                  value={s.type || ""}
-                  onChange={(e) => handleServiceChange(idx, "type", e.target.value)}
-                />
-                <select
-                  className="w-28 px-2 py-1.5 border border-slate-200 rounded-lg text-xs bg-white outline-none font-semibold text-slate-700 cursor-pointer"
-                  value={s.status || "pending"}
-                  onChange={(e) => handleServiceChange(idx, "status", e.target.value)}
-                >
-                  <option value="pending">Pending</option>
-                  <option value="active">Active</option>
-                  <option value="completed">Completed</option>
-                </select>
-                <button
-                  type="button"
-                  onClick={() => handleRemoveService(idx)}
-                  className="text-red-500 hover:bg-red-50 p-1.5 rounded-lg transition-colors cursor-pointer"
-                >
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-            ))
-          )}
+        <div>
+          <label className="block text-sm font-semibold text-slate-500 mb-1.5">
+            Desired Outcome
+          </label>
+          <textarea
+            className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none bg-white"
+            placeholder="Desired Outcome"
+            value={form.desiredOutcome || ""}
+            onChange={(e) => set("desiredOutcome", e.target.value)}
+          />
         </div>
       </div>
     </div>
@@ -304,8 +287,9 @@ export const ClientModal: React.FC<ClientModalProps> = ({
     if (action === "CREATE") {
       const parts = [];
       if (details.name) parts.push(`Name: ${details.name}`);
+      if (details.sourceChannel) parts.push(`Source: ${details.sourceChannel}`);
       if (details.message) parts.push(details.message);
-      return parts.join(", ") || "Project Created";
+      return parts.join(", ") || "Lead Created";
     }
 
     if (action === "STATUS_CHANGE") {
@@ -332,11 +316,11 @@ export const ClientModal: React.FC<ClientModalProps> = ({
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 bg-ocean-50 text-ocean-600 rounded-xl flex items-center justify-center">
-              <Briefcase className="w-5 h-5" />
+              <User className="w-5 h-5" />
             </div>
             <div>
               <h2 className="text-lg font-bold text-slate-800">
-                Edit Client Project Details
+                {lead ? "Edit Lead Inquiry" : "New Lead Inquiry"}
               </h2>
             </div>
           </div>
@@ -348,24 +332,25 @@ export const ClientModal: React.FC<ClientModalProps> = ({
           </button>
         </div>
 
-        <div className="flex border-b border-slate-100 bg-slate-50/30 px-6">
-          {(["details", "logs", "audit"] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setActiveTab(tab)}
-              className={`py-3 px-4 font-semibold text-sm border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-                activeTab === tab
+        {lead && (
+          <div className="flex border-b border-slate-100 bg-slate-50/30 px-6">
+            {(["details", "logs", "audit"] as const).map((tab) => (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`py-3 px-4 font-semibold text-sm border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${activeTab === tab
                   ? "border-ocean-600 text-ocean-600"
                   : "border-transparent text-slate-400 hover:text-slate-600"
-              }`}
-            >
-              {tab === "details" && <Info className="w-4 h-4" />}
-              {tab === "logs" && <MessageSquare className="w-4 h-4" />}
-              {tab === "audit" && <History className="w-4 h-4" />}
-              {tab.charAt(0).toUpperCase() + tab.slice(1)}
-            </button>
-          ))}
-        </div>
+                  }`}
+              >
+                {tab === "details" && <Info className="w-4 h-4" />}
+                {tab === "logs" && <MessageSquare className="w-4 h-4" />}
+                {tab === "audit" && <History className="w-4 h-4" />}
+                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+              </button>
+            ))}
+          </div>
+        )}
 
         <div className="flex-1 overflow-y-auto p-6 min-h-0">
           {activeTab === "details" && renderDetails()}

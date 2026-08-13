@@ -13,6 +13,13 @@ export interface Ticket {
     time_duration?: string;
     note?: string;
   };
+  retail_details?: {
+    deli_location?: string;
+    deli_time?: string;
+    number_of_people?: number;
+    deli_expense?: number;
+    note?: string;
+  };
   status: "Open" | "In Progress" | "Pending" | "Resolved";
   priority: "Low" | "Medium" | "High";
   assigned_to?: { _id: string; name: string } | string | null;

@@ -14,6 +14,13 @@ interface CreateTicketRequest {
     time_duration?: string;
     note?: string;
   };
+  retail_details?: {
+    deli_location?: string;
+    deli_time?: string;
+    number_of_people?: number;
+    deli_expense?: number;
+    note?: string;
+  };
 }
 
 interface CreateTicketResponse {

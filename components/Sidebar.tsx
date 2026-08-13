@@ -79,6 +79,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { path: "/expenses", label: t("sidebar.expenses"), icon: PieChart },
     { path: "/reports", label: t("sidebar.reports"), icon: LayoutDashboard },
     { path: "/accounts", label: t("sidebar.accountManagement"), icon: Shield },
+    { path: "/workers", label: t("sidebar.workerManagement"), icon: Users },
     { path: "/daily-reports", label: t("sidebar.dailyReports"), icon: Bell },
     { path: "/purchasing", label: t("sidebar.purchasing"), icon: Truck },
     // { path: "/warehouse", label: t("sidebar.warehouse"), icon: Package },

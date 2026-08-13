@@ -62,7 +62,6 @@ export const fetchClients = async (
     let url = "/clients";
     const qs = new URLSearchParams();
 
-    if (params?.isPostSale !== undefined) qs.append("isPostSale", String(params.isPostSale));
     if (params?.leadType) qs.append("leadType", params.leadType);
     if (params?.search) qs.append("search", params.search);
     if (params?.status) qs.append("status", params.status);
