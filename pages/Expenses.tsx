@@ -22,6 +22,7 @@ import {
   LocationProfile,
 } from "../services/Location/fetchLocationProfiles";
 import { useLanguage } from "../context/LanguageContext";
+import { fetchProjects, Project } from "../services/Project/project.service";
 import { ConfirmModal } from "../components/Common/ConfirmModal";
 import { DateRangePicker } from "../components/Reports/DateRangePicker";
 import {
@@ -35,6 +36,7 @@ export const Expenses: React.FC = () => {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState<LocationProfile[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
 
   // Date filter — restored from sessionStorage on mount
@@ -53,6 +55,7 @@ export const Expenses: React.FC = () => {
     date: new Date().toISOString().split("T")[0], // Format: YYYY-MM-DD
     notes: "",
     locationId: "", // Add locationId to form data
+    projectId: "", // Add projectId to form data
   });
 
   // Delete Confirmation Modal State
@@ -68,7 +71,19 @@ export const Expenses: React.FC = () => {
 
   useEffect(() => {
     loadLocations();
+    loadProjects();
   }, []);
+
+  const loadProjects = async () => {
+    try {
+      const response = await fetchProjects();
+      if (response.success && response.data) {
+        setProjects(response.data.clients || []);
+      }
+    } catch (error) {
+      console.error("Error loading projects:", error);
+    }
+  };
 
   const loadLocations = async () => {
     try {
@@ -116,9 +131,10 @@ export const Expenses: React.FC = () => {
     setFormData({
       category: expense.category,
       amount: expense.amount,
-      date: expense.date.split("T")[0], // Extract date part if it includes time
+      date: expense.date.split("T")[0],
       notes: expense.notes || "",
-      locationId: expense.locationId?._id || "", // Include locationId _id
+      locationId: expense.locationId?._id || "",
+      projectId: expense.projectId?._id || "",
     });
     setIsModalOpen(true);
   };
@@ -130,7 +146,8 @@ export const Expenses: React.FC = () => {
       amount: 0,
       date: new Date().toISOString().split("T")[0],
       notes: "",
-      locationId: "", // Reset locationId
+      locationId: "",
+      projectId: "",
     });
   };
 
@@ -163,6 +180,7 @@ export const Expenses: React.FC = () => {
         if (formData.notes) payload.notes = formData.notes;
         if (userRole !== "cashier" && formData.locationId)
           payload.locationId = formData.locationId;
+        payload.projectId = formData.projectId || null;
 
         const response = await updateExpense(editingId, payload);
 
@@ -180,6 +198,7 @@ export const Expenses: React.FC = () => {
           amount: formData.amount,
           date: formData.date,
           ...(formData.notes && { notes: formData.notes }),
+          projectId: formData.projectId || null,
         };
 
         // Only add locationId for non-cashier users
@@ -375,6 +394,7 @@ export const Expenses: React.FC = () => {
                     <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Category</th>
                     <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Location</th>
                     <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Notes</th>
+                    <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Project</th>
                     <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Recorded By</th>
                     <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Amount</th>
                     <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Actions</th>
@@ -425,6 +445,17 @@ export const Expenses: React.FC = () => {
                       {/* Notes */}
                       <td className="px-4 py-4 text-slate-500 text-xs font-medium max-w-xs truncate" title={expense.notes || ""}>
                         {expense.notes || "-"}
+                      </td>
+
+                      {/* Project */}
+                      <td className="px-4 py-4">
+                        {expense.projectId ? (
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold bg-ocean-50 text-ocean-700 border border-ocean-200 whitespace-nowrap">
+                            {expense.projectId.siteName}
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 text-xs">-</span>
+                        )}
                       </td>
 
                       {/* Recorded By */}
@@ -544,6 +575,28 @@ export const Expenses: React.FC = () => {
                   </select>
                 </div>
               )}
+
+              {/* Optional Project Link */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">
+                  Link to Project{" "}
+                  <span className="text-slate-400 text-xs font-normal">(Optional)</span>
+                </label>
+                <select
+                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary focus:border-primary outline-none"
+                  value={formData.projectId}
+                  onChange={(e) =>
+                    setFormData({ ...formData, projectId: e.target.value })
+                  }
+                >
+                  <option value="">— No Project —</option>
+                  {projects.map((project: any) => (
+                    <option key={project._id} value={project._id}>
+                      {project.siteName}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">

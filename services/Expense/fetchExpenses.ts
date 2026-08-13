@@ -24,6 +24,7 @@ export interface Expense {
   notes?: string;
   locationId: LocationInfo | null;
   adminId: AdminInfo | null;
+  projectId?: { _id: string; siteName: string } | null;
   createdAt: string;
   updatedAt: string;
 }
@@ -37,11 +38,13 @@ interface FetchExpensesResponse {
 export const fetchExpenses = async (
   startDate?: string | null,
   endDate?: string | null,
+  projectId?: string | null,
 ): Promise<FetchExpensesResponse> => {
   try {
     const params = new URLSearchParams();
     if (startDate) params.append("startDate", startDate);
     if (endDate) params.append("endDate", endDate);
+    if (projectId) params.append("projectId", projectId);
 
     const url = `/expense${params.toString() ? `?${params.toString()}` : ""}`;
     const response = await axios.get(url);
