@@ -11,6 +11,7 @@ interface ProjectModalProps {
   onClose: () => void;
   project: Project | null; // null => create mode
   onSaved: () => void;
+  onDeleted?: () => void; // optional: called after successful delete instead of onSaved
 }
 
 const PROJECT_STATUSES = ["Signed", "In-Development", "Delivered", "Completed"];
@@ -20,6 +21,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   onClose,
   project,
   onSaved,
+  onDeleted,
 }) => {
   const { t } = useLanguage();
   const [form, setForm] = useState<Partial<Project>>({
@@ -150,7 +152,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     try {
       await deleteProject(project._id);
       toast.success("Project deleted successfully");
-      onSaved();
+      (onDeleted || onSaved)();
       onClose();
     } catch (error: any) {
       toast.error(error.message || "Failed to delete project");

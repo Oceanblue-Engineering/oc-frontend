@@ -38,6 +38,7 @@ import { ScrollToTop } from "./components/ScrollToTop";
 import { Tickets } from "./pages/Tickets";
 import { TicketDetail } from "./pages/TicketDetail";
 import { ProjectAttendance } from "./pages/ProjectAttendance";
+import ProjectDetailAnalytics from "./pages/ProjectDetailAnalytics";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -251,6 +252,14 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <ProjectAttendance />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/projects/:projectId/analytics"
+            element={
+              <ProtectedRoute>
+                <ProjectDetailAnalytics />
               </ProtectedRoute>
             }
           />

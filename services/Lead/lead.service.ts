@@ -1,5 +1,5 @@
 import axios from "../axios";
-import { LeadType } from "../Client/fetchClients";
+import { LeadType } from "../../config/clientPipelines";
 
 export interface Lead {
   _id: string;

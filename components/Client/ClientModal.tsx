@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { X, User, Save, Plus, MessageSquare, History, Info, Send } from "lucide-react";
+import { X, User, Save, Plus, MessageSquare, History, Info, Send, Briefcase } from "lucide-react";
 import { toast } from "sonner";
 import { Client } from "../../services/Client/fetchClients";
 import { updateClient, UpdateClientRequest } from "../../services/Client/updateClient";

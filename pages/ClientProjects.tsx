@@ -15,7 +15,6 @@ export const ClientProjects: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
-  const [selected, setSelected] = useState<Project | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -32,12 +31,6 @@ export const ClientProjects: React.FC = () => {
   }, [load]);
 
   const handleNew = () => {
-    setSelected(null);
-    setModalOpen(true);
-  };
-
-  const handleEdit = (p: Project) => {
-    setSelected(p);
     setModalOpen(true);
   };
 
@@ -73,7 +66,16 @@ export const ClientProjects: React.FC = () => {
             {projects.map((p) => (
               <div
                 key={p._id}
-                className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-lg hover:border-ocean-300 transition-all flex flex-col justify-between"
+                onClick={() => navigate(`/projects/${p._id}/analytics`)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    navigate(`/projects/${p._id}/analytics`);
+                  }
+                }}
+                role="button"
+                tabIndex={0}
+                className="bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-lg hover:border-ocean-300 transition-all flex flex-col justify-between cursor-pointer focus:outline-none focus:ring-2 focus:ring-ocean-500"
               >
                 <div>
                   <div className="flex items-start justify-between mb-3">
@@ -111,21 +113,6 @@ export const ClientProjects: React.FC = () => {
                     </div>
                   </div>
                 </div>
-
-                <div className="mt-5 pt-4 border-t border-slate-50 flex gap-2">
-                  <button
-                    onClick={() => handleEdit(p)}
-                    className="flex-1 text-center py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold rounded-xl transition-all cursor-pointer border border-slate-100"
-                  >
-                    Edit Details
-                  </button>
-                  <button
-                    onClick={() => navigate(`/projects/${p._id}/attendance`)}
-                    className="flex-1 text-center py-2 px-3 bg-ocean-50 hover:bg-ocean-100 text-ocean-700 text-xs font-semibold rounded-xl transition-all cursor-pointer"
-                  >
-                    Attendance
-                  </button>
-                </div>
               </div>
             ))}
           </div>
@@ -135,7 +122,7 @@ export const ClientProjects: React.FC = () => {
       <ProjectModal
         isOpen={modalOpen}
         onClose={() => setModalOpen(false)}
-        project={selected}
+        project={null}
         onSaved={load}
       />
     </div>
