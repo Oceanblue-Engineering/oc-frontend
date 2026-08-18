@@ -4,13 +4,27 @@ import type { Language } from "../../context/LanguageContext";
 // TypeScript interfaces for API responses
 export interface ProjectExpense {
   _id: string;
-  projectId: string;
-  expenseDate: string;
+  projectId?: string;
+  category: string;
   amount: number;
-  expenseType: string;
+  date: string;
+  notes?: string;
+  adminId?: {
+    _id?: string;
+    name: string;
+    role?: string;
+  };
+  locationId?: {
+    _id?: string;
+    locationName: string;
+    locationCode?: string;
+  };
+  // Legacy aliases
+  expenseDate?: string;
+  expenseType?: string;
   description?: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface ProjectExpensesResponse {
