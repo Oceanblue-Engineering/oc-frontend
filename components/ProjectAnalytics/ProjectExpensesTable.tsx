@@ -1,10 +1,25 @@
 import React, { useState } from "react";
-import { DollarSign, Trash2, Loader2, Plus, Calendar, User, MapPin } from "lucide-react";
+import { DollarSign, Trash2, Plus, Receipt } from "lucide-react";
 import { toast } from "sonner";
 import { ProjectExpense } from "../../services/ProjectAnalytics/projectAnalytics.service";
 import { deleteExpense } from "../../services/Expense/deleteExpense";
 import { ConfirmModal } from "../Common/ConfirmModal";
 import { useLanguage } from "../../context/LanguageContext";
+import {
+  Card,
+  CardHeader,
+  CardContent,
+  Button,
+  Badge,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableEmpty,
+} from "../ui";
 
 interface ProjectExpensesTableProps {
   expenses: ProjectExpense[];
@@ -22,7 +37,9 @@ export const ProjectExpensesTable: React.FC<ProjectExpensesTableProps> = ({
   formatCurrency,
 }) => {
   const { t } = useLanguage();
-  const [expenseToDelete, setExpenseToDelete] = useState<ProjectExpense | null>(null);
+  const [expenseToDelete, setExpenseToDelete] = useState<ProjectExpense | null>(
+    null
+  );
   const [isDeleting, setIsDeleting] = useState(false);
 
   const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
@@ -37,7 +54,10 @@ export const ProjectExpensesTable: React.FC<ProjectExpensesTableProps> = ({
     try {
       const res = await deleteExpense(expenseToDelete._id);
       if (res.success) {
-        toast.success(t("projects.expenseDeletedSuccess") || "Expense deleted successfully");
+        toast.success(
+          t("projects.expenseDeletedSuccess") ||
+            "Expense deleted successfully"
+        );
         setExpenseToDelete(null);
         onExpenseDeleted();
       } else {
@@ -63,140 +83,154 @@ export const ProjectExpensesTable: React.FC<ProjectExpensesTableProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 p-6 shadow-sm space-y-4">
+    <Card className="space-y-4">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-2 bg-ocean-50 rounded-xl">
-            <DollarSign className="w-5 h-5 text-ocean-600" />
+      <CardHeader className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-4">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-ocean-50 text-ocean-600 rounded-xl flex items-center justify-center border border-ocean-200/60 shrink-0">
+            <DollarSign className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="font-bold text-ocean-800 text-base">
+            <h2 className="font-bold text-slate-900 text-base">
               {t("projects.projectExpensesList") || "Project Expenses"}
             </h2>
             <p className="text-xs text-slate-400 font-medium">
-              {expenses.length} {t("projects.unitRecords") || "records"} • {t("projects.total")}:{" "}
-              <span className="font-bold text-slate-700">{formatCurrency(totalAmount)}</span>
+              {expenses.length} {t("projects.unitRecords") || "records"} •{" "}
+              {t("projects.total")}:{" "}
+              <span className="font-bold text-slate-700">
+                {formatCurrency(totalAmount)}
+              </span>
             </p>
           </div>
         </div>
 
-        <button
+        <Button
+          variant="default"
+          size="sm"
           onClick={onAddExpenseClick}
-          className="px-4 py-2 bg-ocean-600 hover:bg-ocean-700 text-white text-xs font-semibold rounded-xl flex items-center justify-center gap-1.5 shadow-sm shadow-ocean-600/10 cursor-pointer transition-all shrink-0"
+          leftIcon={<Plus className="w-4 h-4" />}
         >
-          <Plus className="w-4 h-4" />
-          <span>{t("projects.addExpense") || "Add Expense"}</span>
-        </button>
-      </div>
+          {t("projects.addExpense") || "Add Expense"}
+        </Button>
+      </CardHeader>
 
       {/* Content */}
-      {isLoading ? (
-        <div className="py-12 flex flex-col items-center justify-center text-slate-400">
-          <Loader2 className="w-8 h-8 animate-spin text-ocean-600 mb-2" />
-          <p className="text-xs font-medium">{t("common.loading") || "Loading..."}</p>
-        </div>
-      ) : expenses.length === 0 ? (
-        <div className="py-12 flex flex-col items-center justify-center text-slate-400 text-center">
-          <div className="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center mb-3 text-slate-300">
-            <DollarSign className="w-6 h-6" />
-          </div>
-          <p className="text-sm font-semibold text-slate-600">
-            {t("projects.noProjectExpenses") || "No expenses recorded for this project"}
-          </p>
-          <p className="text-xs text-slate-400 mt-1 max-w-xs">
-            Click "+ Add Expense" to track material purchases, wages, or site costs.
-          </p>
-          <button
-            onClick={onAddExpenseClick}
-            className="mt-4 px-4 py-2 bg-ocean-50 text-ocean-700 hover:bg-ocean-100 text-xs font-bold rounded-xl transition-all cursor-pointer"
-          >
-            {t("projects.addExpense") || "+ Add Expense"}
-          </button>
-        </div>
-      ) : (
-        <div className="overflow-x-auto rounded-xl border border-slate-100">
-          <table className="w-full text-left text-sm">
-            <thead className="bg-slate-50 text-slate-500 font-bold text-xs uppercase tracking-wider">
-              <tr>
-                <th className="px-4 py-3.5 text-center">No</th>
-                <th className="px-4 py-3.5">Date</th>
-                <th className="px-4 py-3.5">Category</th>
-                <th className="px-4 py-3.5">Notes</th>
-                <th className="px-4 py-3.5">Recorded By</th>
-                <th className="px-4 py-3.5 text-right">Amount</th>
+      <CardContent className="p-0 sm:p-0">
+        <TableContainer className="border-0 shadow-none">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-14 text-center">No</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Category</TableHead>
+                <TableHead>Notes</TableHead>
+                <TableHead>Recorded By</TableHead>
+                <TableHead className="text-right">Amount</TableHead>
                 {userRole === "owner" && (
-                  <th className="px-4 py-3.5 text-center">Actions</th>
+                  <TableHead className="text-center w-20">Actions</TableHead>
                 )}
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-100 bg-white">
-              {expenses.map((exp, idx) => {
-                const categoryName = exp.category || exp.expenseType || "other";
-                const dateVal = exp.date || exp.expenseDate || exp.createdAt || "";
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {isLoading ? (
+                <TableEmpty
+                  colSpan={userRole === "owner" ? 7 : 6}
+                  message={t("common.loading") || "Loading..."}
+                />
+              ) : expenses.length === 0 ? (
+                <TableEmpty
+                  colSpan={userRole === "owner" ? 7 : 6}
+                  message={
+                    t("projects.noProjectExpenses") ||
+                    "No expenses recorded for this project"
+                  }
+                  icon={<Receipt className="w-6 h-6 text-slate-300" />}
+                  action={
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={onAddExpenseClick}
+                      leftIcon={<Plus className="w-3.5 h-3.5" />}
+                    >
+                      {t("projects.addExpense") || "Add Expense"}
+                    </Button>
+                  }
+                />
+              ) : (
+                expenses.map((exp, idx) => {
+                  const categoryName =
+                    exp.category || exp.expenseType || "other";
+                  const dateVal =
+                    exp.date || exp.expenseDate || exp.createdAt || "";
 
-                return (
-                  <tr key={exp._id} className="hover:bg-slate-50/50 transition-colors">
-                    {/* No */}
-                    <td className="px-4 py-3.5 text-center text-xs font-bold text-slate-400">
-                      {String(idx + 1).padStart(2, "0")}
-                    </td>
+                  return (
+                    <TableRow key={exp._id}>
+                      <TableCell className="text-center text-xs font-bold text-slate-400">
+                        {String(idx + 1).padStart(2, "0")}
+                      </TableCell>
 
-                    {/* Date */}
-                    <td className="px-4 py-3.5 text-xs font-medium text-slate-600 whitespace-nowrap">
-                      {formatDate(dateVal)}
-                    </td>
+                      <TableCell className="text-xs font-medium text-slate-600 whitespace-nowrap">
+                        {formatDate(dateVal)}
+                      </TableCell>
 
-                    {/* Category */}
-                    <td className="px-4 py-3.5 whitespace-nowrap">
-                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold capitalize bg-purple-50 text-purple-700 border border-purple-200">
-                        {categoryName}
-                      </span>
-                    </td>
+                      <TableCell className="whitespace-nowrap">
+                        <Badge variant="purple" className="capitalize">
+                          {categoryName}
+                        </Badge>
+                      </TableCell>
 
-                    {/* Notes */}
-                    <td className="px-4 py-3.5 text-xs text-slate-600 max-w-xs truncate" title={exp.notes || exp.description || ""}>
-                      {exp.notes || exp.description || "-"}
-                    </td>
+                      <TableCell
+                        className="text-xs text-slate-600 max-w-xs truncate"
+                        title={exp.notes || exp.description || ""}
+                      >
+                        {exp.notes || exp.description || "-"}
+                      </TableCell>
 
-                    {/* Recorded By */}
-                    <td className="px-4 py-3.5 text-xs whitespace-nowrap">
-                      {exp.adminId ? (
-                        <div>
-                          <p className="font-semibold text-slate-700">{exp.adminId.name}</p>
-                          {exp.adminId.role && (
-                            <p className="text-[10px] text-slate-400 capitalize">{exp.adminId.role}</p>
-                          )}
-                        </div>
-                      ) : (
-                        <span className="text-slate-400">-</span>
+                      <TableCell className="text-xs whitespace-nowrap">
+                        {exp.adminId ? (
+                          <div>
+                            <p className="font-semibold text-slate-700">
+                              {exp.adminId.name}
+                            </p>
+                            {exp.adminId.role && (
+                              <p className="text-[10px] text-slate-400 capitalize">
+                                {exp.adminId.role}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
+                      </TableCell>
+
+                      <TableCell className="text-right font-black text-red-600 text-xs sm:text-sm whitespace-nowrap">
+                        {exp.amount?.toLocaleString()}{" "}
+                        <span className="text-[10px] text-slate-400 font-semibold">
+                          MMK
+                        </span>
+                      </TableCell>
+
+                      {userRole === "owner" && (
+                        <TableCell className="text-center whitespace-nowrap">
+                          <Button
+                            variant="ghost"
+                            size="icon-sm"
+                            onClick={() => setExpenseToDelete(exp)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                            title="Delete expense"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </TableCell>
                       )}
-                    </td>
-
-                    {/* Amount */}
-                    <td className="px-4 py-3.5 text-right font-bold text-red-600 text-xs sm:text-sm whitespace-nowrap">
-                      {exp.amount?.toLocaleString()} <span className="text-[10px] text-slate-400 font-medium">MMK</span>
-                    </td>
-
-                    {/* Actions */}
-                    {userRole === "owner" && (
-                      <td className="px-4 py-3.5 text-center whitespace-nowrap">
-                        <button
-                          onClick={() => setExpenseToDelete(exp)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                          title="Delete expense"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </td>
-                    )}
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      )}
+                    </TableRow>
+                  );
+                })
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </CardContent>
 
       {/* Delete confirmation modal */}
       <ConfirmModal
@@ -209,11 +243,11 @@ export const ProjectExpensesTable: React.FC<ProjectExpensesTableProps> = ({
         }
         confirmText={t("common.delete") || "Delete"}
         cancelText={t("common.cancel") || "Cancel"}
+        confirmButtonColor="red"
         onConfirm={handleDeleteConfirm}
         onCancel={() => setExpenseToDelete(null)}
         isLoading={isDeleting}
-        variant="danger"
       />
-    </div>
+    </Card>
   );
 };

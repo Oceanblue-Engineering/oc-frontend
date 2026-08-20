@@ -91,6 +91,7 @@ export const en = {
     clientProjects: "Client Projects",
     delivery: "Delivery",
     tickets: "Tickets",
+    invoiceGenerator: "Invoice Generator",
     collapse: "Collapse",
     logout: "Logout",
     loggedOut: "Logged out successfully",
@@ -125,6 +126,7 @@ export const en = {
       clientProjects: "Active client projects",
       delivery: "Township delivery fees",
       tickets: "Support & issue tickets",
+      invoiceGenerator: "Create official A4 invoices with PDF and PNG download",
     },
   },
   clients: {

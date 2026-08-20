@@ -24,6 +24,7 @@ import {
   createDateRangeInitializer,
   saveStoredDateRange,
 } from "../utils/dateRangeStorage";
+import { PageHeader, Button } from "../components/ui";
 
 export const Orders: React.FC = () => {
   const { t } = useLanguage();
@@ -58,7 +59,6 @@ export const Orders: React.FC = () => {
   }, [selectedStorefrontId, startDate, endDate]);
 
   const loadInitialData = async () => {
-    // Load storefronts
     try {
       const sfResponse = await fetchStorefrontProfiles();
       if (sfResponse.success && sfResponse.data) {
@@ -68,7 +68,6 @@ export const Orders: React.FC = () => {
       console.error("Error loading storefronts:", error);
     }
 
-    // Load credit personas
     try {
       const cpResponse = await fetchCreditPersonas();
       if (cpResponse.success && cpResponse.data) {
@@ -93,120 +92,61 @@ export const Orders: React.FC = () => {
       const startDateStr = formatDateForAPI(startDate);
       const endDateStr = formatDateForAPI(endDate);
 
-      // console.log("Loading orders with dates:", {
-      //   startDateStr,
-      //   endDateStr,
-      //   selectedStorefrontId,
-      // });
-
-      // Always fetch only paid orders with date filtering
-      const response = await fetchOrders(startDateStr, endDateStr, "paid");
-      // console.log("All orders response:", response);
+      let response;
+      if (selectedStorefrontId === "all") {
+        response = await fetchOrders(startDateStr, endDateStr);
+      } else {
+        response = await fetchOrdersByStorefront(
+          selectedStorefrontId,
+          startDateStr,
+          endDateStr,
+        );
+      }
 
       if (response.success && response.data) {
-        let filteredOrders = response.data;
-
-        // If a specific storefront is selected, filter the results
-        if (selectedStorefrontId !== "all") {
-          filteredOrders = response.data.filter(
-            (order) =>
-              order.storefrontId?._id === selectedStorefrontId ||
-              order.storefrontId?.id === selectedStorefrontId,
-          );
-        }
-
-        // console.log("Filtered orders count:", filteredOrders.length);
-        setOrders(filteredOrders);
+        const sortedOrders = [...response.data].sort((a, b) => {
+          const dateA = new Date(a.date).getTime();
+          const dateB = new Date(b.date).getTime();
+          return dateB - dateA;
+        });
+        setOrders(sortedOrders);
       } else {
-        toast.error(response.message || t("orders.failedToLoad"));
+        toast.error(response.message || t("orders.failedToLoadOrders"));
       }
     } catch (error) {
       console.error("Error loading orders:", error);
-      toast.error(t("orders.failedToLoad"));
+      toast.error(t("orders.failedToLoadOrders"));
     } finally {
       setLoading(false);
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
-    const searchLower = search.toLowerCase();
-
-    // Check if search matches order number
-    const matchesOrderNumber = order.orderNumber
-      ?.toLowerCase()
-      .includes(searchLower);
-
-    // Check if search matches storefront location
-    const matchesStorefront = order.storefrontId?.locationName
-      ?.toLowerCase()
-      .includes(searchLower);
-
-    // Check if search matches any product name in the order
-    const matchesProductName = order.ordersProducts?.some((product) =>
-      product.inventoryId?.productName?.toLowerCase().includes(searchLower),
-    );
-
-    // Check if search matches any product code in the order
-    const matchesProductCode = order.ordersProducts?.some(
-      (product) =>
-        product.inventoryId?.productCode?.toLowerCase().includes(searchLower) ||
-        product.inventoryId?.SKU?.toLowerCase().includes(searchLower),
-    );
-
-    const matchesSearch =
-      matchesOrderNumber ||
-      matchesStorefront ||
-      matchesProductName ||
-      matchesProductCode;
-
-    const matchesPaymentType =
-      paymentTypeFilter === "all" ||
-      order.paymentType?.toLowerCase() === paymentTypeFilter.toLowerCase();
-    const matchesPaymentMethod =
-      paymentMethodFilter === "all" ||
-      order.paymentMethod?.toLowerCase() === paymentMethodFilter.toLowerCase();
-    const matchesDeliveryStatus =
-      deliveryStatusFilter === "all" ||
-      (order.deliveryStatus || "pending") === deliveryStatusFilter;
-    return (
-      matchesSearch &&
-      matchesPaymentType &&
-      matchesPaymentMethod &&
-      matchesDeliveryStatus
-    );
-  });
-
   const handleViewOrder = async (orderId: string) => {
     setLoadingDetail(true);
-    setSelectedOrder(null);
     try {
       const response = await fetchOrderById(orderId);
       if (response.success && response.data) {
         setSelectedOrder(response.data);
       } else {
-        toast.error(response.message || t("orders.failedToLoadDetails"));
+        toast.error(response.message || t("orders.failedToLoadOrderDetails"));
       }
     } catch (error) {
-      console.error("Error loading order details:", error);
-      toast.error(t("orders.failedToLoadDetails"));
+      console.error("Error loading order detail:", error);
+      toast.error(t("orders.failedToLoadOrderDetails"));
     } finally {
       setLoadingDetail(false);
     }
   };
 
   const handleRefreshOrderDetails = async () => {
-    if (selectedOrder?._id) {
-      setLoadingDetail(true);
-      try {
-        const response = await fetchOrderById(selectedOrder._id);
-        if (response.success && response.data) {
-          setSelectedOrder(response.data);
-        }
-      } catch (error) {
-        console.error("Error refreshing order details:", error);
-      } finally {
-        setLoadingDetail(false);
+    if (!selectedOrder?._id) return;
+    try {
+      const response = await fetchOrderById(selectedOrder._id);
+      if (response.success && response.data) {
+        setSelectedOrder(response.data);
       }
+    } catch (error) {
+      console.error("Error refreshing order detail:", error);
     }
   };
 
@@ -215,56 +155,126 @@ export const Orders: React.FC = () => {
     setShowCreditPersonModal(true);
   };
 
-  const handleAssignCreditPerson = async (creditPersonId: string) => {
-    if (!selectedOrderForCredit) return;
-
+  const handleAssignCreditPerson = async (
+    orderId: string,
+    creditPersonId: string,
+  ) => {
     setAssigningCreditPerson(true);
     try {
-      const response = await assignCreditPerson(
-        selectedOrderForCredit._id,
-        creditPersonId,
-      );
-      if (response.success) {
-        toast.success(t("orders.creditPersonAssigned"));
+      const response = await assignCreditPerson(orderId, creditPersonId);
+      if (response.success && response.data) {
+        toast.success(t("orders.creditPersonAssignedSuccess"));
         setShowCreditPersonModal(false);
         setSelectedOrderForCredit(null);
-        // Refresh orders
         await loadOrders();
       } else {
-        toast.error(response.message || t("orders.failedToAssign"));
+        toast.error(response.message || t("orders.failedToAssignCreditPerson"));
       }
     } catch (error) {
       console.error("Error assigning credit person:", error);
-      toast.error(t("orders.failedToAssign"));
+      toast.error(t("orders.failedToAssignCreditPerson"));
     } finally {
       setAssigningCreditPerson(false);
     }
   };
 
+  const filteredOrders = orders.filter((order) => {
+    const query = search.toLowerCase().trim();
+
+    if (query) {
+      const matchesVoucher = order.voucherNo.toLowerCase().includes(query);
+      const matchesCustomer =
+        order.customer && order.customer.toLowerCase().includes(query);
+      const matchesStorefront =
+        order.storefrontId?.name &&
+        order.storefrontId.name.toLowerCase().includes(query);
+
+      const matchesItems = order.items.some((item) => {
+        const nameMatches = item.productId.productName
+          .toLowerCase()
+          .includes(query);
+        const codeMatches = item.productId.productCode
+          .toLowerCase()
+          .includes(query);
+        const colorMatches = item.colorName
+          ? item.colorName.toLowerCase().includes(query)
+          : false;
+        return nameMatches || codeMatches || colorMatches;
+      });
+
+      const matchesDate = new Date(order.date)
+        .toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        })
+        .toLowerCase()
+        .includes(query);
+
+      const matchesCreditPerson =
+        order.creditPersonId &&
+        (order.creditPersonId.name.toLowerCase().includes(query) ||
+          order.creditPersonId.phone.toLowerCase().includes(query) ||
+          order.creditPersonId.creditCode?.toLowerCase().includes(query));
+
+      if (
+        !matchesVoucher &&
+        !matchesCustomer &&
+        !matchesStorefront &&
+        !matchesItems &&
+        !matchesDate &&
+        !matchesCreditPerson
+      ) {
+        return false;
+      }
+    }
+
+    if (paymentTypeFilter !== "all" && order.paymentType !== paymentTypeFilter) {
+      return false;
+    }
+
+    if (
+      paymentMethodFilter !== "all" &&
+      order.paymentMethod !== paymentMethodFilter
+    ) {
+      return false;
+    }
+
+    if (deliveryStatusFilter !== "all") {
+      const isDelivered = order.isDelivered || false;
+      if (deliveryStatusFilter === "delivered" && !isDelivered) {
+        return false;
+      }
+      if (deliveryStatusFilter === "not_delivered" && isDelivered) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+
   return (
-    <div className="w-full">
-      <div className="bg-white h-[calc(100vh-2rem)] border border-gray-200/70 rounded-3xl p-6 shadow-md flex flex-col gap-6">
-
-        {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 border-b border-gray-100 pb-5">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">
-              {t("orders.title")}
-            </h1>
-            <p className="text-xs text-slate-400 mt-1.5 font-medium">
-              {t("orders.subtitle")}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
+    <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8 space-y-6">
+      {/* Standard Page Header */}
+      <PageHeader
+        title={t("orders.title")}
+        subtitle={t("orders.subtitle")}
+        icon={<Receipt className="w-5 h-5" />}
+        actions={
+          <>
+            <Button
+              variant="outline"
+              size="default"
               onClick={loadOrders}
               disabled={loading}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              leftIcon={
+                <RefreshCw
+                  className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
+                />
+              }
             >
-              <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
-              <span>{t("storefront.refresh")}</span>
-            </button>
+              {t("storefront.refresh")}
+            </Button>
             <DateRangePicker
               startDate={startDate}
               endDate={endDate}
@@ -280,67 +290,67 @@ export const Orders: React.FC = () => {
                   newEndDate,
                 );
               }}
-              className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
+              className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all shadow-xs flex items-center gap-2 cursor-pointer"
             />
-          </div>
-        </div>
+          </>
+        }
+      />
 
-        {/* Filters */}
-        <OrdersFilters
-          search={search}
-          onSearchChange={setSearch}
-          storefronts={storefronts}
-          selectedStorefrontId={selectedStorefrontId}
-          onStorefrontChange={setSelectedStorefrontId}
-          paymentTypeFilter={paymentTypeFilter}
-          onPaymentTypeChange={setPaymentTypeFilter}
-          paymentMethodFilter={paymentMethodFilter}
-          onPaymentMethodChange={setPaymentMethodFilter}
-          deliveryStatusFilter={deliveryStatusFilter}
-          onDeliveryStatusChange={setDeliveryStatusFilter}
-          orders={orders}
-          filteredOrders={filteredOrders}
-        />
+      {/* Filters */}
+      <OrdersFilters
+        search={search}
+        onSearchChange={setSearch}
+        storefronts={storefronts}
+        selectedStorefrontId={selectedStorefrontId}
+        onStorefrontChange={setSelectedStorefrontId}
+        paymentTypeFilter={paymentTypeFilter}
+        onPaymentTypeChange={setPaymentTypeFilter}
+        paymentMethodFilter={paymentMethodFilter}
+        onPaymentMethodChange={setPaymentMethodFilter}
+        deliveryStatusFilter={deliveryStatusFilter}
+        onDeliveryStatusChange={setDeliveryStatusFilter}
+        orders={orders}
+        filteredOrders={filteredOrders}
+      />
 
-        {/* Orders Table */}
-        <OrdersTable
-          loading={loading}
-          orders={filteredOrders}
-          onViewOrder={handleViewOrder}
-          onOpenCreditPersonModal={handleOpenCreditPersonModal}
-          onOrderDeleted={async () => {
-            await loadOrders();
-          }}
-        />
+      {/* Orders Table */}
+      <OrdersTable
+        loading={loading}
+        orders={filteredOrders}
+        onViewOrder={handleViewOrder}
+        onOpenCreditPersonModal={handleOpenCreditPersonModal}
+        onOrderDeleted={async () => {
+          await loadOrders();
+        }}
+      />
 
-        {/* Order Detail Modal */}
-        <OrderDetailModal
-          isOpen={!!(selectedOrder || loadingDetail)}
-          loading={loadingDetail}
-          order={selectedOrder}
-          onClose={() => {
-            setSelectedOrder(null);
-            setLoadingDetail(false);
-          }}
-          onOrderUpdate={async () => {
-            await loadOrders();
-            await handleRefreshOrderDetails();
-          }}
-        />
+      {/* Order Detail Modal */}
+      <OrderDetailModal
+        isOpen={!!(selectedOrder || loadingDetail)}
+        loading={loadingDetail}
+        order={selectedOrder}
+        onClose={() => {
+          setSelectedOrder(null);
+          setLoadingDetail(false);
+        }}
+        onOrderUpdate={async () => {
+          await loadOrders();
+          await handleRefreshOrderDetails();
+        }}
+      />
 
-        {/* Credit Person Selection Modal */}
-        <CreditPersonModal
-          isOpen={showCreditPersonModal}
-          order={selectedOrderForCredit}
-          creditPersonas={creditPersonas}
-          assigning={assigningCreditPerson}
-          onClose={() => {
-            setShowCreditPersonModal(false);
-            setSelectedOrderForCredit(null);
-          }}
-          onAssign={handleAssignCreditPerson}
-        />
-      </div>
+      {/* Credit Person Selection Modal */}
+      <CreditPersonModal
+        isOpen={showCreditPersonModal}
+        order={selectedOrderForCredit}
+        creditPersonas={creditPersonas}
+        assigning={assigningCreditPerson}
+        onClose={() => {
+          setShowCreditPersonModal(false);
+          setSelectedOrderForCredit(null);
+        }}
+        onAssign={handleAssignCreditPerson}
+      />
     </div>
   );
 };

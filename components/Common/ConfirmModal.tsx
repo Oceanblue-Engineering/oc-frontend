@@ -1,6 +1,7 @@
 import React from "react";
-import { X, AlertTriangle } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
+import { Button } from "../ui/button";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -29,67 +30,57 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   if (!isOpen) return null;
 
-  const getButtonColorClasses = () => {
+  const getButtonVariant = () => {
     switch (confirmButtonColor) {
       case "red":
-        return "bg-red-600 hover:bg-red-700 text-white";
+        return "destructive";
       case "blue":
-        return "bg-blue-600 hover:bg-blue-700 text-white";
+        return "default";
       case "green":
-        return "bg-green-600 hover:bg-green-700 text-white";
+        return "success";
       case "primary":
-        return "bg-primary hover:bg-primary/90 text-white";
+        return "default";
       default:
-        return "bg-red-600 hover:bg-red-700 text-white";
+        return "destructive";
     }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4">
-        <div className="p-6">
-          <div className="flex items-start gap-4">
-            <div className="flex-shrink-0">
-              <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <AlertTriangle className="w-6 h-6 text-red-600" />
-              </div>
-            </div>
-            <div className="flex-1">
-              <h3 className="text-lg font-bold text-slate-800 mb-2">{title}</h3>
-              <p className="text-sm text-slate-600">{message}</p>
-            </div>
-            <button
-              onClick={onCancel}
-              disabled={isLoading}
-              className="flex-shrink-0 text-slate-400 hover:text-slate-600 p-1 disabled:opacity-50"
-            >
-              <X className="w-5 h-5" />
-            </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-100 p-6 animate-in zoom-in-95 duration-200">
+        <div className="flex items-start gap-4">
+          <div className="w-11 h-11 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center shrink-0 border border-red-200/60">
+            <AlertTriangle className="w-5 h-5" />
           </div>
+          <div className="flex-1 space-y-1">
+            <h3 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              {title}
+            </h3>
+            <p className="text-xs sm:text-sm text-slate-500 font-medium leading-relaxed">
+              {message}
+            </p>
+          </div>
+        </div>
 
-          <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-            <button
-              onClick={onCancel}
-              disabled={isLoading}
-              className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors disabled:opacity-50"
-            >
-              {cancelText || t("common.cancel")}
-            </button>
-            <button
-              onClick={onConfirm}
-              disabled={isLoading}
-              className={`px-4 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 ${getButtonColorClasses()}`}
-            >
-              {isLoading ? (
-                <>
-                  <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
-                  {t("common.processing")}
-                </>
-              ) : (
-                confirmText || t("common.confirm")
-              )}
-            </button>
-          </div>
+        <div className="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-slate-100">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onCancel}
+            disabled={isLoading}
+          >
+            {cancelText || t("common.cancel")}
+          </Button>
+          <Button
+            type="button"
+            variant={getButtonVariant() as any}
+            size="sm"
+            onClick={onConfirm}
+            isLoading={isLoading}
+          >
+            {confirmText || t("common.confirm")}
+          </Button>
         </div>
       </div>
     </div>

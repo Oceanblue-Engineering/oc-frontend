@@ -73,6 +73,14 @@ export const TopBar: React.FC<TopBarProps> = ({ showHome = true }) => {
           )}
 
           <button
+            onClick={() => navigate("/invoice-generator")}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-xs sm:text-sm font-bold rounded-full bg-ocean-50 text-ocean-700 hover:bg-ocean-100 border border-ocean-200/80 transition-all cursor-pointer"
+            title="Generate Official Invoice"
+          >
+            <span>Invoice</span>
+          </button>
+
+          <button
             onClick={() => navigate("/settings")}
             className="p-2 text-gray-400 hover:text-ocean-600 hover:bg-slate-50 rounded-lg transition-colors cursor-pointer"
             title="Settings"

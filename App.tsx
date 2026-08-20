@@ -39,6 +39,7 @@ import { Tickets } from "./pages/Tickets";
 import { TicketDetail } from "./pages/TicketDetail";
 import { ProjectAttendance } from "./pages/ProjectAttendance";
 import ProjectDetailAnalytics from "./pages/ProjectDetailAnalytics";
+import { InvoiceGenerator } from "./pages/InvoiceGenerator";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -284,6 +285,14 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <TicketDetail />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/invoice-generator"
+            element={
+              <ProtectedRoute>
+                <InvoiceGenerator />
               </ProtectedRoute>
             }
           />

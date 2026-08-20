@@ -12,6 +12,7 @@ import {
   Plus,
   Minus,
   Printer,
+  FileText,
 } from "lucide-react";
 import { Order } from "../../services/Order/fetchOrders";
 import {
@@ -27,6 +28,13 @@ import { detectDevice } from "../../utils/deviceDetect";
 import { useNavigate } from "react-router-dom";
 import { AddItemsToOrderModal } from "./AddItemsToOrderModal";
 import { RemoveItemsFromOrderModal } from "./RemoveItemsFromOrderModal";
+import { InvoiceModal } from "../Invoice/InvoiceModal";
+import {
+  InvoiceData,
+  DEFAULT_REMARKS,
+  DEFAULT_PAYMENT_ACCOUNTS,
+} from "../Invoice/InvoiceDocument";
+import { Button } from "../ui/button";
 
 interface OrderDetailModalProps {
   isOpen: boolean;
@@ -45,13 +53,75 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   onOrderUpdate,
   onRefresh,
 }) => {
-  // console.log("orderdetail", order);
   const { t } = useLanguage();
   const navigate = useNavigate();
   const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
   const userRole = adminData.role;
   const [showAddItemsModal, setShowAddItemsModal] = useState(false);
   const [showRemoveItemsModal, setShowRemoveItemsModal] = useState(false);
+  const [showInvoiceModal, setShowInvoiceModal] = useState(false);
+
+  const getInvoiceDataFromOrder = (ord: Order): InvoiceData => {
+    const rawDate = ord.createdAt || ord.date || new Date().toISOString();
+    const formattedDate = new Date(rawDate).toISOString().split("T")[0];
+
+    const customerName =
+      (typeof ord.creditPersonId === "object" ? ord.creditPersonId?.name : "") ||
+      ord.customer ||
+      "Customer";
+    const customerPhone =
+      (typeof ord.creditPersonId === "object"
+        ? ord.creditPersonId?.phone
+        : "") || "";
+    const customerAddress =
+      (typeof ord.creditPersonId === "object"
+        ? ord.creditPersonId?.address
+        : "") ||
+      ord.deliveryDetails?.deliveryAddress ||
+      "";
+
+    const items =
+      ord.ordersProducts && ord.ordersProducts.length > 0
+        ? ord.ordersProducts.map((item, idx) => ({
+            no: idx + 1,
+            description:
+              item.inventoryId?.productName || "Product Item",
+            qty: item.quantity || 1,
+            unitPrice: item.unitPrice || 0,
+            amount: (item.quantity || 1) * (item.unitPrice || 0),
+          }))
+        : (ord.items || []).map((item, idx) => ({
+            no: idx + 1,
+            description:
+              item.productId?.productName || "Product Item",
+            qty: item.quantity || 1,
+            unitPrice: item.price || 0,
+            amount: (item.quantity || 1) * (item.price || 0),
+          }));
+
+    return {
+      invoiceNo: ord.orderNumber || ord.voucherNo || "INV-001",
+      invoiceDate: formattedDate,
+      paymentTerms: `${getPaymentTypeLabel(ord.paymentType)} • ${getPaymentMethodLabel(ord.paymentMethod)}`,
+      billTo: {
+        name: customerName,
+        phone: customerPhone,
+        address: customerAddress,
+        company: ord.storefrontId?.name || "",
+      },
+      items,
+      subTotal: ord.subTotal || ord.finalAmount || 0,
+      discountOrTaxLabel: ord.discount
+        ? `Discount (${ord.discount.toLocaleString()} MMK)`
+        : "Discount / Tax (%)",
+      discountOrTaxAmount: ord.discount || 0,
+      totalAmount: ord.finalAmount || 0,
+      remarks: [...DEFAULT_REMARKS],
+      paymentAccounts: [...DEFAULT_PAYMENT_ACCOUNTS],
+      preparedBy: `Prepared By: ${adminData.name || "Ocean Blue"}`,
+      currency: "MMK",
+    };
+  };
 
   const handlePrintOrder = () => {
     if (!order) return;
@@ -79,11 +149,24 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
       note: order.note,
       serviceCharge: 0,
       tax: 0,
-      receiptSequenceNumber: parseInt(order.orderNumber?.split("/").pop() || "0", 10) || Date.now() % 10000,
-      cashierName: JSON.parse(localStorage.getItem("adminData") || "{}").name || "Cashier",
-      customerName: typeof order.creditPersonId === "object" ? order.creditPersonId?.name : "",
-      customerPhone: typeof order.creditPersonId === "object" ? order.creditPersonId?.phone : "",
-      customerAddress: typeof order.creditPersonId === "object" ? order.creditPersonId?.address || "" : "",
+      receiptSequenceNumber:
+        parseInt(order.orderNumber?.split("/").pop() || "0", 10) ||
+        Date.now() % 10000,
+      cashierName:
+        JSON.parse(localStorage.getItem("adminData") || "{}").name ||
+        "Cashier",
+      customerName:
+        typeof order.creditPersonId === "object"
+          ? order.creditPersonId?.name
+          : "",
+      customerPhone:
+        typeof order.creditPersonId === "object"
+          ? order.creditPersonId?.phone
+          : "",
+      customerAddress:
+        typeof order.creditPersonId === "object"
+          ? order.creditPersonId?.address || ""
+          : "",
     };
 
     // Save receipt data to localStorage for A4 printing
@@ -92,357 +175,233 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
     // Navigate to A4 print page for all devices
     navigate(
-      `/print-receipt/${receiptData.invoiceNumber}?size=${getSavedPrintPaperSize()}`,
+      `/print-receipt/${receiptData.invoiceNumber}?size=${getSavedPrintPaperSize()}`
     );
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl max-w-2xl w-full mx-4 max-h-[90vh] overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
-        <div className="flex flex-row justify-between items-start gap-4 p-4 border-b bg-slate-50">
-          <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">
-            <Receipt className="w-5 h-5 text-primary" />
+        <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 border-b bg-slate-50/80 shrink-0">
+          <h3 className="font-black text-base sm:text-lg text-slate-800 flex items-center gap-2">
+            <Receipt className="w-5 h-5 text-ocean-600" />
             Order Details
           </h3>
-          <div className="flex flex-row items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             {order && (
-              <button
-                onClick={handlePrintOrder}
-                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium"
-                title="Print Order"
-              >
-                <Printer className="w-4 h-4" />
-                <span className="hidden sm:inline">Print</span>
-              </button>
+              <>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={() => setShowInvoiceModal(true)}
+                  leftIcon={<FileText className="w-4 h-4" />}
+                >
+                  Official Invoice (A4)
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrintOrder}
+                  leftIcon={<Printer className="w-4 h-4" />}
+                  title="Print Thermal Receipt"
+                >
+                  Thermal Receipt
+                </Button>
+              </>
             )}
             {order && userRole === "owner" && (
               <>
-                <button
+                <Button
+                  variant="destructive"
+                  size="sm"
                   onClick={() => setShowRemoveItemsModal(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+                  leftIcon={<Minus className="w-3.5 h-3.5" />}
                 >
-                  <Minus className="w-4 h-4" />
-                  <span className="hidden sm:inline">
-                    {t("orders.removeItems") || "Remove Items"}
-                  </span>
-                </button>
-                <button
+                  {t("orders.removeItems") || "Remove"}
+                </Button>
+                <Button
+                  variant="subtle"
+                  size="sm"
                   onClick={() => setShowAddItemsModal(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors text-sm font-medium"
+                  leftIcon={<Plus className="w-3.5 h-3.5" />}
                 >
-                  <Plus className="w-4 h-4" />
-                  <span className="hidden sm:inline">
-                    {t("orders.addItems") || "Add Items"}
-                  </span>
-                </button>
+                  {t("orders.addItems") || "Add"}
+                </Button>
               </>
             )}
             <button
               onClick={onClose}
-              className="p-1 hover:bg-slate-200 rounded-lg transition-colors"
+              className="w-8 h-8 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
             >
-              <X className="w-5 h-5 text-slate-500" />
+              <X className="w-5 h-5" />
             </button>
           </div>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-80px)]">
+        <div className="p-6 overflow-y-auto flex-1 space-y-6">
           {loading ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <RefreshCw className="w-8 h-8 animate-spin text-primary mb-3" />
-              <p className="text-slate-500">Loading order details...</p>
+            <div className="flex flex-col items-center justify-center py-16">
+              <RefreshCw className="w-8 h-8 animate-spin text-ocean-600 mb-3" />
+              <p className="text-slate-500 font-semibold">
+                Loading order details...
+              </p>
             </div>
           ) : order ? (
             <>
-              {/* Order Info */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                  <p className="text-xs text-blue-600 font-medium mb-1">
-                    Order Number
-                  </p>
-                  <p className="font-bold text-blue-800">{order.orderNumber}</p>
-                </div>
-                <div className="bg-green-50 p-4 rounded-lg border border-green-200">
-                  <p className="text-xs text-green-600 font-medium mb-1">
-                    Status
-                  </p>
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusColor(
-                      order.orderStatus,
-                    )}`}
-                  >
-                    {order.orderStatus?.toUpperCase()}
-                  </span>
-                </div>
-              </div>
-
-              {/* Store & Date Info */}
-              <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Store className="w-4 h-4" />
-                  <span>
-                    {order.storefrontId?.locationName ||
-                      order.storefrontId?.storefrontName ||
-                      "-"}
-                  </span>
-                  <span className="text-xs text-slate-400">
-                    (
-                    {order.storefrontId?.locationCode ||
-                      order.storefrontId?.storefrontCode ||
-                      "-"}
-                    )
-                  </span>
-                </div>
-                <div className="flex items-center gap-2 text-slate-600">
-                  <Calendar className="w-4 h-4" />
-                  <span>{formatDate(order.createdAt)}</span>
-                </div>
-              </div>
-
-              {/* Sold By & Credit Person Info */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                {order.soldBy && (
-                  <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-                    <div className="flex items-center gap-2 mb-2">
-                      <UserCircle className="w-4 h-4 text-purple-600" />
-                      <p className="text-xs text-purple-600 font-medium">
-                        Sold By
-                      </p>
-                    </div>
-                    <p className="font-bold text-purple-800">
-                      {order.soldBy.name}
-                    </p>
-                    <p className="text-xs text-purple-600 mt-1">
-                      {order.soldBy.role}
-                    </p>
+              {/* Order Info Banner */}
+              <div className="flex flex-wrap items-center justify-between gap-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-black text-slate-900">
+                      {order.orderNumber}
+                    </span>
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getStatusColor(
+                        order.orderStatus
+                      )}`}
+                    >
+                      {order.orderStatus}
+                    </span>
                   </div>
-                )}
-                {order.creditPersonId &&
-                  typeof order.creditPersonId === "object" && (
-                    <div className="bg-orange-50 p-4 rounded-lg border border-orange-200">
-                      <div className="flex items-center gap-2 mb-2">
-                        <User className="w-4 h-4 text-orange-600" />
-                        <p className="text-xs text-orange-600 font-medium">
-                          Credit Person
-                        </p>
-                      </div>
-                      <p className="font-bold text-orange-800">
-                        {order.creditPersonId.name}
-                      </p>
-                      <p className="text-xs text-orange-600 mt-1">
-                        {order.creditPersonId.phone}
-                      </p>
+                  <p className="text-xs text-slate-500 flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5" />
+                    {formatDate(order.createdAt)}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {order.storefrontId && (
+                    <div className="flex items-center gap-1.5 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200/60 font-semibold">
+                      <Store className="w-3.5 h-3.5 text-ocean-600" />
+                      {order.storefrontId.name}
                     </div>
                   )}
+                </div>
               </div>
 
-              {/* Note */}
-              {order.note && (
-                <div className="mb-6 bg-yellow-50 p-4 rounded-lg border border-yellow-200">
-                  <p className="text-xs text-yellow-600 font-medium mb-1">
-                    Note
-                  </p>
-                  <p className="text-sm text-yellow-800">{order.note}</p>
+              {/* Customer & Credit Person Info */}
+              {(order.creditPersonId || order.customer) && (
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-ocean-50 text-ocean-600 flex items-center justify-center border border-ocean-200/60 shrink-0">
+                    <User className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                      Customer / Client
+                    </p>
+                    <p className="text-sm font-black text-slate-800">
+                      {typeof order.creditPersonId === "object"
+                        ? order.creditPersonId?.name
+                        : order.customer || "General Customer"}
+                      {typeof order.creditPersonId === "object" &&
+                      order.creditPersonId?.phone
+                        ? ` (${order.creditPersonId.phone})`
+                        : ""}
+                    </p>
+                  </div>
                 </div>
               )}
 
-              {/* Products */}
-              <div className="mb-6">
-                <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                  <Package className="w-4 h-4" />
-                  Order Items
+              {/* Items Table */}
+              <div className="space-y-3">
+                <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <Package className="w-4 h-4 text-ocean-600" />
+                  Order Items (
+                  {order.ordersProducts?.length || order.items?.length || 0})
                 </h4>
-                <div className="border rounded-lg overflow-hidden">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-50">
+                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                  <table className="w-full text-xs sm:text-sm text-left">
+                    <thead className="bg-slate-50 text-slate-500 font-bold uppercase tracking-wider text-[11px] border-b border-slate-200">
                       <tr>
-                        <th className="p-3 text-left font-medium text-slate-600">
-                          Product
-                        </th>
-                        <th className="p-3 text-center font-medium text-slate-600">
-                          Qty
-                        </th>
-                        <th className="p-3 text-right font-medium text-slate-600">
-                          Unit Price
-                        </th>
-                        <th className="p-3 text-right font-medium text-slate-600">
-                          Subtotal
-                        </th>
+                        <th className="p-3">Product</th>
+                        <th className="p-3 text-center">Qty</th>
+                        <th className="p-3 text-right">Unit Price</th>
+                        <th className="p-3 text-right">Total</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y">
-                      {order.ordersProducts?.map((item, index) => (
-                        <tr key={item._id || index}>
-                          <td className="p-3">
-                            <div>
-                              <p className="font-medium text-slate-800">
-                                {item.inventoryId?.productName || "Unknown"}
-                              </p>
-                              <p className="text-xs text-slate-400">
-                                {item.inventoryId?.productCode}
-                              </p>
-                            </div>
-                          </td>
-                          <td className="p-3 text-center font-medium">
-                            {item.quantity}
-                          </td>
-                          <td className="p-3 text-right text-slate-600">
-                            {item.unitPrice?.toLocaleString()} MMK
-                          </td>
-                          <td className="p-3 text-right font-medium text-slate-800">
-                            {(
-                              item.quantity * (item.unitPrice || 0)
-                            ).toLocaleString()}{" "}
-                            MMK
-                          </td>
-                        </tr>
-                      ))}
+                    <tbody className="divide-y divide-slate-100 bg-white">
+                      {(order.ordersProducts || order.items || []).map(
+                        (item: any, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50/50">
+                            <td className="p-3 font-semibold text-slate-800">
+                              {item.inventoryId?.productName ||
+                                item.productId?.productName ||
+                                item.productName ||
+                                "Product Item"}
+                              {(item.inventoryId?.productCode ||
+                                item.productId?.productCode) && (
+                                <span className="block text-[10px] text-slate-400 font-normal">
+                                  {item.inventoryId?.productCode ||
+                                    item.productId?.productCode}
+                                </span>
+                              )}
+                            </td>
+                            <td className="p-3 text-center font-bold text-slate-700">
+                              {item.quantity || 1}
+                            </td>
+                            <td className="p-3 text-right text-slate-600">
+                              {(item.unitPrice || item.price || 0).toLocaleString()}{" "}
+                              MMK
+                            </td>
+                            <td className="p-3 text-right font-black text-slate-900">
+                              {(
+                                (item.quantity || 1) *
+                                (item.unitPrice || item.price || 0)
+                              ).toLocaleString()}{" "}
+                              MMK
+                            </td>
+                          </tr>
+                        )
+                      )}
                     </tbody>
                   </table>
                 </div>
               </div>
 
-              {/* Delivery Details */}
-              {order.deliveryDetails || order.deliveryStatus ? (
-                <div className="mb-6 bg-cyan-50 p-4 rounded-lg border border-cyan-200">
-                  <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                    <Package className="w-4 h-4 text-cyan-600" />
-                    Delivery Details
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3 text-sm">
-                    <div className="flex flex-col">
-                      <span className="text-xs text-slate-500">Status</span>
-                      <span
-                        className={`inline-block w-fit mt-1 px-2 py-0.5 rounded-full text-xs font-bold ${
-                          {
-                            pending: "bg-amber-50 text-amber-700 border border-amber-100",
-                            processing: "bg-blue-50 text-blue-700 border border-blue-100",
-                            out_for_delivery: "bg-sky-50 text-sky-700 border border-sky-100",
-                            delivered: "bg-emerald-50 text-emerald-700 border border-emerald-100",
-                            cancelled: "bg-red-50 text-red-600 border border-red-100",
-                          }[order.deliveryStatus || "pending"] || "bg-slate-50 text-slate-600"
-                        }`}
-                      >
-                        {(order.deliveryStatus || "pending")
-                          .replace(/_/g, " ")
-                          .toUpperCase()}
-                      </span>
-                    </div>
-                    {order.deliveryDetails?.townshipName && (
-                      <div className="flex flex-col">
-                        <span className="text-xs text-slate-500">Township</span>
-                        <span className="font-medium text-slate-800">
-                          {order.deliveryDetails.townshipName}
-                        </span>
-                      </div>
-                    )}
-                    {order.deliveryDetails?.deliveryFee ? (
-                      <div className="flex flex-col">
-                        <span className="text-xs text-slate-500">Delivery Fee</span>
-                        <span className="font-semibold text-cyan-700">
-                          {order.deliveryDetails.deliveryFee.toLocaleString()} MMK
-                        </span>
-                      </div>
-                    ) : null}
-                    {order.deliveryDetails?.recipientName && (
-                      <div className="flex flex-col">
-                        <span className="text-xs text-slate-500">Recipient</span>
-                        <span className="font-medium text-slate-800">
-                          {order.deliveryDetails.recipientName}
-                          {order.deliveryDetails.recipientPhone
-                            ? ` (${order.deliveryDetails.recipientPhone})`
-                            : ""}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  {order.deliveryDetails?.deliveryAddress && (
-                    <p className="text-sm text-slate-700 mt-2 border-t border-cyan-100 pt-2">
-                      <span className="text-xs text-slate-500 block mb-0.5">Address</span>
-                      {order.deliveryDetails.deliveryAddress}
-                    </p>
-                  )}
-                </div>
-              ) : null}
-
               {/* Payment Summary */}
-              <div className="bg-slate-50 p-4 rounded-lg border">
-                <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
-                  <CreditCard className="w-4 h-4" />
+              <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-3">
+                <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                  <CreditCard className="w-4 h-4 text-ocean-600" />
                   Payment Summary
                 </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Subtotal</span>
-                    <span>{order.subTotal?.toLocaleString()} MMK</span>
+                <div className="space-y-2 text-xs sm:text-sm">
+                  <div className="flex justify-between text-slate-600">
+                    <span>Subtotal</span>
+                    <span className="font-semibold">
+                      {order.subTotal?.toLocaleString()} MMK
+                    </span>
                   </div>
-                  {order.tax > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-slate-500">Tax</span>
-                      <span>{order.tax?.toLocaleString()} MMK</span>
-                    </div>
-                  )}
                   {order.discount > 0 && (
-                    <div className="flex justify-between text-green-600">
+                    <div className="flex justify-between text-emerald-600 font-semibold">
                       <span>Discount</span>
-                      <span>-{order.discount?.toLocaleString()} MMK</span>
+                      <span>-{order.discount.toLocaleString()} MMK</span>
                     </div>
                   )}
-                  {order.deliveryDetails?.deliveryFee ? (
-                    <div className="flex justify-between text-cyan-600">
-                      <span>Delivery Fee</span>
-                      <span>{order.deliveryDetails.deliveryFee?.toLocaleString()} MMK</span>
-                    </div>
-                  ) : null}
-                  <div className="border-t pt-2 flex justify-between font-bold text-lg">
-                    <span>Final Amount</span>
-                    <span>{order.finalAmount?.toLocaleString()} MMK</span>
-                  </div>
-                  <div className="flex justify-between text-green-600">
-                    <span>Paid Amount</span>
-                    <span>{order.paidAmount?.toLocaleString()} MMK</span>
-                  </div>
-                  {order.extraChange > 0 && (
-                    <div className="flex justify-between text-blue-600 font-medium">
-                      <span>Change</span>
-                      <span>{order.extraChange?.toLocaleString()} MMK</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between pt-2 border-t">
-                    <span className="text-slate-500">Payment Type</span>
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-bold ${getPaymentTypeColor(
-                        order.paymentType,
-                      )}`}
-                    >
-                      {getPaymentTypeLabel(order.paymentType)}
+                  <div className="border-t border-slate-200 pt-2.5 flex justify-between font-black text-base sm:text-lg text-slate-900">
+                    <span>Total Amount</span>
+                    <span className="text-ocean-700">
+                      {order.finalAmount?.toLocaleString()} MMK
                     </span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-500">Payment Method</span>
-                    <span className="font-medium">
-                      {getPaymentMethodLabel(order.paymentMethod)}
-                    </span>
-                  </div>
-                  {order.remainingBalance !== undefined &&
-                    order.remainingBalance > 0 && (
-                      <div className="flex justify-between text-orange-600 font-medium">
-                        <span>Remaining Balance</span>
-                        <span>
-                          {order.remainingBalance?.toLocaleString()} MMK
-                        </span>
-                      </div>
-                    )}
                 </div>
               </div>
             </>
           ) : null}
         </div>
       </div>
+
+      {/* Official A4 Invoice Preview Modal */}
+      {showInvoiceModal && order && (
+        <InvoiceModal
+          isOpen={showInvoiceModal}
+          onClose={() => setShowInvoiceModal(false)}
+          invoiceData={getInvoiceDataFromOrder(order)}
+        />
+      )}
 
       {/* Add Items Modal */}
       <AddItemsToOrderModal

@@ -188,6 +188,14 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-ocean-50 text-ocean-600",
   },
   {
+    id: "invoiceGenerator",
+    titleKey: "sidebar.invoiceGenerator",
+    descKey: "home.desc.invoiceGenerator",
+    icon: Receipt,
+    path: "/invoice-generator",
+    color: "bg-blue-50 text-blue-700",
+  },
+  {
     id: "clientProjects",
     titleKey: "sidebar.clientProjects",
     descKey: "home.desc.clientProjects",

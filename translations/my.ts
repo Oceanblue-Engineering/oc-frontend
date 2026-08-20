@@ -92,6 +92,7 @@ export const my = {
     clientProjects: "Client Projects",
     delivery: "Delivery",
     tickets: "တစ်ကြောင်း",
+    invoiceGenerator: "အင်ဗွိုက်စ် ထုတ်ရန်",
     collapse: "ပိတ်မည်",
     logout: "ထွက်ရန်",
     loggedOut: "အောင်မြင်စွာ ထွက်လိုက်ပါသည်",
@@ -126,6 +127,7 @@ export const my = {
       clientProjects: "လက်ရှိ Client ပရောဂျက်များ",
       delivery: "ရပ်ကွက်အလိုက် ပို့ဆောင်ခ",
       tickets: "အကူအညီနှင့် ပြဿနာတင်စာရင်း",
+      invoiceGenerator: "တရားဝင် A4 Invoice နှင့် PDF / PNG ထုတ်ယူခြင်း",
     },
   },
   clients: {
