@@ -253,7 +253,7 @@ export const CreateGRNModal: React.FC<CreateGRNModalProps> = ({
               </div>
               <button
                 onClick={loadPOItems}
-                className="mt-4 w-full bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
+                className="mt-4 w-full bg-zinc-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-700 transition-colors"
               >
                 Load PO Items
               </button>
@@ -299,7 +299,7 @@ export const CreateGRNModal: React.FC<CreateGRNModalProps> = ({
                     prev.map((item) => ({ ...item, isSelected: true }))
                   );
                 }}
-                className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                className="text-xs px-2 py-1 bg-zinc-100 text-zinc-700 rounded hover:bg-zinc-200"
               >
                 Select All
               </button>
@@ -327,7 +327,7 @@ export const CreateGRNModal: React.FC<CreateGRNModalProps> = ({
                     key={index}
                     className={`border rounded-lg p-4 shadow-sm ${
                       item.isSelected
-                        ? "bg-white border-blue-300"
+                        ? "bg-white border-zinc-300"
                         : "bg-gray-50 border-gray-200 opacity-60"
                     }`}
                   >
@@ -339,7 +339,7 @@ export const CreateGRNModal: React.FC<CreateGRNModalProps> = ({
                           onChange={(e) =>
                             updateGRNItem(index, "isSelected", e.target.checked)
                           }
-                          className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                          className="w-4 h-4 text-zinc-600 rounded focus:ring-zinc-500"
                         />
                         <div>
                           <div className="font-semibold text-slate-800">
@@ -447,7 +447,7 @@ export const CreateGRNModal: React.FC<CreateGRNModalProps> = ({
                   !selectedPOId ||
                   isSubmitting
                 }
-                className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
+                className="bg-zinc-600 text-white py-3 rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors"
               >
                 {isSubmitting ? "Creating..." : "Create GRN"}
               </button>

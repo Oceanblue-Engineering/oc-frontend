@@ -11,7 +11,7 @@ import { useLanguage } from "../context/LanguageContext";
 
 const statusColor: Record<string, string> = {
   Open: "bg-amber-50 text-amber-700 border border-amber-100",
-  "In Progress": "bg-blue-50 text-blue-700 border border-blue-100",
+  "In Progress": "bg-zinc-50 text-zinc-700 border border-zinc-100",
   Pending: "bg-slate-100 text-slate-600 border border-slate-200",
   Resolved: "bg-emerald-50 text-emerald-700 border border-emerald-100",
 };
@@ -257,7 +257,7 @@ export const Tickets: React.FC = () => {
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-bold ${
                           tk.type === "Project"
-                            ? "bg-violet-50 text-violet-700"
+                            ? "bg-zinc-50 text-zinc-700"
                             : "bg-slate-100 text-slate-600"
                         }`}
                       >

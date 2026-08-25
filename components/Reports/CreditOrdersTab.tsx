@@ -41,7 +41,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
         {/* Total Final Amount */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Receipt className="w-5 h-5 text-[#0077b6]" />
+            <Receipt className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -57,7 +57,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
         {/* Total Paid Amount */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <DollarSign className="w-5 h-5 text-[#0077b6]" />
+            <DollarSign className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -73,7 +73,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
         {/* Remaining Balance */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <AlertCircle className="w-5 h-5 text-[#0077b6]" />
+            <AlertCircle className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -89,7 +89,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
         {/* Credit Orders */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <CreditCard className="w-5 h-5 text-[#0077b6]" />
+            <CreditCard className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -107,7 +107,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Initial Payments */}
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between text-[#0077b6] font-bold text-sm sm:text-base">
+          <div className="flex items-center justify-between text-[#27272a] font-bold text-sm sm:text-base">
             <div className="flex items-center gap-2">
               <TrendingUp className="w-5 h-5" />
               <span>Initial Payments</span>
@@ -132,7 +132,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
                   {creditOrdersReport.data.initialPayments.length > 0 ? (
                     creditOrdersReport.data.initialPayments.map((pm, index) => {
                       const methodName = pm.paymentMethod.toLowerCase();
-                      const color = PAYMENT_METHOD_COLORS[methodName] || "#6366f1";
+                      const color = PAYMENT_METHOD_COLORS[methodName] || "#a1a1aa";
                       return (
                         <tr key={index} className="hover:bg-slate-50/40 transition-colors">
                           {/* No */}
@@ -182,7 +182,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
                       <td className="px-4 py-4 text-right text-xs">
                         {creditOrdersReport.data.initialPayments.reduce((sum, pm) => sum + pm.orderCount, 0).toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-right text-xs font-black text-[#0077b6]">
+                      <td className="px-4 py-4 text-right text-xs font-black text-[#27272a]">
                         {creditOrdersReport.data.totals.totalInitialPaidAmount.toLocaleString()} MMK
                       </td>
                     </tr>
@@ -195,7 +195,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
 
         {/* Credit Payments */}
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between text-[#0077b6] font-bold text-sm sm:text-base">
+          <div className="flex items-center justify-between text-[#27272a] font-bold text-sm sm:text-base">
             <div className="flex items-center gap-2">
               <DollarSign className="w-5 h-5" />
               <span>Credit Payments</span>
@@ -220,7 +220,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
                   {creditOrdersReport.data.creditPayments.length > 0 ? (
                     creditOrdersReport.data.creditPayments.map((pm, index) => {
                       const methodName = pm.paymentMethod.toLowerCase();
-                      const color = PAYMENT_METHOD_COLORS[methodName] || "#6366f1";
+                      const color = PAYMENT_METHOD_COLORS[methodName] || "#a1a1aa";
                       return (
                         <tr key={index} className="hover:bg-slate-50/40 transition-colors">
                           {/* No */}
@@ -270,7 +270,7 @@ export const CreditOrdersTab: React.FC<CreditOrdersTabProps> = ({
                       <td className="px-4 py-4 text-right text-xs">
                         {creditOrdersReport.data.creditPayments.reduce((sum, pm) => sum + pm.recordCount, 0).toLocaleString()}
                       </td>
-                      <td className="px-4 py-4 text-right text-xs font-black text-[#0077b6]">
+                      <td className="px-4 py-4 text-right text-xs font-black text-[#27272a]">
                         {creditOrdersReport.data.totals.totalCreditPaidAmount.toLocaleString()} MMK
                       </td>
                     </tr>

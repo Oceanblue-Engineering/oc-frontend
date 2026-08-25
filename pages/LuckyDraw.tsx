@@ -626,7 +626,7 @@ export const LuckyDraw: React.FC = () => {
                 key={page}
                 onClick={() => loadPromotions(page)}
                 className={`px-3 py-1.5 rounded-lg text-sm font-bold transition-all cursor-pointer ${page === currentPage
-                  ? "bg-[#0077b6] text-white shadow-md shadow-ocean-600/10"
+                  ? "bg-[#27272a] text-white shadow-md shadow-ocean-600/10"
                   : "text-slate-600 hover:bg-slate-50 border border-transparent"
                   }`}
               >
@@ -655,7 +655,7 @@ export const LuckyDraw: React.FC = () => {
         <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 border-b border-gray-100 pb-5">
           <div>
             <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2.5">
-              <Gift className="w-6 h-6 text-[#0077b6]" />
+              <Gift className="w-6 h-6 text-[#27272a]" />
               {t("luckyDraw.title")}
             </h1>
             <p className="text-xs text-slate-400 mt-1.5 font-medium">
@@ -670,7 +670,7 @@ export const LuckyDraw: React.FC = () => {
                 else loadRedemptions();
               }}
               disabled={loadingPromotions || loadingRedemptions}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <RefreshCw
                 className={`w-3.5 h-3.5 ${loadingPromotions || loadingRedemptions ? "animate-spin" : ""
@@ -683,7 +683,7 @@ export const LuckyDraw: React.FC = () => {
             {activeTab === "redeem" && (
               <button
                 onClick={() => setIsRedeemModalOpen(true)}
-                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>လဲလှယ်မယ့် ပစ္စည်းထည့်မည်</span>
@@ -699,7 +699,7 @@ export const LuckyDraw: React.FC = () => {
                   setRedemptionStartDate(newStart);
                   setRedemptionEndDate(newEnd);
                 }}
-                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
               />
             )}
 
@@ -707,7 +707,7 @@ export const LuckyDraw: React.FC = () => {
             {activeTab === "promotions" && (
               <button
                 onClick={handleOpenCreate}
-                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
+                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
               >
                 <Plus className="w-3.5 h-3.5" />
                 <span>{t("luckyDraw.addPromotion")}</span>
@@ -721,7 +721,7 @@ export const LuckyDraw: React.FC = () => {
           <button
             onClick={() => setActiveTab("redeem")}
             className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all cursor-pointer flex items-center gap-2 ${activeTab === "redeem"
-              ? "bg-white text-[#0077b6] shadow-sm"
+              ? "bg-white text-[#27272a] shadow-sm"
               : "text-gray-500 hover:text-gray-700"
               }`}
           >
@@ -732,7 +732,7 @@ export const LuckyDraw: React.FC = () => {
           <button
             onClick={() => setActiveTab("promotions")}
             className={`px-5 py-2 text-sm font-semibold rounded-lg transition-all cursor-pointer flex items-center gap-2 ${activeTab === "promotions"
-              ? "bg-white text-[#0077b6] shadow-sm"
+              ? "bg-white text-[#27272a] shadow-sm"
               : "text-gray-500 hover:text-gray-700"
               }`}
           >
@@ -764,7 +764,7 @@ export const LuckyDraw: React.FC = () => {
                       key={filter}
                       onClick={() => setStatusFilter(filter)}
                       className={`px-3.5 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer capitalize ${statusFilter === filter
-                        ? "bg-white text-[#0077b6] shadow-sm"
+                        ? "bg-white text-[#27272a] shadow-sm"
                         : "text-gray-500 hover:text-gray-700"
                         }`}
                     >
@@ -779,7 +779,7 @@ export const LuckyDraw: React.FC = () => {
             <div className="bg-white border border-gray-150 rounded-2xl overflow-hidden flex flex-col min-h-0">
               {loadingPromotions ? (
                 <div className="p-8 text-center text-slate-500">
-                  <Loader2 className="w-8 h-8 animate-spin text-[#0077b6] mx-auto mb-2" />
+                  <Loader2 className="w-8 h-8 animate-spin text-[#27272a] mx-auto mb-2" />
                   <p>{t("common.loading")}</p>
                 </div>
               ) : filteredPromotions.length === 0 ? (
@@ -881,7 +881,7 @@ export const LuckyDraw: React.FC = () => {
                             <div className="flex items-center justify-center gap-2 whitespace-nowrap">
                               <button
                                 onClick={() => handleOpenEdit(promo)}
-                                className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#0077b6] hover:bg-[#0077b6]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
+                                className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
                               >
                                 {t("common.edit")}
                               </button>
@@ -942,7 +942,7 @@ export const LuckyDraw: React.FC = () => {
               </div>
               {loadingRedemptions ? (
                 <div className="p-8 text-center text-slate-500">
-                  <Loader2 className="w-8 h-8 animate-spin text-[#0077b6] mx-auto mb-2" />
+                  <Loader2 className="w-8 h-8 animate-spin text-[#27272a] mx-auto mb-2" />
                   <p>{t("common.loading")}</p>
                 </div>
               ) : filteredRedemptions.length === 0 ? (
@@ -1118,7 +1118,7 @@ export const LuckyDraw: React.FC = () => {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl">
             <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10 rounded-t-xl">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Ticket className="w-5 h-5 text-[#0077b6]" />
+                <Ticket className="w-5 h-5 text-[#27272a]" />
                 လဲလှယ်မယ့် ပစ္စည်းထည့်မည်
               </h2>
               <button
@@ -1285,7 +1285,7 @@ export const LuckyDraw: React.FC = () => {
                       !redeemForm.promotionId ||
                       !redeemForm.storefrontId
                     }
-                    className="px-6 py-2.5 text-sm font-semibold rounded-lg bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="px-6 py-2.5 text-sm font-semibold rounded-lg bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {isRedeeming ? (
                       <>
@@ -1312,7 +1312,7 @@ export const LuckyDraw: React.FC = () => {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg">
             <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10 rounded-t-xl">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Gift className="w-5 h-5 text-[#0077b6]" />
+                <Gift className="w-5 h-5 text-[#27272a]" />
                 {editingPromotion
                   ? t("luckyDraw.editPromotion")
                   : t("luckyDraw.newPromotion")}
@@ -1405,7 +1405,7 @@ export const LuckyDraw: React.FC = () => {
                               key={productId}
                               type="button"
                               className={`w-full text-left px-3 py-2 text-sm hover:bg-ocean-50 transition-colors cursor-pointer ${isSelected
-                                ? "bg-ocean-50 text-[#0077b6] font-semibold"
+                                ? "bg-ocean-50 text-[#27272a] font-semibold"
                                 : "text-slate-700"
                                 }`}
                               onClick={() => {
@@ -1532,7 +1532,7 @@ export const LuckyDraw: React.FC = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-4 py-2 bg-[#0077b6] text-white rounded-lg hover:bg-[#0077b6]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2 cursor-pointer"
+                  className="px-4 py-2 bg-[#27272a] text-white rounded-lg hover:bg-[#27272a]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2 cursor-pointer"
                 >
                   {isSubmitting ? (
                     <>

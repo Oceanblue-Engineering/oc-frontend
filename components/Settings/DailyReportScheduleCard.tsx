@@ -100,7 +100,7 @@ export const DailyReportScheduleCard: React.FC<DailyReportScheduleCardProps> = (
         <button
           onClick={handleSave}
           disabled={saving}
-          className="px-4 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          className="px-4 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
         >
           {saving ? (
             <Loader2 className="w-4 h-4 animate-spin" />

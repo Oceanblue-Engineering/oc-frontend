@@ -197,13 +197,13 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-slate-500">GRN Number:</span>
-                  <span className="font-medium text-blue-600">
+                  <span className="font-medium text-zinc-600">
                     {grn.grnNumber}
                   </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-500">Status:</span>
-                  <span className="font-medium text-purple-600">
+                  <span className="font-medium text-zinc-600">
                     {grn.status.toUpperCase()}
                   </span>
                 </div>
@@ -278,7 +278,7 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
                       prev.map((item) => ({ ...item, isSelected: true }))
                     );
                   }}
-                  className="text-xs px-2 py-1 bg-blue-100 text-blue-700 rounded hover:bg-blue-200"
+                  className="text-xs px-2 py-1 bg-zinc-100 text-zinc-700 rounded hover:bg-zinc-200"
                 >
                   Select All
                 </button>
@@ -306,7 +306,7 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
                       key={index}
                       className={`border rounded-lg p-4 shadow-sm ${
                         item.isSelected
-                          ? "bg-white border-blue-300"
+                          ? "bg-white border-zinc-300"
                           : "bg-gray-50 border-gray-200 opacity-60"
                       }`}
                     >
@@ -318,7 +318,7 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
                             onChange={(e) =>
                               updateTransferSelection(index, e.target.checked)
                             }
-                            className="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                            className="w-4 h-4 text-zinc-600 rounded focus:ring-zinc-500"
                           />
                           <div>
                             <div className="font-semibold text-slate-800">
@@ -350,7 +350,7 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
                               </label>
                               <input
                                 type="number"
-                                className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-blue-500"
+                                className="w-full border rounded-lg p-2 text-sm focus:ring-2 focus:ring-zinc-500"
                                 value={item.quantity}
                                 onChange={(e) =>
                                   updateTransferQuantity(
@@ -399,7 +399,7 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
                     ).length === 0 ||
                     isSubmitting
                   }
-                  className="bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center justify-center gap-2"
+                  className="bg-zinc-600 text-white py-3 rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center justify-center gap-2"
                 >
                   <Warehouse className="w-5 h-5" />
                   {isSubmitting ? "Transferring..." : "Transfer Selected"}

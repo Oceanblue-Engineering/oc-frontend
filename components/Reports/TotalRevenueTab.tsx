@@ -146,7 +146,7 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
       <div className="bg-white rounded-xl shadow-sm border p-6 relative">
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-3">
-            <TrendingUp className="w-6 h-6 text-blue-600" />
+            <TrendingUp className="w-6 h-6 text-zinc-600" />
             <h2 className="text-xl font-semibold text-slate-800">
               Total Revenue Overview
             </h2>
@@ -171,7 +171,7 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
                   >
                     <span>Total Inventory Value</span>
                     {visibleMetrics.inventory && (
-                      <Check className="w-4 h-4 text-blue-600" />
+                      <Check className="w-4 h-4 text-zinc-600" />
                     )}
                   </button>
                   <button
@@ -180,7 +180,7 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
                   >
                     <span>Credit Remaining</span>
                     {visibleMetrics.creditRemaining && (
-                      <Check className="w-4 h-4 text-blue-600" />
+                      <Check className="w-4 h-4 text-zinc-600" />
                     )}
                   </button>
                   <button
@@ -189,7 +189,7 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
                   >
                     <span>Credit Paid Amount</span>
                     {visibleMetrics.creditPaid && (
-                      <Check className="w-4 h-4 text-blue-600" />
+                      <Check className="w-4 h-4 text-zinc-600" />
                     )}
                   </button>
                   <button
@@ -198,7 +198,7 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
                   >
                     <span>Paid Order Amount</span>
                     {visibleMetrics.paidOrder && (
-                      <Check className="w-4 h-4 text-blue-600" />
+                      <Check className="w-4 h-4 text-zinc-600" />
                     )}
                   </button>
                 </div>
@@ -210,17 +210,17 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Total Inventory Amount */}
           {visibleMetrics.inventory && (
-            <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+            <div className="bg-zinc-50 rounded-lg p-4 border border-zinc-200">
               <div className="flex items-center gap-2 mb-2">
-                <Package className="w-5 h-5 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">
+                <Package className="w-5 h-5 text-zinc-600" />
+                <span className="text-sm font-medium text-zinc-800">
                   Total Inventory Value
                 </span>
               </div>
-              <p className="text-2xl font-bold text-blue-900">
+              <p className="text-2xl font-bold text-zinc-900">
                 {formatCurrency(totalInventoryAmount)}
               </p>
-              <p className="text-xs text-blue-600 mt-1">
+              <p className="text-xs text-zinc-600 mt-1">
                 {currentStock.length} products
               </p>
             </div>
@@ -264,17 +264,17 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
 
           {/* Total Paid Order Amount */}
           {visibleMetrics.paidOrder && (
-            <div className="bg-purple-50 rounded-lg p-4 border border-purple-200">
+            <div className="bg-zinc-50 rounded-lg p-4 border border-zinc-200">
               <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="w-5 h-5 text-purple-600" />
-                <span className="text-sm font-medium text-purple-800">
+                <DollarSign className="w-5 h-5 text-zinc-600" />
+                <span className="text-sm font-medium text-zinc-800">
                   Paid Order Amount
                 </span>
               </div>
-              <p className="text-2xl font-bold text-purple-900">
+              <p className="text-2xl font-bold text-zinc-900">
                 {formatCurrency(totalPaidOrderAmount)}
               </p>
-              <p className="text-xs text-purple-600 mt-1">Direct paid orders</p>
+              <p className="text-xs text-zinc-600 mt-1">Direct paid orders</p>
             </div>
           )}
         </div>
@@ -294,7 +294,7 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
               </p>
             </div>
             <div className="text-right">
-              <p className="text-3xl font-bold text-blue-600">
+              <p className="text-3xl font-bold text-zinc-600">
                 {formatCurrency(totalRevenue)}
               </p>
             </div>
@@ -305,7 +305,7 @@ export const TotalRevenueTab: React.FC<TotalRevenueTabProps> = ({
       {/* Inventory Breakdown */}
       <div className="bg-white rounded-xl shadow-sm border p-6">
         <div className="flex items-center gap-3 mb-6">
-          <Package className="w-6 h-6 text-blue-600" />
+          <Package className="w-6 h-6 text-zinc-600" />
           <h2 className="text-xl font-semibold text-slate-800">
             Inventory Value Breakdown
           </h2>

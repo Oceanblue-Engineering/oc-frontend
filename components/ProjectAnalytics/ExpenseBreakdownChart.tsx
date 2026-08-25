@@ -22,17 +22,18 @@ const ExpenseBreakdownChart: React.FC<ExpenseBreakdownChartProps> = ({
   const { t, language } = useLanguage();
   const totalExpenses = data.reduce((sum, item) => sum + item.value, 0);
 
+  // Monochrome zinc ramp — wide-contrast shades for distinguishable pie slices.
   const COLORS = [
-    "#0088FE", // Blue
-    "#00C49F", // Teal
-    "#FFBB28", // Yellow
-    "#FF8042", // Orange
-    "#8884D8", // Purple
-    "#82CA9D", // Green
-    "#FF6B6B", // Red
-    "#6C5CE7", // Violet
-    "#00B894", // Mint
-    "#FDCB6E", // Light Yellow
+    "#18181b", // zinc-900
+    "#3f3f46", // zinc-700
+    "#52525b", // zinc-600
+    "#71717a", // zinc-500
+    "#a1a1aa", // zinc-400
+    "#d4d4d8", // zinc-300
+    "#e4e4e7", // zinc-200
+    "#27272a", // zinc-800
+    "#09090b", // zinc-950
+    "#f4f4f5", // zinc-100
   ];
 
   const formatCurrency = (value: number) => {

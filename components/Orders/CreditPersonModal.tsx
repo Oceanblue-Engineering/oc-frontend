@@ -44,7 +44,7 @@ export const CreditPersonModal: React.FC<CreditPersonModalProps> = ({
           <div className="mb-4 p-3 bg-slate-50 rounded-lg">
             <p className="text-sm text-slate-600">
               Order:{" "}
-              <span className="font-bold text-blue-600">{order.orderNumber}</span>
+              <span className="font-bold text-zinc-600">{order.orderNumber}</span>
             </p>
             <p className="text-sm text-slate-600">
               Amount:{" "}

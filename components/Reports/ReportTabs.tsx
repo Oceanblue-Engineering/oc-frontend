@@ -26,7 +26,7 @@ export const ReportTabs: React.FC<ReportTabsProps> = ({
         onClick={() => onTabChange("overall")}
         className={`px-4 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
           activeTab === "overall"
-            ? "border-b-2 border-[#0077b6] text-[#0077b6]"
+            ? "border-b-2 border-[#27272a] text-[#27272a]"
             : "text-slate-400 hover:text-slate-600"
         }`}
       >
@@ -37,7 +37,7 @@ export const ReportTabs: React.FC<ReportTabsProps> = ({
         onClick={() => onTabChange("paid")}
         className={`px-4 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
           activeTab === "paid"
-            ? "border-b-2 border-[#0077b6] text-[#0077b6]"
+            ? "border-b-2 border-[#27272a] text-[#27272a]"
             : "text-slate-400 hover:text-slate-600"
         }`}
       >
@@ -48,7 +48,7 @@ export const ReportTabs: React.FC<ReportTabsProps> = ({
         onClick={() => onTabChange("credit")}
         className={`px-4 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
           activeTab === "credit"
-            ? "border-b-2 border-[#0077b6] text-[#0077b6]"
+            ? "border-b-2 border-[#27272a] text-[#27272a]"
             : "text-slate-400 hover:text-slate-600"
         }`}
       >
@@ -59,7 +59,7 @@ export const ReportTabs: React.FC<ReportTabsProps> = ({
         onClick={() => onTabChange("statistics")}
         className={`px-4 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
           activeTab === "statistics"
-            ? "border-b-2 border-[#0077b6] text-[#0077b6]"
+            ? "border-b-2 border-[#27272a] text-[#27272a]"
             : "text-slate-400 hover:text-slate-600"
         }`}
       >
@@ -70,7 +70,7 @@ export const ReportTabs: React.FC<ReportTabsProps> = ({
         onClick={() => onTabChange("foc")}
         className={`px-4 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
           activeTab === "foc"
-            ? "border-b-2 border-[#0077b6] text-[#0077b6]"
+            ? "border-b-2 border-[#27272a] text-[#27272a]"
             : "text-slate-400 hover:text-slate-600"
         }`}
       >

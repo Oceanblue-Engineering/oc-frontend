@@ -14,7 +14,7 @@ import { useLanguage } from "../context/LanguageContext";
 
 const statusColor: Record<string, string> = {
   Open: "bg-amber-50 text-amber-700 border border-amber-100",
-  "In Progress": "bg-blue-50 text-blue-700 border border-blue-100",
+  "In Progress": "bg-zinc-50 text-zinc-700 border border-zinc-100",
   Pending: "bg-slate-100 text-slate-600 border border-slate-200",
   Resolved: "bg-emerald-50 text-emerald-700 border border-emerald-100",
 };
@@ -190,7 +190,7 @@ export const TicketDetail: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-2 mt-2">
                     <span className={`px-2.5 py-1 rounded-full text-xs font-bold ${
                       ticket.type === "Project"
-                        ? "bg-violet-50 text-violet-700"
+                        ? "bg-zinc-50 text-zinc-700"
                         : "bg-slate-100 text-slate-600"
                     }`}>
                       {ticket.type === "Project" ? t("tickets.project") : t("tickets.retailSale")}
@@ -228,8 +228,8 @@ export const TicketDetail: React.FC = () => {
               )}
 
               {ticket.type === "Project" && ticket.project_details && (
-                <div className="mt-4 p-4 bg-violet-50/50 border border-violet-100 rounded-xl space-y-2">
-                  <h4 className="text-sm font-bold text-violet-700">{t("tickets.projectDetails")}</h4>
+                <div className="mt-4 p-4 bg-zinc-50/50 border border-zinc-100 rounded-xl space-y-2">
+                  <h4 className="text-sm font-bold text-zinc-700">{t("tickets.projectDetails")}</h4>
                   {ticket.project_details.project_name && (
                     <p className="text-sm text-slate-700"><span className="font-semibold text-slate-500">{t("tickets.projectName")}: </span>{ticket.project_details.project_name}</p>
                   )}

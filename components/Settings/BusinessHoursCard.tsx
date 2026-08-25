@@ -69,7 +69,7 @@ export const BusinessHoursCard: React.FC<BusinessHoursCardProps> = ({
     <div className="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
       <div className="p-4 sm:p-6 border-b">
         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-          <Clock className="w-5 h-5 text-blue-600" />
+          <Clock className="w-5 h-5 text-zinc-600" />
           Business Hours
         </h3>
       </div>

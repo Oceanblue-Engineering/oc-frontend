@@ -747,7 +747,7 @@ export const Inventory: React.FC = () => {
             <button
               onClick={loadProducts}
               disabled={isFetching}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
+              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
             >
               <RefreshCw className={`w-4 h-4 ${isFetching ? "animate-spin" : ""}`} />
               <span>{t("inventory.refresh")}</span>
@@ -763,7 +763,7 @@ export const Inventory: React.FC = () => {
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={isImporting}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
+              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50 whitespace-nowrap shrink-0"
             >
               {isImporting ? (
                 <Loader2 className="w-4 h-4 animate-spin" />
@@ -779,7 +779,7 @@ export const Inventory: React.FC = () => {
                   setShowSelectBoxes(true);
                   setTransferMode("supplier");
                 }}
-                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <Truck className="w-4 h-4" />
                 <span>Transfer to Supplier</span>
@@ -792,7 +792,7 @@ export const Inventory: React.FC = () => {
                   setShowSelectBoxes(true);
                   setTransferMode("storefront");
                 }}
-                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+                className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
               >
                 <Store className="w-4 h-4" />
                 <span>{t("inventory.transferStoreFront")}</span>
@@ -815,7 +815,7 @@ export const Inventory: React.FC = () => {
                 {transferMode === "supplier" && (
                   <button
                     onClick={handleOpenTransferSupplierModal}
-                    className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+                    className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
                   >
                     <Truck className="w-4 h-4" />
                     <span>
@@ -841,7 +841,7 @@ export const Inventory: React.FC = () => {
                 resetForm();
                 setIsModalOpen(true);
               }}
-              className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
+              className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer whitespace-nowrap shrink-0"
             >
               <Plus className="w-4 h-4" />
               <span>{t("inventory.addProduct")}</span>
@@ -871,7 +871,7 @@ export const Inventory: React.FC = () => {
                   key={status}
                   onClick={() => setSelectedStatus(status)}
                   className={`px-4 py-1.5 text-xs font-semibold rounded-full transition-all cursor-pointer ${selectedStatus === status
-                      ? "bg-[#0077b6] text-white shadow-sm"
+                      ? "bg-[#27272a] text-white shadow-sm"
                       : "text-slate-400 hover:text-slate-600 hover:bg-slate-100/50"
                     }`}
                 >
@@ -915,7 +915,7 @@ export const Inventory: React.FC = () => {
 
         {isFetching && products.length === 0 ? (
           <div className="bg-slate-50 border border-slate-100 rounded-3xl p-12 text-center">
-            <Loader2 className="w-8 h-8 text-[#0077b6] animate-spin mx-auto mb-3" />
+            <Loader2 className="w-8 h-8 text-[#27272a] animate-spin mx-auto mb-3" />
             <p className="text-slate-400 text-sm font-medium">{t("inventory.loadingProducts")}</p>
           </div>
         ) : filteredProducts.length === 0 ? (
@@ -1051,7 +1051,7 @@ export const Inventory: React.FC = () => {
                 <button
                   onClick={handleTransfer}
                   disabled={isTransferring || !selectedWarehouseId}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
+                  className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
                 >
                   {isTransferring ? (
                     <>
@@ -1142,7 +1142,7 @@ export const Inventory: React.FC = () => {
                 <button
                   onClick={handleTransferToStorefront}
                   disabled={isTransferringToStorefront || !selectedStorefrontId}
-                  className="px-4 py-2 bg-[#0077b6] text-white rounded-lg hover:bg-[#0077b6]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
+                  className="px-4 py-2 bg-[#27272a] text-white rounded-lg hover:bg-[#27272a]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
                 >
                   {isTransferringToStorefront ? (
                     <>
@@ -1166,7 +1166,7 @@ export const Inventory: React.FC = () => {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Truck className="w-5 h-5 text-[#0077b6]" />
+                <Truck className="w-5 h-5 text-[#27272a]" />
                 Transfer to Supplier
               </h2>
               <button
@@ -1198,7 +1198,7 @@ export const Inventory: React.FC = () => {
                 </label>
                 <select
                   required
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#0077b6] focus:border-[#0077b6] outline-none"
+                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-[#27272a] focus:border-[#27272a] outline-none"
                   value={selectedSupplierId}
                   onChange={(e) => setSelectedSupplierId(e.target.value)}
                   disabled={isTransferringToSupplier}
@@ -1232,7 +1232,7 @@ export const Inventory: React.FC = () => {
                 <button
                   onClick={handleTransferToSupplier}
                   disabled={isTransferringToSupplier || !selectedSupplierId}
-                  className="px-4 py-2 bg-[#0077b6] text-white rounded-lg hover:bg-[#0077b6]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
+                  className="px-4 py-2 bg-[#27272a] text-white rounded-lg hover:bg-[#27272a]/90 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
                 >
                   {isTransferringToSupplier ? (
                     <>

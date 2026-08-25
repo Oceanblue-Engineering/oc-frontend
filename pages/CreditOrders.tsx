@@ -335,7 +335,7 @@ export const CreditOrders: React.FC = () => {
             <button
               onClick={loadOrders}
               disabled={loading}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
               <span>{t("storefront.refresh")}</span>
@@ -355,7 +355,7 @@ export const CreditOrders: React.FC = () => {
                   newEndDate,
                 );
               }}
-              className="px-5 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
+              className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
             />
           </div>
         </div>
@@ -378,7 +378,7 @@ export const CreditOrders: React.FC = () => {
       <div className="bg-white border border-gray-150 rounded-2xl overflow-hidden flex flex-col min-h-0">
         {loading ? (
           <div className="p-8 text-center text-slate-500">
-            <RefreshCw className="w-8 h-8 animate-spin text-[#0077b6] mx-auto mb-2" />
+            <RefreshCw className="w-8 h-8 animate-spin text-[#27272a] mx-auto mb-2" />
             <p>{t("creditOrders.loadingCreditOrders")}</p>
           </div>
         ) : filteredOrders.length === 0 ? (
@@ -415,7 +415,7 @@ export const CreditOrders: React.FC = () => {
                       {/* Credit Order Num */}
                       <td
                         onClick={() => handleViewOrder(order._id)}
-                        className="px-4 py-4 font-bold text-[#0077b6] hover:underline cursor-pointer text-xs sm:text-sm whitespace-nowrap"
+                        className="px-4 py-4 font-bold text-[#27272a] hover:underline cursor-pointer text-xs sm:text-sm whitespace-nowrap"
                       >
                         {order.orderNumber}
                       </td>
@@ -471,7 +471,7 @@ export const CreditOrders: React.FC = () => {
                       </td>
 
                       {/* Left */}
-                      <td className="px-4 py-4 font-bold text-[#0077b6] text-xs whitespace-nowrap">
+                      <td className="px-4 py-4 font-bold text-[#27272a] text-xs whitespace-nowrap">
                         {order.remainingBalance?.toLocaleString()}{" "}
                         <span className="text-[10px] text-slate-400 font-medium">MMK</span>
                       </td>
@@ -481,13 +481,13 @@ export const CreditOrders: React.FC = () => {
                         <div className="flex items-center justify-center gap-2">
                           <button
                             onClick={() => handleOpenCreditPersonModal(order)}
-                            className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#0077b6] hover:bg-[#0077b6]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
+                            className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
                           >
                             {t("common.edit")}
                           </button>
                           <button
                             onClick={() => handleViewOrder(order._id)}
-                            className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#0077b6] hover:bg-[#0077b6]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
+                            className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
                           >
                             {t("common.checkItem")}
                           </button>
@@ -529,7 +529,7 @@ export const CreditOrders: React.FC = () => {
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in duration-200">
             <div className="p-6">
               <h3 className="text-xl font-bold text-slate-800 flex items-center gap-2 mb-4">
-                <Edit2 className="w-5 h-5 text-blue-600" />
+                <Edit2 className="w-5 h-5 text-zinc-600" />
                 Edit Paid Amount
               </h3>
 
@@ -563,7 +563,7 @@ export const CreditOrders: React.FC = () => {
                       value={newPaidAmount}
                       onChange={(e) => setNewPaidAmount(e.target.value)}
                       placeholder="Enter amount..."
-                      className="w-full pl-3 pr-12 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none text-lg font-semibold"
+                      className="w-full pl-3 pr-12 py-3 bg-white border border-slate-200 rounded-xl focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 transition-all outline-none text-lg font-semibold"
                       autoFocus
                     />
                     <div className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 font-medium">
@@ -572,10 +572,10 @@ export const CreditOrders: React.FC = () => {
                   </div>
                 </div>
 
-                <div className="p-3 bg-blue-50 rounded-xl border border-blue-100">
+                <div className="p-3 bg-zinc-50 rounded-xl border border-zinc-100">
                   <div className="flex justify-between text-sm">
-                    <span className="text-blue-700">Remaining Balance:</span>
-                    <span className="font-bold text-blue-800">
+                    <span className="text-zinc-700">Remaining Balance:</span>
+                    <span className="font-bold text-zinc-800">
                       {Math.max(
                         0,
                         (selectedOrderForPaidAmount?.finalAmount || 0) -
@@ -597,7 +597,7 @@ export const CreditOrders: React.FC = () => {
                 <button
                   onClick={handleUpdatePaidAmount}
                   disabled={updatingPaidAmount || !newPaidAmount}
-                  className="flex-1 py-3 px-4 rounded-xl bg-blue-600 text-white font-semibold hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+                  className="flex-1 py-3 px-4 rounded-xl bg-zinc-600 text-white font-semibold hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-zinc-200 flex items-center justify-center gap-2"
                 >
                   {updatingPaidAmount ? (
                     <>

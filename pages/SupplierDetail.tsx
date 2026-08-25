@@ -340,8 +340,8 @@ export const SupplierDetail: React.FC = () => {
             </div>
 
             <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-              <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center flex-shrink-0">
-                <Phone className="w-4 h-4 text-blue-600" />
+              <div className="w-8 h-8 bg-zinc-50 rounded-full flex items-center justify-center flex-shrink-0">
+                <Phone className="w-4 h-4 text-zinc-600" />
               </div>
               <div className="min-w-0">
                 <p className="text-xs text-slate-500 font-medium">
@@ -387,8 +387,8 @@ export const SupplierDetail: React.FC = () => {
 
             {supplier.createdAt && (
               <div className="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
-                <div className="w-8 h-8 bg-violet-50 rounded-full flex items-center justify-center flex-shrink-0">
-                  <Calendar className="w-4 h-4 text-violet-600" />
+                <div className="w-8 h-8 bg-zinc-50 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Calendar className="w-4 h-4 text-zinc-600" />
                 </div>
                 <div className="min-w-0">
                   <p className="text-xs text-slate-500 font-medium">

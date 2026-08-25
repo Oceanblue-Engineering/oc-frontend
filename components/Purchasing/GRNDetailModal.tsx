@@ -59,11 +59,11 @@ export const GRNDetailModal: React.FC<GRNDetailModalProps> = ({
       case "pending":
         return "bg-yellow-100 text-yellow-700 border-yellow-300";
       case "verified":
-        return "bg-purple-100 text-purple-700 border-purple-300";
+        return "bg-zinc-100 text-zinc-700 border-zinc-300";
       case "completed":
         return "bg-green-100 text-green-700 border-green-300";
       case "transferred":
-        return "bg-blue-100 text-blue-700 border-blue-300";
+        return "bg-zinc-100 text-zinc-700 border-zinc-300";
       default:
         return "bg-gray-100 text-gray-700 border-gray-300";
     }
@@ -135,7 +135,7 @@ export const GRNDetailModal: React.FC<GRNDetailModalProps> = ({
                 <Hash className="w-4 h-4" />
                 GRN Number
               </div>
-              <div className="font-bold text-lg text-blue-600">
+              <div className="font-bold text-lg text-zinc-600">
                 {grn.grnNumber}
               </div>
             </div>
@@ -174,11 +174,11 @@ export const GRNDetailModal: React.FC<GRNDetailModalProps> = ({
 
           {/* Summary Stats */}
           <div className="grid grid-cols-3 gap-4">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-center">
-              <div className="text-2xl font-bold text-blue-600">
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200 text-center">
+              <div className="text-2xl font-bold text-zinc-600">
                 {grn.totalReceivedQuantity}
               </div>
-              <div className="text-sm text-blue-600">Total Received</div>
+              <div className="text-sm text-zinc-600">Total Received</div>
             </div>
             <div className="bg-green-50 p-4 rounded-lg border border-green-200 text-center">
               <div className="text-2xl font-bold text-green-600">
@@ -254,7 +254,7 @@ export const GRNDetailModal: React.FC<GRNDetailModalProps> = ({
                         </span>
                       </td>
                       <td className="p-3 text-center">
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
+                        <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-medium">
                           {item.availableQuantity}
                         </span>
                       </td>
@@ -267,7 +267,7 @@ export const GRNDetailModal: React.FC<GRNDetailModalProps> = ({
                       <td className="p-3 text-center">
                         <button
                           onClick={() => handleUpdateLineItem(item)}
-                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="p-2 text-zinc-600 hover:bg-zinc-50 rounded-lg transition-colors"
                           title="Update Line Item"
                         >
                           <Edit2 className="w-4 h-4" />

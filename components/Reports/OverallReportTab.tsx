@@ -39,11 +39,11 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
         {/* Total Sales */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <DollarSign className="w-5 h-5 text-[#0077b6]" />
+            <DollarSign className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-800 uppercase tracking-wider">
@@ -59,10 +59,10 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
         {/* Total Profit (Paid Amount) */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Wallet className="w-5 h-5 text-[#0077b6]" />
+            <Wallet className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
-            <p className="text-[11px] font-bold text-[#0077b6] uppercase tracking-wider">
+            <p className="text-[11px] font-bold text-[#27272a] uppercase tracking-wider">
               {t("reports.totalProfit")}
             </p>
             <p className="text-lg font-black text-slate-800 mt-1">
@@ -75,10 +75,10 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
         {/* Outstanding Credits */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <CheckCircle className="w-5 h-5 text-[#0077b6]" />
+            <CheckCircle className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
-            <p className="text-[11px] font-bold text-[#0077b6] uppercase tracking-wider">
+            <p className="text-[11px] font-bold text-[#27272a] uppercase tracking-wider">
               {t("reports.outstandingCredits")}
             </p>
             <p className="text-lg font-black text-slate-800 mt-1">
@@ -91,10 +91,10 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
         {/* Total Orders */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <FileText className="w-5 h-5 text-[#0077b6]" />
+            <FileText className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
-            <p className="text-[11px] font-bold text-[#0077b6] uppercase tracking-wider">
+            <p className="text-[11px] font-bold text-[#27272a] uppercase tracking-wider">
               {t("reports.totalOrders")}
             </p>
             <p className="text-lg font-black text-slate-800 mt-1">
@@ -107,7 +107,7 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
       {/* Storefront Breakdown Table */}
       {reportsToShow.length > 0 && (
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 text-[#0077b6] font-bold text-sm sm:text-base">
+          <div className="flex items-center gap-2 text-[#27272a] font-bold text-sm sm:text-base">
             <Store className="w-5 h-5" />
             <span>{t("reports.storefrontStatus")}</span>
           </div>

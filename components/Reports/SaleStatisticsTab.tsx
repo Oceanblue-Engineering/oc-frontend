@@ -126,7 +126,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
         {/* Total Quantity Sold */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <ShoppingCart className="w-5 h-5 text-[#0077b6]" />
+            <ShoppingCart className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -141,7 +141,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
         {/* Total Cost */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <DollarSign className="w-5 h-5 text-[#0077b6]" />
+            <DollarSign className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -157,7 +157,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
         {/* Total Sales */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <TrendingUp className="w-5 h-5 text-[#0077b6]" />
+            <TrendingUp className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -173,7 +173,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
         {/* Total Profit */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Package className="w-5 h-5 text-[#0077b6]" />
+            <Package className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -189,7 +189,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
         {/* Unique Products */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Package className="w-5 h-5 text-[#0077b6]" />
+            <Package className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -204,7 +204,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
 
       {/* Products Table */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 text-[#0077b6] font-bold text-sm sm:text-base">
+        <div className="flex items-center gap-2 text-[#27272a] font-bold text-sm sm:text-base">
           <Package className="w-5 h-5" />
           <span>Product Sales Breakdown ({products.length})</span>
         </div>
@@ -254,7 +254,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
 
                       {/* Category */}
                       <td className="px-4 py-4">
-                        <span className="bg-ocean-50/50 text-[#0077b6] border border-ocean-100 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
+                        <span className="bg-ocean-50/50 text-[#27272a] border border-ocean-100 px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                           {product.category}
                         </span>
                       </td>
@@ -280,7 +280,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
                       <td className="px-4 py-4 text-center">
                         <button
                           onClick={() => handleOpenOrdersModal(product)}
-                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all cursor-pointer shadow-sm shadow-ocean-600/5"
+                          className="inline-flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all cursor-pointer shadow-sm shadow-ocean-600/5"
                         >
                           <span>Analytics</span>
                           <ChevronRight className="w-3.5 h-3.5" />
@@ -422,7 +422,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
                                     </span>
                                   )}
                                 </td>
-                                <td className="px-8 py-6 text-right font-black text-blue-600">
+                                <td className="px-8 py-6 text-right font-black text-zinc-600">
                                   {orderProduct?.quantity || 0}
                                 </td>
                                 <td className="px-8 py-6 text-right text-slate-600">
@@ -458,7 +458,7 @@ export const SaleStatisticsTab: React.FC<SaleStatisticsTabProps> = ({
                       transactions
                     </p>
                     <div className="flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                      <span className="w-2 h-2 rounded-full bg-zinc-500 animate-pulse"></span>
                       <span className="text-[10px] font-black text-slate-500 uppercase">
                         Order History
                       </span>

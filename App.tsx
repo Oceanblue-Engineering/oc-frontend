@@ -318,9 +318,9 @@ const App: React.FC = () => {
             },
             classNames: {
               toast: 'border shadow-xl text-sm font-semibold p-4',
-              success: '!bg-white !text-[#0077b6] !border-[#0077b6]/30',
+              success: '!bg-white !text-[#27272a] !border-[#27272a]/30',
               error: '!bg-white !text-red-600 !border-red-600/30',
-              info: '!bg-white !text-[#0077b6] !border-[#0077b6]/30',
+              info: '!bg-white !text-[#27272a] !border-[#27272a]/30',
               warning: '!bg-white !text-amber-600 !border-amber-600/30',
             }
           }} 

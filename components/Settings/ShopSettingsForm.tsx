@@ -132,7 +132,7 @@ export const ShopSettingsForm: React.FC<ShopSettingsFormProps> = ({
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-4 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+          className="px-4 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
         >
           {isSubmitting ? (
             <Loader2 className="w-4 h-4 animate-spin" />
@@ -146,7 +146,7 @@ export const ShopSettingsForm: React.FC<ShopSettingsFormProps> = ({
             type="button"
             onClick={onCancel}
             disabled={isSubmitting}
-            className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
           >
             {t("settings.cancel")}
           </button>

@@ -140,7 +140,7 @@ const PayrollSummaryTable: React.FC<PayrollSummaryTableProps> = ({
           <Users className="w-4 h-4 text-ocean-600" /> {t("projects.workerPayrollList")}
         </h3>
         <div className="flex items-center gap-2">
-          <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg">
+          <div className="px-2 py-1 bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg">
             {t("projects.count")}: {workers.length}
           </div>
           <div className="px-2 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg">

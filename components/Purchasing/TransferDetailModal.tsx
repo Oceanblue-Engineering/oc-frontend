@@ -82,7 +82,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
       case "completed":
         return "bg-green-100 text-green-700 border-green-300";
       case "received":
-        return "bg-blue-100 text-blue-700 border-blue-300";
+        return "bg-zinc-100 text-zinc-700 border-zinc-300";
       case "cancelled":
         return "bg-red-100 text-red-700 border-red-300";
       default:
@@ -181,7 +181,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
                 <Hash className="w-4 h-4" />
                 Transfer Number
               </div>
-              <div className="font-bold text-lg text-blue-600">
+              <div className="font-bold text-lg text-zinc-600">
                 {transfer.transferNumber}
               </div>
             </div>
@@ -199,7 +199,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
                 <Truck className="w-4 h-4" />
                 Source Type
               </div>
-              <span className="inline-block px-3 py-1 rounded-full text-sm font-bold bg-purple-100 text-purple-700 border border-purple-300">
+              <span className="inline-block px-3 py-1 rounded-full text-sm font-bold bg-zinc-100 text-zinc-700 border border-zinc-300">
                 {transfer.sourceType}
               </span>
             </div>
@@ -220,19 +220,19 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
 
           {/* Source & Destination Info */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200">
-              <div className="flex items-center gap-2 text-purple-700 text-sm font-semibold mb-2">
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+              <div className="flex items-center gap-2 text-zinc-700 text-sm font-semibold mb-2">
                 <FileText className="w-4 h-4" />
                 Source ID
               </div>
               <div
-                className="text-purple-800 font-mono text-sm truncate"
+                className="text-zinc-800 font-mono text-sm truncate"
                 title={getDisplayId(transfer.sourceId as any)}
               >
                 {getDisplayName(transfer.sourceId as any)}
               </div>
               {typeof transfer.sourceId === "object" && transfer.sourceId && (
-                <div className="text-purple-600 text-xs mt-1">
+                <div className="text-zinc-600 text-xs mt-1">
                   ID: {(transfer.sourceId as any)._id?.substring(0, 12) || "-"}
                 </div>
               )}
@@ -289,11 +289,11 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
 
           {/* Summary Stats */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200 text-center">
-              <div className="text-2xl font-bold text-blue-600">
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200 text-center">
+              <div className="text-2xl font-bold text-zinc-600">
                 {transfer.lineItems.length}
               </div>
-              <div className="text-sm text-blue-600">Total Items</div>
+              <div className="text-sm text-zinc-600">Total Items</div>
             </div>
             <div className="bg-ocean-50 p-4 rounded-lg border border-ocean-200 text-center">
               <div className="text-2xl font-bold text-ocean-600">
@@ -352,7 +352,7 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
                         {productDetails[item.inventoryId]?.productName || "-"}
                       </td>
                       <td className="p-3 text-center">
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium">
+                        <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-medium">
                           {item.quantity}
                         </span>
                       </td>

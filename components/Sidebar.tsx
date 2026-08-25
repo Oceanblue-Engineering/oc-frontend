@@ -138,7 +138,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={toggleCollapse}
               className="py-3 flex flex-col items-center justify-center border-b border-gray-100 cursor-pointer select-none"
             >
-              <div className="text-[#0077b6] text-center">
+              <div className="text-[#27272a] text-center">
                 <div className="flex flex-col items-center justify-center font-black leading-none transition-all duration-500 ease-in-out py-1">
                   <span
                     className={`tracking-widest font-black transition-all duration-500 ease-in-out ${
@@ -171,7 +171,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     onClick={onClose}
                     className={`flex items-center transition-all duration-200 group ${
                       isActive
-                        ? "bg-[#0077b6] text-white shadow-md shadow-ocean-600/10"
+                        ? "bg-[#27272a] text-white shadow-md shadow-ocean-600/10"
                         : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
                     } ${isCollapsed ? "w-12 h-12 rounded-2xl mx-auto justify-center" : "w-full px-4 py-2.5 rounded-xl"}`}
                     title={isCollapsed ? item.label : ""}
@@ -200,7 +200,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* Collapse Sidebar Button */}
             <button
               onClick={toggleCollapse}
-              className={`flex items-center justify-center transition-all duration-200 bg-ocean-50/70 hover:bg-ocean-100/80 text-[#0077b6] font-semibold cursor-pointer ${
+              className={`flex items-center justify-center transition-all duration-200 bg-ocean-50/70 hover:bg-ocean-100/80 text-[#27272a] font-semibold cursor-pointer ${
                 isCollapsed
                   ? "w-12 h-12 rounded-2xl mx-auto"
                   : "w-full px-4 py-2.5 gap-2 rounded-xl text-sm"
@@ -223,7 +223,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
         >
           <div className="flex items-center gap-2.5 min-w-0">
             {/* Circle Logo / Avatar */}
-            <div className="bg-[#0077b6] rounded-full w-9 h-9 flex-shrink-0 flex items-center justify-center text-white text-sm font-bold uppercase select-none">
+            <div className="bg-[#27272a] rounded-full w-9 h-9 flex-shrink-0 flex items-center justify-center text-white text-sm font-bold uppercase select-none">
               {(adminData?.name || currentUser?.name || "U")
                 .substring(0, 1)
                 .toUpperCase()}
@@ -249,7 +249,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 navigate("/settings");
                 onClose();
               }}
-              className="p-1.5 hover:bg-slate-50 text-gray-400 hover:text-[#0077b6] rounded-lg transition-colors cursor-pointer"
+              className="p-1.5 hover:bg-slate-50 text-gray-400 hover:text-[#27272a] rounded-lg transition-colors cursor-pointer"
               title="Settings"
             >
               <Settings className="w-4 h-4" />

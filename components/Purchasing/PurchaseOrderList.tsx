@@ -534,7 +534,7 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                             <>
                               <button
                                 onClick={() => onViewPO?.(po)}
-                                className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-blue-200 font-medium transition-colors flex items-center gap-1"
+                                className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
                               >
                                 <Eye className="w-3 h-3" /> View
                               </button>
@@ -549,7 +549,7 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                             <>
                               <button
                                 onClick={() => onViewPO?.(po)}
-                                className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-blue-200 font-medium transition-colors flex items-center gap-1"
+                                className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
                               >
                                 <Eye className="w-3 h-3" /> View
                               </button>
@@ -568,7 +568,7 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                                 (po.totalRemainingQuantity ?? 0) > 0 && (
                                   <button
                                     onClick={() => onCreateGRN?.(po)}
-                                    className="text-xs bg-blue-50 text-blue-600 px-3 py-1.5 rounded hover:bg-blue-100 border border-blue-200 font-medium transition-colors flex items-center gap-1"
+                                    className="text-xs bg-zinc-50 text-zinc-600 px-3 py-1.5 rounded hover:bg-zinc-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
                                   >
                                     <PackageCheck className="w-3 h-3" />
                                     GRN

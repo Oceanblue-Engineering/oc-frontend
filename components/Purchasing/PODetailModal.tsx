@@ -103,7 +103,7 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
       case "received":
         return "bg-green-100 text-green-700 border-green-300";
       case "partial":
-        return "bg-blue-100 text-blue-700 border-blue-300";
+        return "bg-zinc-100 text-zinc-700 border-zinc-300";
       default:
         return "bg-gray-100 text-gray-700 border-gray-300";
     }
@@ -116,7 +116,7 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
       case "arrived":
         return "bg-green-100 text-green-700 border-green-300";
       case "received":
-        return "bg-blue-100 text-blue-700 border-blue-300";
+        return "bg-zinc-100 text-zinc-700 border-zinc-300";
       case "cancelled":
         return "bg-red-100 text-red-700 border-red-300";
       default:
@@ -206,7 +206,7 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
                 PO ID / Number
               </div>
               <div
-                className="font-bold text-base text-blue-600 truncate font-mono"
+                className="font-bold text-base text-zinc-600 truncate font-mono"
                 title={purchase.poNumber || purchase._id}
               >
                 {purchase.poNumber || (purchase._id.length > 12 ? `${purchase._id.substring(0, 12)}...` : purchase._id)}
@@ -361,12 +361,12 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
             </div>
 
             {/* Supplier Info */}
-            <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-              <div className="flex items-center gap-2 text-blue-700 text-sm font-semibold mb-2">
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+              <div className="flex items-center gap-2 text-zinc-700 text-sm font-semibold mb-2">
                 <User className="w-4 h-4" />
                 Supplier Information
               </div>
-              <div className="text-blue-800 font-medium text-base">
+              <div className="text-zinc-800 font-medium text-base">
                 {getSupplierName(purchase.supplierId)}
               </div>
             </div>
@@ -374,11 +374,11 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
 
           {/* Summary Stats */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-purple-50 p-4 rounded-lg border border-purple-200 text-center">
-              <div className="text-2xl font-bold text-purple-600">
+            <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200 text-center">
+              <div className="text-2xl font-bold text-zinc-600">
                 {purchase.products.length}
               </div>
-              <div className="text-xs text-purple-600 font-medium">Total Products</div>
+              <div className="text-xs text-zinc-600 font-medium">Total Products</div>
             </div>
             <div className="bg-ocean-50 p-4 rounded-lg border border-ocean-200 text-center">
               <div className="text-2xl font-bold text-ocean-600">
@@ -440,7 +440,7 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
                         </span>
                       </td>
                       <td className="p-3 text-center">
-                        <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded font-medium text-xs">
+                        <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-medium text-xs">
                           {product.purchaseQuantity}
                         </span>
                       </td>

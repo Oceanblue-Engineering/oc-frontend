@@ -623,7 +623,7 @@ export const RemoveItemsFromOrderModal: React.FC<
                         </div>
                       )}
                       {useMarkup && markupAmount > 0 && (
-                        <div className="flex justify-between text-blue-600">
+                        <div className="flex justify-between text-zinc-600">
                           <span>Markup Amount</span>
                           <span>+{markupAmount.toLocaleString()} MMK</span>
                         </div>
@@ -633,7 +633,7 @@ export const RemoveItemsFromOrderModal: React.FC<
                         <span>{totals.finalAmount.toLocaleString()} MMK</span>
                       </div>
                       {totals.extraChange > 0 && (
-                        <div className="flex justify-between text-blue-600 font-medium">
+                        <div className="flex justify-between text-zinc-600 font-medium">
                           <span>{t("orders.change") || "Change"}</span>
                           <span>{totals.extraChange.toLocaleString()} MMK</span>
                         </div>

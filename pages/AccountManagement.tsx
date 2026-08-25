@@ -162,9 +162,9 @@ export const AccountManagement: React.FC = () => {
   const getRoleColor = (role: string) => {
     switch (role?.toLowerCase()) {
       case "owner":
-        return "bg-purple-100 text-purple-700";
+        return "bg-zinc-100 text-zinc-700";
       case "cashier":
-        return "bg-blue-100 text-blue-700";
+        return "bg-zinc-100 text-zinc-700";
       case "manager":
         return "bg-green-100 text-green-700";
       default:
@@ -464,7 +464,7 @@ export const AccountManagement: React.FC = () => {
                 loadLocations(); // Reload locations when opening modal
                 setIsCreateModalOpen(true);
               }}
-              className="px-4 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer"
             >
               <Plus className="w-4 h-4" />{" "}
               <span>Create Account</span>
@@ -472,7 +472,7 @@ export const AccountManagement: React.FC = () => {
             <button
               onClick={loadAccounts}
               disabled={loading}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
               <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
               <span>Refresh</span>
@@ -530,8 +530,8 @@ export const AccountManagement: React.FC = () => {
 
         <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border">
           <div className="flex items-center gap-2 sm:gap-3">
-            <div className="p-2 bg-purple-100 rounded-lg">
-              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
+            <div className="p-2 bg-zinc-100 rounded-lg">
+              <Shield className="w-4 h-4 sm:w-5 sm:h-5 text-zinc-600" />
             </div>
             <div>
               <p className="text-xs sm:text-sm text-slate-500">Roles</p>
@@ -668,7 +668,7 @@ export const AccountManagement: React.FC = () => {
                             {account.name}
                           </span>
                           {account.telegramChatId && (
-                            <span className="text-[10px] text-[#0077b6] flex items-center gap-1 mt-0.5">
+                            <span className="text-[10px] text-[#27272a] flex items-center gap-1 mt-0.5">
                               <Send className="w-2.5 h-2.5 flex-shrink-0" />{" "}
                               Telegram linked
                             </span>
@@ -870,7 +870,7 @@ export const AccountManagement: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-1.5">
-                  <Send className="w-3.5 h-3.5 text-[#0077b6]" />
+                  <Send className="w-3.5 h-3.5 text-[#27272a]" />
                   Telegram Chat ID (Optional)
                 </label>
                 <input
@@ -1265,7 +1265,7 @@ export const AccountManagement: React.FC = () => {
 
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center gap-1.5">
-                  <Send className="w-3.5 h-3.5 text-[#0077b6]" />
+                  <Send className="w-3.5 h-3.5 text-[#27272a]" />
                   Telegram Chat ID (Optional)
                 </label>
                 <input

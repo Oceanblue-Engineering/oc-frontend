@@ -65,7 +65,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             onClick={() => setActiveTab("about")}
             className={`px-4 py-3 text-sm font-medium transition-colors ${
               activeTab === "about"
-                ? "bg-[#FEFEB0] text-slate-800 rounded-2xl"
+                ? "bg-[#e4e4e7] text-slate-800 rounded-2xl"
                 : "text-slate-600 hover:text-slate-800"
             }`}
           >
@@ -75,7 +75,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
             onClick={() => setActiveTab("quantity")}
             className={`px-4 py-3 text-sm font-medium transition-colors ${
               activeTab === "quantity"
-                ? "bg-[#FEFEB0] text-slate-800 rounded-2xl"
+                ? "bg-[#e4e4e7] text-slate-800 rounded-2xl"
                 : "text-slate-600 hover:text-slate-800"
             }`}
           >
@@ -98,11 +98,11 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 <div className="space-y-6">
                   {/* Product Basic Info */}
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-                      <p className="text-xs text-blue-600 font-medium mb-1">
+                    <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+                      <p className="text-xs text-zinc-600 font-medium mb-1">
                         {t("inventory.productName")}
                       </p>
-                      <p className="font-bold text-blue-800">
+                      <p className="font-bold text-zinc-800">
                         {product.productName}
                       </p>
                     </div>
@@ -314,9 +314,9 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                   </div>
 
                   {/* Total Quantity Summary */}
-                  <div className="bg-[#FEFEB0] p-6 rounded-lg border-2 border-[#FEFEB0]">
+                  <div className="bg-[#e4e4e7] p-6 rounded-lg border-2 border-[#e4e4e7]">
                     <div className="flex items-center justify-between">
-                      <p className="text-[16px] font-medium text-[#585800]">
+                      <p className="text-[16px] font-medium text-[#27272a]">
                         {t("inventory.productTotalQuantity")}
                       </p>
                       <p className="text-4xl font-bold text-slate-800">
@@ -331,7 +331,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       onClick={() => setStockTab("warehouse")}
                       className={`px-4 py-2 text-sm font-medium transition-colors ${
                         stockTab === "warehouse"
-                          ? "bg-[#FEFEB0] text-slate-800 rounded-2xl"
+                          ? "bg-[#e4e4e7] text-slate-800 rounded-2xl"
                           : "text-slate-600 hover:text-slate-800"
                       }`}
                     >
@@ -341,7 +341,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                       onClick={() => setStockTab("storefront")}
                       className={`px-4 py-2 text-sm font-medium transition-colors ${
                         stockTab === "storefront"
-                          ? "bg-[#FEFEB0] text-slate-800 rounded-2xl"
+                          ? "bg-[#e4e4e7] text-slate-800 rounded-2xl"
                           : "text-slate-600 hover:text-slate-800"
                       }`}
                     >

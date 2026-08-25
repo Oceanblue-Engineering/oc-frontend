@@ -89,7 +89,7 @@ export const navigationItems: NavigationItem[] = [
     descKey: "home.desc.suppliers",
     icon: Truck,
     path: "/suppliers",
-    color: "bg-teal-50 text-teal-700",
+    color: "bg-zinc-50 text-zinc-700",
   },
   {
     id: "expenses",
@@ -121,7 +121,7 @@ export const navigationItems: NavigationItem[] = [
     descKey: "home.desc.workers",
     icon: Users,
     path: "/workers",
-    color: "bg-teal-50 text-teal-700",
+    color: "bg-zinc-50 text-zinc-700",
   },
   {
     id: "daily-reports",
@@ -129,7 +129,7 @@ export const navigationItems: NavigationItem[] = [
     descKey: "home.desc.dailyReports",
     icon: Bell,
     path: "/daily-reports",
-    color: "bg-teal-50 text-teal-700",
+    color: "bg-zinc-50 text-zinc-700",
   },
   {
     id: "purchasing",
@@ -145,7 +145,7 @@ export const navigationItems: NavigationItem[] = [
   //   descKey: "home.desc.luckyDraw",
   //   icon: Gift,
   //   path: "/lucky-draw",
-  //   color: "bg-pink-50 text-pink-700",
+  //   color: "bg-zinc-50 text-zinc-700",
   // },
   // {
   //   id: "ai-chat",
@@ -153,7 +153,7 @@ export const navigationItems: NavigationItem[] = [
   //   descKey: "home.desc.aiChat",
   //   icon: Bot,
   //   path: "/ai-chat",
-  //   color: "bg-fuchsia-50 text-fuchsia-700",
+  //   color: "bg-zinc-50 text-zinc-700",
   // },
   {
     id: "settings",
@@ -193,7 +193,7 @@ export const navigationItems: NavigationItem[] = [
     descKey: "home.desc.invoiceGenerator",
     icon: Receipt,
     path: "/invoice-generator",
-    color: "bg-blue-50 text-blue-700",
+    color: "bg-zinc-50 text-zinc-700",
   },
   {
     id: "clientProjects",
@@ -201,7 +201,7 @@ export const navigationItems: NavigationItem[] = [
     descKey: "home.desc.clientProjects",
     icon: Briefcase,
     path: "/client-projects",
-    color: "bg-teal-50 text-teal-700",
+    color: "bg-zinc-50 text-zinc-700",
   },
 ];
 

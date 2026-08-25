@@ -12,34 +12,48 @@
       theme: {
         extend: {
           colors: {
-            // Ocean Blue Engineering — Brand Palette
+            // Zinc monochrome — premium SaaS palette (remapped from legacy "ocean")
             ocean: {
-              50: "#f0f9ff",
-              100: "#e0f2fe",
-              200: "#bae6fd",
-              300: "#7dd3fc",
-              400: "#38bdf8",
-              500: "#00b4d8", // Accent cyan / wave
-              600: "#0077b6", // Secondary ocean blue
-              700: "#0369a1",
-              800: "#0f2a4a", // Primary deep navy
-              900: "#0c1e36",
-              DEFAULT: "#0077b6",
+              50: "#fafafa",
+              100: "#f4f4f5",
+              200: "#e4e4e7",
+              300: "#d4d4d8",
+              400: "#a1a1aa",
+              500: "#71717a", // secondary text / icon
+              600: "#27272a", // PRIMARY action / active (zinc-800)
+              700: "#18181b", // hover — darker (zinc-900)
+              800: "#18181b", // headings / dark text (zinc-900)
+              900: "#09090b", // deepest (zinc-950)
+              DEFAULT: "#27272a",
             },
-            // Primary — alias of ocean (deep navy → ocean-800)
+            // Primary — alias of the zinc monochrome scale
             primary: {
-              50: "#f0f9ff",
-              100: "#e0f2fe",
-              200: "#bae6fd",
-              300: "#7dd3fc",
-              400: "#38bdf8",
-              500: "#00b4d8",
-              600: "#0077b6",
-              700: "#0369a1",
-              800: "#0f2a4a",
-              900: "#0c1e36",
-              950: "#0c1e36",
-              DEFAULT: "#0077b6",
+              50: "#fafafa",
+              100: "#f4f4f5",
+              200: "#e4e4e7",
+              300: "#d4d4d8",
+              400: "#a1a1aa",
+              500: "#71717a",
+              600: "#27272a",
+              700: "#18181b",
+              800: "#18181b",
+              900: "#09090b",
+              950: "#09090b",
+              DEFAULT: "#27272a",
+            },
+            // Neutral — align slate to zinc for cohesive monochrome
+            slate: {
+              50: "#fafafa",
+              100: "#f4f4f5",
+              200: "#e4e4e7",
+              300: "#d4d4d8",
+              400: "#a1a1aa",
+              500: "#71717a",
+              600: "#52525b",
+              700: "#3f3f46",
+              800: "#27272a",
+              900: "#18181b",
+              950: "#09090b",
             },
             // Dark - Black/Gray
             dark: {
@@ -56,37 +70,47 @@
               950: "#030712",
               DEFAULT: "#111827",
             },
-            // Button colors — ocean brand
+            // Button colors — zinc monochrome (semantic danger/success kept)
             btn: {
-              primary: "#0077b6",
-              "primary-hover": "#0369a1",
-              secondary: "#111827",
-              "secondary-hover": "#1F2937",
+              primary: "#27272a",
+              "primary-hover": "#18181b",
+              secondary: "#18181b",
+              "secondary-hover": "#09090b",
               danger: "#EF4444",
               "danger-hover": "#DC2626",
               success: "#22C55E",
               "success-hover": "#16A34A",
             },
-            // Status colors
+            // Status colors (semantic kept; info neutralized to zinc)
             status: {
               success: "#22C55E",
               warning: "#F59E0B",
               error: "#EF4444",
-              info: "#0077b6",
+              info: "#27272a",
             },
           },
           fontFamily: {
-            sans: ["Inter", "system-ui", "sans-serif"],
+            sans: ["Satoshi", "Inter", "system-ui", "sans-serif"],
           },
           boxShadow: {
-            glow: "0 0 20px rgba(0, 119, 182, 0.3)",
-            "glow-sm": "0 0 10px rgba(0, 119, 182, 0.2)",
+            glow: "0 0 20px rgba(24, 24, 27, 0.12)",
+            "glow-sm": "0 0 10px rgba(24, 24, 27, 0.1)",
+          },
+          keyframes: {
+            "fade-in-up": {
+              "0%": { opacity: "0", transform: "translateY(8px)" },
+              "100%": { opacity: "1", transform: "translateY(0)" },
+            },
+          },
+          animation: {
+            "fade-in-up": "fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both",
           },
         },
       },
     };
   </script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,600,700,900&display=swap" rel="stylesheet" />
   <style>
     @font-face {
       font-family: 'Z06-Walone';
@@ -105,51 +129,85 @@
     }
 
     body {
-      font-family: "Helvetica-Custom", "Inter", sans-serif;
+      font-family: "Satoshi", "Helvetica-Custom", "Inter", sans-serif;
     }
 
     /* Apply Z06-Walone font to all elements when html has lang-my class */
-    .lang-my, 
-    .lang-my body, 
-    .lang-my button, 
-    .lang-my input, 
-    .lang-my select, 
-    .lang-my textarea, 
-    .lang-my div, 
-    .lang-my span, 
-    .lang-my p, 
-    .lang-my h1, 
-    .lang-my h2, 
-    .lang-my h3, 
-    .lang-my h4, 
-    .lang-my h5, 
-    .lang-my h6, 
-    .lang-my td, 
-    .lang-my th, 
+    .lang-my,
+    .lang-my body,
+    .lang-my button,
+    .lang-my input,
+    .lang-my select,
+    .lang-my textarea,
+    .lang-my div,
+    .lang-my span,
+    .lang-my p,
+    .lang-my h1,
+    .lang-my h2,
+    .lang-my h3,
+    .lang-my h4,
+    .lang-my h5,
+    .lang-my h6,
+    .lang-my td,
+    .lang-my th,
     .lang-my a {
       font-family: 'Z06-Walone', "Inter", sans-serif !important;
     }
 
-    /* Apply Helvetica font to all elements when html has lang-en class */
-    .lang-en, 
-    .lang-en body, 
-    .lang-en button, 
-    .lang-en input, 
-    .lang-en select, 
-    .lang-en textarea, 
-    .lang-en div, 
-    .lang-en span, 
-    .lang-en p, 
-    .lang-en h1, 
-    .lang-en h2, 
-    .lang-en h3, 
-    .lang-en h4, 
-    .lang-en h5, 
-    .lang-en h6, 
-    .lang-en td, 
-    .lang-en th, 
+    /* Apply Satoshi font to all elements when html has lang-en class */
+    .lang-en,
+    .lang-en body,
+    .lang-en button,
+    .lang-en input,
+    .lang-en select,
+    .lang-en textarea,
+    .lang-en div,
+    .lang-en span,
+    .lang-en p,
+    .lang-en h1,
+    .lang-en h2,
+    .lang-en h3,
+    .lang-en h4,
+    .lang-en h5,
+    .lang-en h6,
+    .lang-en td,
+    .lang-en th,
     .lang-en a {
-      font-family: 'Helvetica-Custom', "Inter", sans-serif !important;
+      font-family: 'Satoshi', 'Helvetica-Custom', "Inter", sans-serif !important;
+    }
+
+    /* Staggered entry animation for card / grid containers */
+    @keyframes fade-in-up {
+      0% { opacity: 0; transform: translateY(8px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    .stagger-children > * {
+      opacity: 0;
+      animation: fade-in-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .stagger-children > *:nth-child(1) { animation-delay: 0.04s; }
+    .stagger-children > *:nth-child(2) { animation-delay: 0.08s; }
+    .stagger-children > *:nth-child(3) { animation-delay: 0.12s; }
+    .stagger-children > *:nth-child(4) { animation-delay: 0.16s; }
+    .stagger-children > *:nth-child(5) { animation-delay: 0.20s; }
+    .stagger-children > *:nth-child(6) { animation-delay: 0.24s; }
+    .stagger-children > *:nth-child(7) { animation-delay: 0.28s; }
+    .stagger-children > *:nth-child(8) { animation-delay: 0.32s; }
+    .stagger-children > *:nth-child(9) { animation-delay: 0.36s; }
+    .stagger-children > *:nth-child(10) { animation-delay: 0.40s; }
+    .stagger-children > *:nth-child(11) { animation-delay: 0.44s; }
+    .stagger-children > *:nth-child(12) { animation-delay: 0.48s; }
+    .stagger-children > *:nth-child(n+13) { animation-delay: 0.5s; }
+
+    /* Respect users who prefer reduced motion */
+    @media (prefers-reduced-motion: reduce) {
+      .stagger-children > *,
+      .animate-fade-in-up {
+        animation: none !important;
+        opacity: 1 !important;
+        transform: none !important;
+      }
     }
 
     /* Print styles for receipt */
@@ -192,12 +250,12 @@
     }
 
     ::-webkit-scrollbar-thumb {
-      background: #cbd5e1;
+      background: #d4d4d8;
       border-radius: 3px;
     }
 
     ::-webkit-scrollbar-thumb:hover {
-      background: #94a3b8;
+      background: #a1a1aa;
     }
   </style>
   <script type="importmap">
@@ -215,7 +273,7 @@
   <link rel="stylesheet" href="/index.css" />
 </head>
 
-<body class="bg-gray-50 text-slate-900 antialiased">
+<body class="bg-zinc-50 text-slate-900 antialiased">
   <div id="root"></div>
   <script type="module" src="/index.tsx"></script>
 </body>

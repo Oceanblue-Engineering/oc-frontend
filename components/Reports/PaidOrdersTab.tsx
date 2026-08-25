@@ -57,7 +57,7 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
         {/* Total Paid Amount */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <DollarSign className="w-5 h-5 text-[#0077b6]" />
+            <DollarSign className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -73,7 +73,7 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
         {/* Total Final Amount */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <CreditCard className="w-5 h-5 text-[#0077b6]" />
+            <CreditCard className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -89,7 +89,7 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
         {/* Total Paid Orders */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Store className="w-5 h-5 text-[#0077b6]" />
+            <Store className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -106,7 +106,7 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Payment Method Pie Chart */}
         <div className="bg-white border border-gray-150 rounded-2xl p-6 shadow-sm">
-          <h3 className="font-bold text-[#0077b6] mb-4 flex items-center gap-2 text-sm sm:text-base">
+          <h3 className="font-bold text-[#27272a] mb-4 flex items-center gap-2 text-sm sm:text-base">
             <CreditCard className="w-5 h-5" />
             Payment Methods Distribution
           </h3>
@@ -117,7 +117,7 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
                 cx="50%"
                 cy="50%"
                 outerRadius={100}
-                fill="#8884d8"
+                fill="#18181b"
                 dataKey="value"
                 label={({ name, percent }) =>
                   `${name}: ${(percent * 100).toFixed(0)}%`
@@ -141,7 +141,7 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
 
         {/* Payment Methods Table */}
         <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-2 text-[#0077b6] font-bold text-sm sm:text-base">
+          <div className="flex items-center gap-2 text-[#27272a] font-bold text-sm sm:text-base">
             <CreditCard className="w-5 h-5" />
             <span>Payment Methods Breakdown</span>
           </div>
@@ -161,7 +161,7 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
                 <tbody className="divide-y divide-gray-100 bg-white">
                   {paidOrdersReport.data.paymentMethods.map((pm, index) => {
                     const methodName = pm.paymentMethod.toLowerCase();
-                    const color = PAYMENT_METHOD_COLORS[methodName] || "#6366f1";
+                    const color = PAYMENT_METHOD_COLORS[methodName] || "#a1a1aa";
                     return (
                       <tr key={index} className="hover:bg-slate-50/40 transition-colors">
                         {/* No */}
@@ -209,10 +209,10 @@ export const PaidOrdersTab: React.FC<PaidOrdersTabProps> = ({
                     <td className="px-4 py-4 text-right text-xs">
                       {paidOrdersReport.data.totals.totalOrderCount.toLocaleString()}
                     </td>
-                    <td className="px-4 py-4 text-right text-xs font-black text-[#0077b6]">
+                    <td className="px-4 py-4 text-right text-xs font-black text-[#27272a]">
                       {paidOrdersReport.data.totals.totalPaidAmount.toLocaleString()} MMK
                     </td>
-                    <td className="px-4 py-4 text-right text-xs font-black text-[#0077b6]">
+                    <td className="px-4 py-4 text-right text-xs font-black text-[#27272a]">
                       {paidOrdersReport.data.totals.totalFinalAmount.toLocaleString()} MMK
                     </td>
                   </tr>

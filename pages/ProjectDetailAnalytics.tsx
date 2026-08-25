@@ -326,16 +326,16 @@ const ProjectDetailAnalytics: React.FC = () => {
                             name,
                             value: value as number,
                             color: [
-                              "#0088FE",
-                              "#00C49F",
-                              "#FFBB28",
-                              "#FF8042",
-                              "#8884D8",
-                              "#82CA9D",
-                              "#FF6B6B",
-                              "#6C5CE7",
-                              "#00B894",
-                              "#FDCB6E",
+                              "#18181b",
+                              "#3f3f46",
+                              "#52525b",
+                              "#71717a",
+                              "#a1a1aa",
+                              "#d4d4d8",
+                              "#e4e4e7",
+                              "#27272a",
+                              "#09090b",
+                              "#f4f4f5",
                             ][index % 10],
                           })
                         )
@@ -456,16 +456,16 @@ const ProjectDetailAnalytics: React.FC = () => {
                             name,
                             value: value as number,
                             color: [
-                              "#0088FE",
-                              "#00C49F",
-                              "#FFBB28",
-                              "#FF8042",
-                              "#8884D8",
-                              "#82CA9D",
-                              "#FF6B6B",
-                              "#6C5CE7",
-                              "#00B894",
-                              "#FDCB6E",
+                              "#18181b",
+                              "#3f3f46",
+                              "#52525b",
+                              "#71717a",
+                              "#a1a1aa",
+                              "#d4d4d8",
+                              "#e4e4e7",
+                              "#27272a",
+                              "#09090b",
+                              "#f4f4f5",
                             ][index % 10],
                           })
                         )
@@ -508,7 +508,7 @@ const ProjectDetailAnalytics: React.FC = () => {
       {/* TAB 3: PAYROLL & WORKERS */}
       {activeTab === "payroll" && (
         <div className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
             <Card className="p-4">
               <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
                 {t("projects.totalWorkers")}
@@ -588,7 +588,7 @@ const ProjectDetailAnalytics: React.FC = () => {
               </CardTitle>
             </CardHeader>
             <CardContent className="pt-5 space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger-children">
                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
                   <p className="text-xs text-slate-500 font-semibold">
                     {t("projects.daysElapsed")}

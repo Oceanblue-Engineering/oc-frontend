@@ -396,7 +396,7 @@ export const CreditDetail: React.FC = () => {
           <div className="flex gap-2">
             {/* <button
               onClick={handleOpenAddCredit}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium shadow-sm transition-all active:scale-95"
+              className="flex items-center gap-2 px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors font-medium shadow-sm transition-all active:scale-95"
             >
               <Box className="w-4 h-4" />
               Add Credit
@@ -425,8 +425,8 @@ export const CreditDetail: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <div className="bg-white p-5 rounded-xl shadow-sm border">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-blue-100 rounded-xl">
-                  <LayoutGrid className="w-6 h-6 text-blue-600" />
+                <div className="p-3 bg-zinc-100 rounded-xl">
+                  <LayoutGrid className="w-6 h-6 text-zinc-600" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">
@@ -535,7 +535,7 @@ export const CreditDetail: React.FC = () => {
                         <button
                           key={order._id}
                           onClick={() => handleViewOrder(order._id)}
-                          className="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors cursor-pointer"
+                          className="bg-zinc-100 text-zinc-700 px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-200 transition-colors cursor-pointer"
                         >
                           {order.orderNumber}
                         </button>
@@ -683,7 +683,7 @@ export const CreditDetail: React.FC = () => {
                           {personaDetail.creditRecords.records.map((record) => (
                             <tr key={record._id} className="hover:bg-slate-50">
                               <td className="px-4 py-3">
-                                <span className="text-blue-600 font-medium">
+                                <span className="text-zinc-600 font-medium">
                                   {record.orderId.orderNumber}
                                 </span>
                               </td>
@@ -809,7 +809,7 @@ export const CreditDetail: React.FC = () => {
                                       disabled={paymentsLoading}
                                       className={`relative inline-flex items-center px-4 py-2 border text-sm font-medium ${
                                         paymentsPage === pageNum
-                                          ? "z-10 bg-blue-50 border-blue-500 text-blue-600"
+                                          ? "z-10 bg-zinc-50 border-zinc-500 text-zinc-600"
                                           : "bg-white border-slate-300 text-slate-500 hover:bg-slate-50"
                                       }`}
                                     >
@@ -985,9 +985,9 @@ export const CreditDetail: React.FC = () => {
       {showAddCreditModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-lg overflow-hidden flex flex-col animate-in zoom-in duration-200">
-            <div className="p-4 border-b flex justify-between items-center bg-blue-50">
+            <div className="p-4 border-b flex justify-between items-center bg-zinc-50">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Box className="w-6 h-6 text-blue-600" />
+                <Box className="w-6 h-6 text-zinc-600" />
                 Add New Credit Order
               </h2>
               <button
@@ -1006,7 +1006,7 @@ export const CreditDetail: React.FC = () => {
                   Select Storefront <span className="text-red-500">*</span>
                 </label>
                 <select
-                  className="w-full border border-slate-300 rounded-xl p-3 bg-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm"
+                  className="w-full border border-slate-300 rounded-xl p-3 bg-white focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none transition-all shadow-sm"
                   value={creditForm.storefrontId}
                   onChange={(e) => handleStorefrontChange(e.target.value)}
                 >
@@ -1029,7 +1029,7 @@ export const CreditDetail: React.FC = () => {
                     type="number"
                     min="0"
                     placeholder="Enter subtotal amount..."
-                    className="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm font-bold text-lg"
+                    className="w-full border border-slate-300 rounded-xl p-3 focus:ring-2 focus:ring-zinc-500 focus:border-zinc-500 outline-none transition-all shadow-sm font-bold text-lg"
                     value={creditForm.finalAmount}
                     onChange={(e) =>
                       setCreditForm({
@@ -1042,7 +1042,7 @@ export const CreditDetail: React.FC = () => {
               </div>
 
               {/* Summary Summary */}
-              <div className="p-4 bg-blue-50 rounded-2xl border border-blue-100 flex justify-between items-center text-blue-900">
+              <div className="p-4 bg-zinc-50 rounded-2xl border border-zinc-100 flex justify-between items-center text-zinc-900">
                 <span className="font-medium">Credit Amount to be added:</span>
                 <span className="text-xl font-bold">
                   {(
@@ -1063,7 +1063,7 @@ export const CreditDetail: React.FC = () => {
               <button
                 onClick={handleAddCreditOrder}
                 disabled={isCreatingCredit}
-                className="px-8 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all disabled:opacity-50 flex items-center gap-2 font-bold shadow-lg shadow-blue-200 active:scale-95"
+                className="px-8 py-3 bg-zinc-600 text-white rounded-xl hover:bg-zinc-700 transition-all disabled:opacity-50 flex items-center gap-2 font-bold shadow-lg shadow-zinc-200 active:scale-95"
               >
                 {isCreatingCredit ? (
                   <>

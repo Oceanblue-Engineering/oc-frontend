@@ -672,7 +672,7 @@ export const POS: React.FC = () => {
       <div className="flex-1 bg-white border border-gray-200/50 rounded-3xl p-4 lg:p-6 shadow-sm flex flex-col overflow-hidden">
         {/* Title and Subtitle */}
         <div className="mb-4">
-          <h1 className="text-2xl font-bold text-[#1f2937] tracking-tight">{t("pos.title")}</h1>
+          <h1 className="text-2xl font-bold text-[#18181b] tracking-tight">{t("pos.title")}</h1>
           <p className="text-xs text-gray-400 mt-1">{t("pos.subtitle")}</p>
         </div>
 
@@ -1012,7 +1012,7 @@ export const POS: React.FC = () => {
         <div className="mb-4">
           <h2 className="font-bold text-xl text-gray-800 tracking-tight">{t("pos.currentSale")}</h2>
           {selectedStorefrontId && (
-            <span className="inline-block mt-2 bg-[#fdf2e9] text-[#b06f2e] border border-[#f5d7bc] px-2.5 py-0.5 rounded-full text-xs font-semibold">
+            <span className="inline-block mt-2 bg-[#f4f4f5] text-[#3f3f46] border border-[#e4e4e7] px-2.5 py-0.5 rounded-full text-xs font-semibold">
               {
                 storefronts.find((sf) => sf._id === selectedStorefrontId)
                   ?.locationName
@@ -1024,8 +1024,8 @@ export const POS: React.FC = () => {
         <div className={`flex-1 overflow-y-auto p-4 space-y-4 ${cart.length === 0 ? "flex flex-col justify-center" : ""}`}>
           {cart.length === 0 ? (
             <div className="flex flex-col items-center justify-center bg-ocean-50/60 border border-ocean-100/40 rounded-3xl p-8 my-auto text-center shadow-sm">
-              <ShoppingCart className="w-10 h-10 text-[#0077b6] mb-4 flex-shrink-0" />
-              <p className="text-sm font-semibold text-[#0077b6] whitespace-pre-line leading-relaxed">
+              <ShoppingCart className="w-10 h-10 text-[#27272a] mb-4 flex-shrink-0" />
+              <p className="text-sm font-semibold text-[#27272a] whitespace-pre-line leading-relaxed">
                 {t("pos.emptyCart")}
               </p>
             </div>
@@ -1107,7 +1107,7 @@ export const POS: React.FC = () => {
             </div>
             <div className="flex justify-between items-baseline">
               <span className="text-base font-bold text-gray-700">{t("common.total")}</span>
-              <span className="text-lg font-black text-[#0077b6]">{subtotal.toLocaleString()} MMK</span>
+              <span className="text-lg font-black text-[#27272a]">{subtotal.toLocaleString()} MMK</span>
             </div>
           </div>
 
@@ -1123,7 +1123,7 @@ export const POS: React.FC = () => {
               setShowCheckoutModal(true);
             }}
             disabled={cart.length === 0}
-            className="w-full bg-[#0077b6] hover:bg-ocean-900 text-white py-3.5 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-ocean-600/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+            className="w-full bg-[#27272a] hover:bg-ocean-900 text-white py-3.5 rounded-2xl font-bold transition-all shadow-md hover:shadow-lg hover:shadow-ocean-600/10 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
           >
             <ShoppingCart className="w-5 h-5" />
             <span>{t("pos.proceedToCheckout")}</span>
@@ -1292,7 +1292,7 @@ export const POS: React.FC = () => {
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4">
           <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-md sm:mx-4 max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-slate-100">
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-100 bg-[#0077b6]/5">
+            <div className="p-5 border-b border-slate-100 bg-[#27272a]/5">
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-lg text-slate-800">
                   {/* {t("pos.checkout")} */}
@@ -1319,7 +1319,7 @@ export const POS: React.FC = () => {
                   {t("pos.paymentType")}
                 </label>
                 <select
-                  className="payment-type-select w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  className="payment-type-select w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                   value={paymentType}
                   onChange={(e) => {
                     setPaymentType(e.target.value as "paid" | "credit");
@@ -1348,7 +1348,7 @@ export const POS: React.FC = () => {
                   <Calendar className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                   <input
                     type="date"
-                    className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                    className="w-full pl-9 pr-4 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                     value={createdAt}
                     onChange={(e) => setCreatedAt(e.target.value)}
                   />
@@ -1364,7 +1364,7 @@ export const POS: React.FC = () => {
                   <div className="relative flex-1">
                     <User className="absolute left-3 top-3 h-4 w-4 text-slate-400" />
                     <select
-                      className="w-full pl-9 pr-4 py-2.5 border border-ocean-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none bg-ocean-50/20 transition-all"
+                      className="w-full pl-9 pr-4 py-2.5 border border-ocean-200 rounded-xl text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none bg-ocean-50/20 transition-all"
                       value={selectedCreditPersonId}
                       onChange={(e) =>
                         setSelectedCreditPersonId(e.target.value)
@@ -1391,7 +1391,7 @@ export const POS: React.FC = () => {
                       setNewCreditPersonAddress("");
                       setShowAddCreditPersonModal(true);
                     }}
-                    className="px-4 py-2 bg-[#0077b6] hover:bg-[#0077b6]/90 text-white rounded-full transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 text-sm font-semibold whitespace-nowrap cursor-pointer"
+                    className="px-4 py-2 bg-[#27272a] hover:bg-[#27272a]/90 text-white rounded-full transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 text-sm font-semibold whitespace-nowrap cursor-pointer"
                   >
                     <Plus className="w-4 h-4" />
                     {t("pos.addCreditPerson")}
@@ -1405,7 +1405,7 @@ export const POS: React.FC = () => {
                   {t("pos.paymentMethod")}
                 </label>
                 <select
-                  className="payment-method-select w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  className="payment-method-select w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                   value={paymentMethod}
                   onChange={(e) =>
                     setPaymentMethod(e.target.value as PaymentMethod)
@@ -1560,7 +1560,7 @@ export const POS: React.FC = () => {
                   {t("pos.discount")} (%)
                   <button
                     onClick={() => setShowDiscountCalculator(true)}
-                    className="ml-2 text-[#0077b6] hover:text-[#0077b6]/80 transition-colors"
+                    className="ml-2 text-[#27272a] hover:text-[#27272a]/80 transition-colors"
                     title="Calculate discount percentage"
                   >
                     <Calculator className="w-4 h-4" />
@@ -1570,7 +1570,7 @@ export const POS: React.FC = () => {
                   type="number"
                   min="0"
                   max="100"
-                  className="discount-input w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  className="discount-input w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                   value={discount}
                   onChange={(e) => setDiscount(Number(e.target.value))}
                 />
@@ -1591,7 +1591,7 @@ export const POS: React.FC = () => {
                   type="number"
                   min="0"
                   disabled={paymentMethod === PaymentMethod.FOC}
-                  className={`w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all ${
+                  className={`w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all ${
                     paymentMethod === PaymentMethod.FOC
                       ? "bg-slate-100 cursor-not-allowed"
                       : ""
@@ -1618,7 +1618,7 @@ export const POS: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder={t("pos.notePlaceholder")}
@@ -1667,7 +1667,7 @@ export const POS: React.FC = () => {
                   (paymentType === "paid" && paidAmount < total) ||
                   (paymentType === "credit" && paidAmount > total)
                 }
-                className="complete-sale-btn w-full bg-[#0077b6] hover:bg-[#0077b6]/90 text-white py-3 rounded-full font-semibold transition-all shadow-md shadow-ocean-600/15 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+                className="complete-sale-btn w-full bg-[#27272a] hover:bg-[#27272a]/90 text-white py-3 rounded-full font-semibold transition-all shadow-md shadow-ocean-600/15 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
               >
                 {isProcessing ? (
                   <>
@@ -1804,7 +1804,7 @@ export const POS: React.FC = () => {
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden border border-slate-100">
             {/* Header */}
-            <div className="p-5 border-b border-slate-100 bg-[#0077b6]/5">
+            <div className="p-5 border-b border-slate-100 bg-[#27272a]/5">
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-lg text-slate-800">
                   {t("pos.addCreditPerson")}
@@ -1826,7 +1826,7 @@ export const POS: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                   value={newCreditPersonName}
                   onChange={(e) => setNewCreditPersonName(e.target.value)}
                   placeholder={t("credits.namePlaceholder")}
@@ -1838,7 +1838,7 @@ export const POS: React.FC = () => {
                 </label>
                 <input
                   type="tel"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                   value={newCreditPersonPhone}
                   onChange={(e) => setNewCreditPersonPhone(e.target.value)}
                   placeholder={t("credits.phonePlaceholder")}
@@ -1850,7 +1850,7 @@ export const POS: React.FC = () => {
                 </label>
                 <input
                   type="text"
-                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#0077b6] focus:border-transparent outline-none transition-all"
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
                   value={newCreditPersonAddress}
                   onChange={(e) => setNewCreditPersonAddress(e.target.value)}
                   placeholder={t("credits.addressPlaceholder")}
@@ -1862,7 +1862,7 @@ export const POS: React.FC = () => {
             <div className="p-5 border-t border-slate-100 flex gap-3 bg-slate-50/50">
               <button
                 onClick={() => setShowAddCreditPersonModal(false)}
-                className="flex-1 px-4 py-2.5 border border-ocean-200 rounded-full text-sm font-semibold text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all cursor-pointer"
+                className="flex-1 px-4 py-2.5 border border-ocean-200 rounded-full text-sm font-semibold text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all cursor-pointer"
               >
                 {t("common.cancel")}
               </button>
@@ -1900,7 +1900,7 @@ export const POS: React.FC = () => {
                   }
                 }}
                 disabled={isAddingCreditPerson}
-                className="flex-1 px-4 py-2.5 bg-[#0077b6] hover:bg-[#0077b6]/90 text-white rounded-full text-sm font-semibold transition-all shadow-md shadow-ocean-600/15 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer"
+                className="flex-1 px-4 py-2.5 bg-[#27272a] hover:bg-[#27272a]/90 text-white rounded-full text-sm font-semibold transition-all shadow-md shadow-ocean-600/15 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 {isAddingCreditPerson ? (
                   <>

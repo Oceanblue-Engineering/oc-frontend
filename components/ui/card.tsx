@@ -10,8 +10,8 @@ export const Card = React.forwardRef<HTMLDivElement, CardProps>(
     <div
       ref={ref}
       className={cn(
-        "bg-white rounded-2xl border border-slate-100 shadow-xs transition-all duration-200",
-        hoverable && "hover:shadow-md hover:border-slate-200",
+        "bg-white rounded-2xl border border-zinc-200/70 shadow-xs transition-all duration-200",
+        hoverable && "hover:shadow-md hover:border-zinc-300/80",
         className
       )}
       {...props}
@@ -74,7 +74,7 @@ export const CardFooter = React.forwardRef<
   <div
     ref={ref}
     className={cn(
-      "flex items-center p-5 sm:p-6 pt-0 border-t border-slate-100 mt-4",
+      "flex items-center p-5 sm:p-6 pt-0 border-t border-zinc-200/70 mt-4",
       className
     )}
     {...props}

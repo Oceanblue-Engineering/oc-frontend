@@ -18,16 +18,16 @@ const SocialLink: React.FC<{
       href={url}
       target="_blank"
       rel="noopener noreferrer"
-      className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-colors group"
+      className="flex items-center gap-3 p-3 rounded-lg border border-slate-200 hover:border-zinc-300 hover:bg-zinc-50 transition-colors group"
     >
-      <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-slate-100 group-hover:bg-blue-100 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition-colors">
+      <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-slate-100 group-hover:bg-zinc-100 flex items-center justify-center text-slate-500 group-hover:text-zinc-600 transition-colors">
         {icon}
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-xs font-medium text-slate-500">{label}</p>
-        <p className="text-sm text-blue-600 truncate">{url}</p>
+        <p className="text-sm text-zinc-600 truncate">{url}</p>
       </div>
-      <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-600 flex-shrink-0" />
+      <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-zinc-600 flex-shrink-0" />
     </a>
   );
 };
@@ -42,7 +42,7 @@ export const SocialMediaCard: React.FC<SocialMediaCardProps> = ({
     <div className="bg-white rounded-xl shadow-sm border overflow-hidden h-full">
       <div className="p-4 sm:p-6 border-b">
         <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
-          <Share2 className="w-5 h-5 text-blue-600" />
+          <Share2 className="w-5 h-5 text-zinc-600" />
           Social Media & Website
         </h3>
       </div>

@@ -35,8 +35,8 @@ export const PrintPaperSizeSelector: React.FC<PrintPaperSizeSelectorProps> = ({
           title={option.description}
           className={`px-4 py-2 rounded-full text-sm font-semibold border transition-all cursor-pointer ${
             value === option.id
-              ? "bg-[#0077b6] text-white border-[#0077b6] shadow-md shadow-ocean-600/10"
-              : "bg-white text-[#0077b6] border-ocean-200 hover:bg-ocean-50/50"
+              ? "bg-[#27272a] text-white border-[#27272a] shadow-md shadow-ocean-600/10"
+              : "bg-white text-[#27272a] border-ocean-200 hover:bg-ocean-50/50"
           } disabled:opacity-50`}
         >
           {option.label}

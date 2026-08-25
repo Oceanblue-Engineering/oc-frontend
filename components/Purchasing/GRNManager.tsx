@@ -182,7 +182,7 @@ export const GRNManager: React.FC<GRNManagerProps> = ({
                 </div>
                 <button
                   onClick={loadPOItems}
-                  className="mt-2 bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700"
+                  className="mt-2 bg-zinc-600 text-white px-3 py-1 rounded text-xs hover:bg-zinc-700"
                 >
                   Load PO Items
                 </button>

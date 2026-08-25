@@ -103,8 +103,8 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
 
   const deliveryStatusColor: Record<string, string> = {
     pending: "bg-amber-50 text-amber-700 border-amber-100",
-    processing: "bg-blue-50 text-blue-700 border-blue-100",
-    out_for_delivery: "bg-sky-50 text-sky-700 border-sky-100",
+    processing: "bg-zinc-50 text-zinc-700 border-zinc-100",
+    out_for_delivery: "bg-zinc-50 text-zinc-700 border-zinc-100",
     delivered: "bg-emerald-50 text-emerald-700 border-emerald-100",
     cancelled: "bg-red-50 text-red-600 border-red-100",
   };
@@ -155,7 +155,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                 {/* Order Num */}
                 <td
                   onClick={() => onViewOrder(order._id)}
-                  className="px-4 py-4 font-bold text-[#0077b6] hover:underline cursor-pointer text-xs sm:text-sm"
+                  className="px-4 py-4 font-bold text-[#27272a] hover:underline cursor-pointer text-xs sm:text-sm"
                 >
                   {order.orderNumber}
                 </td>
@@ -220,7 +220,7 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   <div className="flex items-center justify-center gap-2">
                     <button
                       onClick={() => onViewOrder(order._id)}
-                      className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#0077b6] hover:bg-[#0077b6]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
+                      className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm flex items-center justify-center cursor-pointer transition-all whitespace-nowrap"
                     >
                       {t("common.edit")}
                     </button>

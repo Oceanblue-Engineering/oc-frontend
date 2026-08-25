@@ -47,14 +47,14 @@ export const Home: React.FC = () => {
         </header>
 
         {/* Menu Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 stagger-children">
           {visibleItems.map((item) => {
             const Icon = item.icon;
             return (
               <Link
                 key={item.id}
                 to={item.path}
-                className="group bg-white rounded-2xl border border-slate-100 p-5 shadow-sm hover:shadow-lg hover:shadow-ocean-500/10 hover:-translate-y-1 transition-all duration-300 hover:border-ocean-300 cursor-pointer"
+                className="group bg-white rounded-2xl border border-zinc-200/70 p-5 shadow-sm hover:shadow-lg hover:shadow-ocean-500/10 hover:-translate-y-1 transition-all duration-300 hover:border-zinc-300/80 cursor-pointer"
               >
                 <div
                   className={`w-12 h-12 rounded-xl flex items-center justify-center mb-3 transition-transform duration-300 group-hover:scale-110 ${item.color}`}

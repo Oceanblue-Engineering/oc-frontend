@@ -143,7 +143,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
     });
   };
 
-  const isDark = className?.includes("text-white") || className?.includes("bg-[#0077b6]") || className?.includes("bg-indigo");
+  const isDark = className?.includes("text-white") || className?.includes("bg-[#27272a]") || className?.includes("bg-indigo");
 
   return (
     <div className="relative" ref={pickerRef}>
@@ -190,7 +190,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               <Calendar
                 date={dateRange.startDate}
                 onChange={handleSingleDateSelect}
-                color="#0077b6"
+                color="#27272a"
               />
             ) : fixedStartDate ? (
               <div className="flex flex-col gap-2">
@@ -201,7 +201,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                 <Calendar
                   date={dateRange.endDate}
                   onChange={handleFixedStartSelect}
-                  color="#0077b6"
+                  color="#27272a"
                   minDate={startDate || undefined}
                 />
               </div>
@@ -213,7 +213,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
                 moveRangeOnFirstSelection={false}
                 months={isMobile ? 1 : 2}
                 direction={isMobile ? "vertical" : "horizontal"}
-                rangeColors={["#0077b6"]}
+                rangeColors={["#27272a"]}
               />
             )}
 
@@ -228,7 +228,7 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
               <button
                 type="button"
                 onClick={handleApply}
-                className="px-6 py-2 text-sm font-semibold bg-[#0077b6] text-white rounded-full hover:bg-[#0077b6]/90 transition-colors shadow-md shadow-ocean-600/10 cursor-pointer"
+                className="px-6 py-2 text-sm font-semibold bg-[#27272a] text-white rounded-full hover:bg-[#27272a]/90 transition-colors shadow-md shadow-ocean-600/10 cursor-pointer"
               >
                 Apply
               </button>

@@ -153,14 +153,14 @@ export const InventoryTable: React.FC<InventoryTableProps> = ({
                       {userRole === "owner" && (
                         <button
                           onClick={() => onEdit(p)}
-                          className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#0077b6] hover:bg-[#0077b6]/90 text-white shadow-sm shadow-ocean-600/5 transition-all cursor-pointer whitespace-nowrap"
+                          className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm shadow-ocean-600/5 transition-all cursor-pointer whitespace-nowrap"
                         >
                           {t("inventory.editItem")}
                         </button>
                       )}
                       <button
                         onClick={() => onViewDetails(p.id)}
-                        className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#0077b6] hover:bg-[#0077b6]/90 text-white shadow-sm shadow-ocean-600/5 transition-all cursor-pointer whitespace-nowrap"
+                        className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm shadow-ocean-600/5 transition-all cursor-pointer whitespace-nowrap"
                       >
                         {t("inventory.checkItem")}
                       </button>

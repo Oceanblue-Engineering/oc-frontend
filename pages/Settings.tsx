@@ -119,7 +119,7 @@ export const Settings: React.FC = () => {
             onClick={() => setActiveTab("shop")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "shop"
-                ? "border-[#0077b6] text-[#0077b6]"
+                ? "border-[#27272a] text-[#27272a]"
                 : "border-transparent text-slate-400 hover:text-slate-600"
             }`}
           >
@@ -130,7 +130,7 @@ export const Settings: React.FC = () => {
             onClick={() => setActiveTab("audit")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "audit"
-                ? "border-[#0077b6] text-[#0077b6]"
+                ? "border-[#27272a] text-[#27272a]"
                 : "border-transparent text-slate-400 hover:text-slate-600"
             }`}
           >
@@ -141,7 +141,7 @@ export const Settings: React.FC = () => {
             onClick={() => setActiveTab("transfer")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "transfer"
-                ? "border-[#0077b6] text-[#0077b6]"
+                ? "border-[#27272a] text-[#27272a]"
                 : "border-transparent text-slate-400 hover:text-slate-600"
             }`}
           >
@@ -160,18 +160,18 @@ export const Settings: React.FC = () => {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <h2 className="text-lg font-bold text-slate-800 flex items-center">
-              <AlertTriangle className="w-5 h-5 mr-2 text-[#0077b6]" />{" "}
+              <AlertTriangle className="w-5 h-5 mr-2 text-[#27272a]" />{" "}
               Stock Audit Logs
             </h2>
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-ocean-200 text-[#0077b6]">
+              <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-full border border-ocean-200 text-[#27272a]">
                 <span className="text-xs font-semibold text-ocean-400">
                   Show:
                 </span>
                 <select
                   value={limit}
                   onChange={(e) => setLimit(Number(e.target.value))}
-                  className="bg-transparent text-sm font-bold text-[#0077b6] outline-none cursor-pointer"
+                  className="bg-transparent text-sm font-bold text-[#27272a] outline-none cursor-pointer"
                 >
                   <option value={10}>10</option>
                   <option value={25}>25</option>
@@ -182,7 +182,7 @@ export const Settings: React.FC = () => {
               <button
                 onClick={() => loadStockAuditLogs(currentPage)}
                 disabled={loading}
-                className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
               >
                 <RefreshCw
                   className={`w-4 h-4 ${loading ? "animate-spin" : ""}`}
@@ -194,7 +194,7 @@ export const Settings: React.FC = () => {
 
           {loading ? (
             <div className="p-6 sm:p-8 text-center text-slate-500">
-              <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-[#0077b6] mx-auto mb-2" />
+              <Loader2 className="w-6 h-6 sm:w-8 sm:h-8 animate-spin text-[#27272a] mx-auto mb-2" />
               <p className="text-sm sm:text-base font-medium">
                 Loading stock audit logs...
               </p>
@@ -426,7 +426,7 @@ export const Settings: React.FC = () => {
                                 onClick={() => loadStockAuditLogs(pageNum)}
                                 className={`relative inline-flex items-center px-4 py-2 border text-sm font-semibold rounded-lg transition-all ${
                                   currentPage === pageNum
-                                    ? "z-10 bg-[#0077b6] border-[#0077b6] text-white shadow-sm"
+                                    ? "z-10 bg-[#27272a] border-[#27272a] text-white shadow-sm"
                                     : "bg-white border-slate-300 text-slate-500 hover:bg-slate-50"
                                 }`}
                               >
@@ -462,12 +462,12 @@ export const Settings: React.FC = () => {
         <div className="space-y-4">
           <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
             <h2 className="text-lg font-bold text-slate-800 flex items-center">
-              <Truck className="w-5 h-5 mr-2 text-[#0077b6]" />{" "}
+              <Truck className="w-5 h-5 mr-2 text-[#27272a]" />{" "}
               Transfer Management
             </h2>
             <button
               onClick={loadTransfers}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer"
             >
               <RefreshCw className="w-4 h-4" />
               <span>Refresh</span>

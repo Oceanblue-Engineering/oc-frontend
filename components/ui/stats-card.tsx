@@ -35,7 +35,7 @@ export function StatsCard({
     emerald: "bg-emerald-50 text-emerald-600 border-emerald-200/60",
     amber: "bg-amber-50 text-amber-600 border-amber-200/60",
     rose: "bg-rose-50 text-rose-600 border-rose-200/60",
-    purple: "bg-purple-50 text-purple-600 border-purple-200/60",
+    purple: "bg-slate-100 text-slate-700 border-slate-200/70",
     neutral: "bg-slate-50 text-slate-600 border-slate-200/60",
   };
 
@@ -43,8 +43,8 @@ export function StatsCard({
     <div
       onClick={onClick}
       className={cn(
-        "bg-white rounded-2xl p-5 border border-slate-100 shadow-xs flex items-center justify-between gap-4 transition-all duration-200",
-        onClick && "cursor-pointer hover:shadow-md hover:border-slate-200 active:scale-[0.99]",
+        "bg-white rounded-2xl p-5 border border-zinc-200/70 shadow-xs flex items-center justify-between gap-4 transition-all duration-200",
+        onClick && "cursor-pointer hover:shadow-md hover:border-zinc-300/80 active:scale-[0.99]",
         className
       )}
     >

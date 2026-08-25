@@ -520,7 +520,7 @@ export const WarehouseDetail: React.FC = () => {
               <Package className="w-5 h-5 sm:w-6 sm:h-6 text-primary flex-shrink-0" />
               <span className="truncate">{warehouseName}</span>
               {warehouseCode && (
-                <span className="text-xs sm:text-sm px-2 py-1 bg-primary/20 text-blue-700 rounded-full font-medium flex-shrink-0">
+                <span className="text-xs sm:text-sm px-2 py-1 bg-primary/20 text-zinc-700 rounded-full font-medium flex-shrink-0">
                   {warehouseCode}
                 </span>
               )}
@@ -774,7 +774,7 @@ export const WarehouseDetail: React.FC = () => {
                         </span>
                       </td>
                       <td className="px-2 sm:px-4 py-3">
-                        <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium">
+                        <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded text-xs font-medium">
                           {item.inventoryId.category}
                         </span>
                       </td>
@@ -821,7 +821,7 @@ export const WarehouseDetail: React.FC = () => {
                             <button
                               onClick={() => openTransferModal(item)}
                               disabled={item.quantity == 0}
-                              className="text-xs bg-purple-50 text-primary-600 px-2 py-1 sm:px-3 sm:py-1.5 rounded hover:bg-purple-100 border border-purple-200 font-medium transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                              className="text-xs bg-zinc-50 text-primary-600 px-2 py-1 sm:px-3 sm:py-1.5 rounded hover:bg-zinc-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <ArrowRightLeft className="w-3 h-3" />{" "}
                               <span className="hidden sm:inline">Transfer</span>
@@ -940,11 +940,11 @@ export const WarehouseDetail: React.FC = () => {
 
             <div className="p-6 space-y-6">
               {/* Source Warehouse Info */}
-              <div className="bg-blue-50 p-4 rounded-lg">
+              <div className="bg-zinc-50 p-4 rounded-lg">
                 <p className="text-sm text-primary font-medium">
                   Source Warehouse
                 </p>
-                <p className="text-lg font-bold text-blue-800">
+                <p className="text-lg font-bold text-zinc-800">
                   {warehouseName}{" "}
                   <span className="text-sm font-normal">({warehouseCode})</span>
                 </p>
@@ -1121,7 +1121,7 @@ export const WarehouseDetail: React.FC = () => {
                 <button
                   onClick={handleSubmitTransfer}
                   disabled={isSubmitting || transferItems.length === 0}
-                  className="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
+                  className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
                 >
                   {isSubmitting ? (
                     <>

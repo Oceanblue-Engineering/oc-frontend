@@ -53,7 +53,7 @@ export const ShopInfoCard: React.FC<ShopInfoCardProps> = ({ settings }) => {
             />
           ) : (
             <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl bg-ocean-50/50 flex items-center justify-center">
-              <Store className="w-10 h-10 text-[#0077b6]" />
+              <Store className="w-10 h-10 text-[#27272a]" />
             </div>
           )}
           <div className="flex-1 min-w-0">
@@ -87,12 +87,12 @@ export const ShopInfoCard: React.FC<ShopInfoCardProps> = ({ settings }) => {
 
       <div className="p-4 sm:p-6">
         <InfoRow
-          icon={<MapPin className="w-4 h-4 text-[#0077b6]" />}
+          icon={<MapPin className="w-4 h-4 text-[#27272a]" />}
           label={t("settings.address")}
           value={settings.address}
         />
         <InfoRow
-          icon={<Phone className="w-4 h-4 text-[#0077b6]" />}
+          icon={<Phone className="w-4 h-4 text-[#27272a]" />}
           label={t("settings.phone")}
           value={settings.phoneNumber}
         />

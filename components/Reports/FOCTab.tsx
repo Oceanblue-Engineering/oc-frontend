@@ -77,7 +77,7 @@ export const FOCTab: React.FC<FOCTabProps> = ({ focOrders, loading }) => {
         {/* Total Products */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Package className="w-5 h-5 text-[#0077b6]" />
+            <Package className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -92,7 +92,7 @@ export const FOCTab: React.FC<FOCTabProps> = ({ focOrders, loading }) => {
         {/* Total Quantity */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Package className="w-5 h-5 text-[#0077b6]" />
+            <Package className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -107,7 +107,7 @@ export const FOCTab: React.FC<FOCTabProps> = ({ focOrders, loading }) => {
         {/* Total Value */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
-            <Package className="w-5 h-5 text-[#0077b6]" />
+            <Package className="w-5 h-5 text-[#27272a]" />
           </div>
           <div>
             <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
@@ -123,7 +123,7 @@ export const FOCTab: React.FC<FOCTabProps> = ({ focOrders, loading }) => {
 
       {/* Products Table */}
       <div className="flex flex-col gap-4">
-        <div className="flex items-center gap-2 text-[#0077b6] font-bold text-sm sm:text-base">
+        <div className="flex items-center gap-2 text-[#27272a] font-bold text-sm sm:text-base">
           <Package className="w-5 h-5" />
           <span>FOC Products Details</span>
         </div>

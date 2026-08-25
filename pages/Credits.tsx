@@ -207,7 +207,7 @@ export const Credits: React.FC = () => {
       />
 
       {/* Stats Cards & Search */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-children">
         <StatsCard
           label={t("credits.totalProfiles")}
           value={`${totalPersonas} ယောက်`}

@@ -165,17 +165,17 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
       case "bar":
         return (
           <BarChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
             <XAxis
               dataKey="month"
               tickFormatter={formatMonth}
               fontSize={10}
-              tick={{ fill: '#64748b' }}
+              tick={{ fill: '#71717a' }}
             />
             <YAxis
               tickFormatter={formatShortCurrency}
               fontSize={10}
-              tick={{ fill: '#64748b' }}
+              tick={{ fill: '#71717a' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend content={<CustomLegend />} />
@@ -183,7 +183,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
               <Bar
                 dataKey="expenses"
                 name={t("projects.expenses")}
-                fill="#0088FE"
+                fill="#18181b"
                 radius={[2, 2, 0, 0]}
               />
             )}
@@ -191,7 +191,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
               <Bar
                 dataKey="payroll"
                 name={t("projects.payroll")}
-                fill="#00C49F"
+                fill="#3f3f46"
                 radius={[2, 2, 0, 0]}
               />
             )}
@@ -199,7 +199,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
               <Bar
                 dataKey="total"
                 name={t("projects.total")}
-                fill="#FFBB28"
+                fill="#52525b"
                 radius={[2, 2, 0, 0]}
               />
             )}
@@ -209,17 +209,17 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
       case "area":
         return (
           <AreaChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
             <XAxis
               dataKey="month"
               tickFormatter={formatMonth}
               fontSize={10}
-              tick={{ fill: '#64748b' }}
+              tick={{ fill: '#71717a' }}
             />
             <YAxis
               tickFormatter={formatShortCurrency}
               fontSize={10}
-              tick={{ fill: '#64748b' }}
+              tick={{ fill: '#71717a' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend content={<CustomLegend />} />
@@ -228,9 +228,9 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
                 type="monotone"
                 dataKey="expenses"
                 name={t("projects.expenses")}
-                fill="#0088FE"
+                fill="#18181b"
                 fillOpacity={0.3}
-                stroke="#0088FE"
+                stroke="#18181b"
                 strokeWidth={2}
               />
             )}
@@ -239,9 +239,9 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
                 type="monotone"
                 dataKey="payroll"
                 name={t("projects.payroll")}
-                fill="#00C49F"
+                fill="#3f3f46"
                 fillOpacity={0.3}
-                stroke="#00C49F"
+                stroke="#3f3f46"
                 strokeWidth={2}
               />
             )}
@@ -250,9 +250,9 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
                 type="monotone"
                 dataKey="total"
                 name={t("projects.total")}
-                fill="#FFBB28"
+                fill="#52525b"
                 fillOpacity={0.3}
-                stroke="#FFBB28"
+                stroke="#52525b"
                 strokeWidth={2}
               />
             )}
@@ -262,17 +262,17 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
       default: // line chart
         return (
           <LineChart data={data}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+            <CartesianGrid strokeDasharray="3 3" stroke="#e4e4e7" />
             <XAxis
               dataKey="month"
               tickFormatter={formatMonth}
               fontSize={10}
-              tick={{ fill: '#64748b' }}
+              tick={{ fill: '#71717a' }}
             />
             <YAxis
               tickFormatter={formatShortCurrency}
               fontSize={10}
-              tick={{ fill: '#64748b' }}
+              tick={{ fill: '#71717a' }}
             />
             <Tooltip content={<CustomTooltip />} />
             <Legend content={<CustomLegend />} />
@@ -281,7 +281,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
                 type="monotone"
                 dataKey="expenses"
                 name={t("projects.expenses")}
-                stroke="#0088FE"
+                stroke="#18181b"
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 6 }}
@@ -292,7 +292,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
                 type="monotone"
                 dataKey="payroll"
                 name={t("projects.payroll")}
-                stroke="#00C49F"
+                stroke="#3f3f46"
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 6 }}
@@ -303,7 +303,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
                 type="monotone"
                 dataKey="total"
                 name={t("projects.total")}
-                stroke="#FFBB28"
+                stroke="#52525b"
                 strokeWidth={2}
                 dot={{ r: 3 }}
                 activeDot={{ r: 6 }}
@@ -322,7 +322,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
 
         {/* Quick stats */}
         <div className="flex flex-wrap gap-2">
-          <div className="px-2 py-1 bg-blue-50 text-blue-700 text-xs font-semibold rounded-lg">
+          <div className="px-2 py-1 bg-zinc-50 text-zinc-700 text-xs font-semibold rounded-lg">
             {t("projects.expenses")}: {formatCurrency(totalExpenses)}
           </div>
           <div className="px-2 py-1 bg-green-50 text-green-700 text-xs font-semibold rounded-lg">
@@ -361,7 +361,7 @@ const MonthlyTrendsChart: React.FC<MonthlyTrendsChartProps> = ({
         <div className="ml-auto flex items-center gap-2">
           {showExpenses && (
             <div className="flex items-center gap-1">
-              <div className="w-2 h-2 rounded-full bg-blue-500" />
+              <div className="w-2 h-2 rounded-full bg-zinc-500" />
               <span className="text-xs text-slate-600">{t("projects.expenses")}</span>
             </div>
           )}

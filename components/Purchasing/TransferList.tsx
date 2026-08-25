@@ -138,7 +138,7 @@ export const TransferList: React.FC<TransferListProps> = ({
                       {transfer.transferNumber}
                     </td>
                     <td className="p-4">
-                      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-medium">
+                      <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded text-xs font-medium">
                         {transfer.sourceType}
                       </span>
                     </td>
@@ -166,7 +166,7 @@ export const TransferList: React.FC<TransferListProps> = ({
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => onViewTransfer?.(transfer)}
-                          className="text-xs bg-primary/50 text-white px-3 py-1.5 rounded hover:bg-primary/70 border border-blue-200 font-medium transition-colors flex items-center gap-1"
+                          className="text-xs bg-primary/50 text-white px-3 py-1.5 rounded hover:bg-primary/70 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
                         >
                           <Eye className="w-3 h-3" /> View
                         </button>

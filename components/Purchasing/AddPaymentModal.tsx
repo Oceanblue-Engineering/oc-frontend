@@ -125,7 +125,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-teal-50 to-white">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-zinc-50 to-white">
           <div className="flex items-center gap-2.5">
             <div className="p-2 bg-emerald-100 text-emerald-700 rounded-xl">
               <CreditCard className="w-5 h-5" />

@@ -151,11 +151,11 @@ export const GRNList: React.FC<GRNListProps> = ({
       case "pending":
         return "bg-yellow-100 text-yellow-700";
       case "verified":
-        return "bg-purple-100 text-purple-700";
+        return "bg-zinc-100 text-zinc-700";
       case "completed":
         return "bg-green-100 text-green-700";
       case "transferred":
-        return "bg-blue-100 text-blue-700";
+        return "bg-zinc-100 text-zinc-700";
       default:
         return "bg-gray-100 text-gray-700";
     }
@@ -223,7 +223,7 @@ export const GRNList: React.FC<GRNListProps> = ({
               ) : (
                 filteredGRNs.map((grn) => (
                   <tr key={grn._id} className="hover:bg-slate-50">
-                    <td className="p-4 font-medium text-blue-600">
+                    <td className="p-4 font-medium text-zinc-600">
                       {grn.grnNumber}
                     </td>
                     <td className="p-4">
@@ -265,7 +265,7 @@ export const GRNList: React.FC<GRNListProps> = ({
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => onViewGRN?.(grn)}
-                          className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-blue-200 font-medium transition-colors flex items-center gap-1"
+                          className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
                         >
                           <Eye className="w-3 h-3" /> View
                         </button>
@@ -275,7 +275,7 @@ export const GRNList: React.FC<GRNListProps> = ({
                               handleUpdateStatus(grn._id, "verified")
                             }
                             disabled={updatingId === grn._id}
-                            className="text-xs bg-purple-50 text-purple-600 px-3 py-1.5 rounded hover:bg-purple-100 border border-purple-200 font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
+                            className="text-xs bg-zinc-50 text-zinc-600 px-3 py-1.5 rounded hover:bg-zinc-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1 disabled:opacity-50"
                           >
                             <CheckCircle className="w-3 h-3" />
                             {updatingId === grn._id ? "..." : "Verify"}

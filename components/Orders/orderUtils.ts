@@ -7,7 +7,7 @@ export const getStatusColor = (status: string) => {
     case "cancelled":
       return "bg-red-100 text-red-700";
     case "refunded":
-      return "bg-purple-100 text-purple-700";
+      return "bg-zinc-100 text-zinc-700";
     default:
       return "bg-gray-100 text-gray-700";
   }

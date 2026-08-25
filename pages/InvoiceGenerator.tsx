@@ -506,7 +506,7 @@ export const InvoiceGenerator: React.FC = () => {
       {activeTab === "list" && (
         <div className="space-y-6 animate-in fade-in duration-200">
           {/* KPI Metrics */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
             <StatsCard
               title="Total Invoices"
               value={stats.totalCount || invoices.length}

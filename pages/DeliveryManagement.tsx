@@ -241,8 +241,8 @@ export const DeliveryManagement: React.FC = () => {
                 <div className="space-y-2">
                   {[
                     { key: "pending", color: "bg-amber-50 text-amber-700" },
-                    { key: "processing", color: "bg-blue-50 text-blue-700" },
-                    { key: "out_for_delivery", color: "bg-sky-50 text-sky-700" },
+                    { key: "processing", color: "bg-zinc-50 text-zinc-700" },
+                    { key: "out_for_delivery", color: "bg-zinc-50 text-zinc-700" },
                     { key: "delivered", color: "bg-emerald-50 text-emerald-700" },
                     { key: "cancelled", color: "bg-red-50 text-red-600" },
                   ].map((s) => (

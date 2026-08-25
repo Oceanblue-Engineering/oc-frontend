@@ -83,7 +83,7 @@ export const CreditOrdersFilters: React.FC<CreditOrdersFiltersProps> = ({
           </div>
 
           {/* Results count */}
-          <div className="text-xs sm:text-sm font-semibold text-[#0077b6]/90 whitespace-nowrap flex-shrink-0 pl-1">
+          <div className="text-xs sm:text-sm font-semibold text-[#27272a]/90 whitespace-nowrap flex-shrink-0 pl-1">
             <span>
               Showing {filteredOrders.length} Orders of {orders.length}
             </span>

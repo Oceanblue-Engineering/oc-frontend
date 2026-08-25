@@ -104,11 +104,11 @@ export const UpdateLineItemModal: React.FC<UpdateLineItemModalProps> = ({
 
         {/* Quantity Updates */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
-            <label className="block text-sm font-medium text-blue-700 mb-2">
+          <div className="bg-zinc-50 p-4 rounded-lg border border-zinc-200">
+            <label className="block text-sm font-medium text-zinc-700 mb-2">
               Received Quantity
             </label>
-            <div className="text-2xl font-bold text-blue-600">
+            <div className="text-2xl font-bold text-zinc-600">
               {lineItem.receivedQuantity}
             </div>
           </div>

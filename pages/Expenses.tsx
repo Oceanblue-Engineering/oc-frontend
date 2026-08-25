@@ -315,7 +315,7 @@ export const Expenses: React.FC = () => {
       />
 
       {/* KPI Stats Row & Search */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-children">
         <StatsCard
           label={t("expenses.totalExpenses")}
           value={`${totalExpenses.toLocaleString()} MMK`}

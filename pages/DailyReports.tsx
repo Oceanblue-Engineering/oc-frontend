@@ -139,7 +139,7 @@ export const DailyReports: React.FC = () => {
           <button
             onClick={refresh}
             disabled={loading || loadingLatest}
-            className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+            className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
           >
             <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
             <span>{t("common.refresh")}</span>
@@ -166,7 +166,7 @@ export const DailyReports: React.FC = () => {
                   title={t("dailyReports.totalCardMobile")}
                   value={formatMyanmarCurrency(latest.totalCardAmount, currencySymbol)}
                   icon={<CreditCard className="w-5 h-5 text-white" />}
-                  color="bg-blue-500"
+                  color="bg-zinc-500"
                 />
                 <SummaryCard
                   title={t("dailyReports.totalCash")}
@@ -178,7 +178,7 @@ export const DailyReports: React.FC = () => {
                   title={t("dailyReports.totalOrders")}
                   value={`${latest.orderCount} ခု`}
                   icon={<ShoppingBag className="w-5 h-5 text-white" />}
-                  color="bg-purple-500"
+                  color="bg-zinc-500"
                 />
                 <SummaryCard
                   title={t("dailyReports.discount")}
@@ -207,7 +207,7 @@ export const DailyReports: React.FC = () => {
                     </span>
                   )}
                 </div>
-                <div className="bg-gradient-to-br from-emerald-50/30 to-teal-50/30 rounded-2xl p-4 sm:p-6 border border-emerald-100/50">
+                <div className="bg-gradient-to-br from-emerald-50/30 to-zinc-50/30 rounded-2xl p-4 sm:p-6 border border-emerald-100/50">
                   <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">
                     {latest.reportText}
                   </pre>
@@ -240,7 +240,7 @@ export const DailyReports: React.FC = () => {
                       ✕
                     </button>
                   </div>
-                  <div className="bg-gradient-to-br from-emerald-50/30 to-teal-50/30 rounded-2xl p-4 border border-emerald-100/50">
+                  <div className="bg-gradient-to-br from-emerald-50/30 to-zinc-50/30 rounded-2xl p-4 border border-emerald-100/50">
                     <pre className="text-sm text-slate-700 whitespace-pre-wrap font-sans leading-relaxed">
                       {selectedReport.reportText}
                     </pre>
@@ -271,7 +271,7 @@ export const DailyReports: React.FC = () => {
 
         {loading ? (
           <div className="p-8 text-center text-slate-500">
-            <Loader2 className="w-8 h-8 animate-spin text-[#0077b6] mx-auto mb-2" />
+            <Loader2 className="w-8 h-8 animate-spin text-[#27272a] mx-auto mb-2" />
             {t("dailyReports.loadingReports")}
           </div>
         ) : reports.length === 0 ? (
@@ -302,7 +302,7 @@ export const DailyReports: React.FC = () => {
                       <td className="px-4 py-3 text-right font-semibold text-emerald-700">
                         {formatMyanmarCurrency(report.finalAmount, currencySymbol)}
                       </td>
-                      <td className="px-4 py-3 text-right text-blue-600">
+                      <td className="px-4 py-3 text-right text-zinc-600">
                         {formatMyanmarCurrency(report.totalCardAmount, currencySymbol)}
                       </td>
                       <td className="px-4 py-3 text-right text-amber-600">
@@ -314,7 +314,7 @@ export const DailyReports: React.FC = () => {
                       <td className="px-4 py-3 text-center">
                         <button
                           onClick={() => setSelectedReport(report)}
-                          className="text-[#0077b6] hover:text-[#0077b6]/80 font-semibold text-xs px-3 py-1.5 bg-ocean-50 hover:bg-ocean-100 rounded-lg transition-colors"
+                          className="text-[#27272a] hover:text-[#27272a]/80 font-semibold text-xs px-3 py-1.5 bg-ocean-50 hover:bg-ocean-100 rounded-lg transition-colors"
                         >
                           {t("dailyReports.view")}
                         </button>
@@ -359,7 +359,7 @@ export const DailyReports: React.FC = () => {
                         onClick={() => loadReports(pageNum)}
                         className={`px-3 py-2 rounded-lg border text-sm font-medium ${
                           currentPage === pageNum
-                            ? "bg-[#0077b6] text-white border-[#0077b6]"
+                            ? "bg-[#27272a] text-white border-[#27272a]"
                             : "bg-white border-slate-300 hover:bg-slate-50"
                         }`}
                       >

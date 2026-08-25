@@ -12,7 +12,7 @@ const buttonVariants = cva(
         default:
           "bg-ocean-600 text-white hover:bg-ocean-700 shadow-sm shadow-ocean-600/15 border border-transparent",
         secondary:
-          "bg-[#0f2a4a] text-white hover:bg-[#0c1e36] shadow-sm border border-transparent",
+          "bg-[#18181b] text-white hover:bg-[#09090b] shadow-sm border border-transparent",
         outline:
           "bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-xs",
         ghost:

@@ -489,7 +489,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
               <select
                 value={selectedStorefrontId}
                 onChange={(e) => setSelectedStorefrontId(e.target.value)}
-                className="pl-4 pr-8 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all outline-none cursor-pointer appearance-none w-full"
+                className="pl-4 pr-8 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all outline-none cursor-pointer appearance-none w-full"
               >
                 <option value="">Select Storefront</option>
                 {storefronts.map((sf) => (
@@ -499,7 +499,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
                 ))}
               </select>
               {/* Custom chevron indicator */}
-              <div className="pointer-events-none absolute right-3 flex items-center text-[#0077b6]">
+              <div className="pointer-events-none absolute right-3 flex items-center text-[#27272a]">
                 <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                   <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
                 </svg>
@@ -508,7 +508,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
 
             <button
               onClick={startNewConversation}
-              className="px-4 py-2 text-sm font-semibold rounded-full bg-[#0077b6] text-white hover:bg-[#0077b6]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer"
+              className="px-4 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-1.5 cursor-pointer"
               title="New conversation"
             >
               <MessageSquare className="w-3.5 h-3.5" />
@@ -518,7 +518,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
             <button
               onClick={clearCurrentConversation}
               disabled={!activeConversation || messages.length === 0}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
               Clear
             </button>
@@ -531,7 +531,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
           <div className="flex-1 overflow-y-auto pb-4 space-y-4 no-scrollbar">
             {messages.length === 0 && (
               <div className="text-center text-slate-500 mt-12 sm:mt-20">
-                <div className="w-16 h-16 bg-gradient-to-br from-ocean-500 to-[#0077b6] rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-ocean-600/20">
+                <div className="w-16 h-16 bg-gradient-to-br from-ocean-500 to-[#27272a] rounded-3xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-ocean-600/20">
                   <Bot className="w-8 h-8 text-white" />
                 </div>
                 <h3 className="text-lg font-bold text-slate-700 mb-2">
@@ -559,7 +559,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
                         key={idx}
                         onClick={() => handleSuggestionClick(suggestion)}
                         disabled={isLoading}
-                        className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#0077b6] bg-white hover:bg-ocean-50/50 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all cursor-pointer shadow-sm active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
                       >
                         {suggestion}
                       </button>
@@ -576,13 +576,13 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
               >
                 <div
                   className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-4 py-3 flex flex-col ${msg.role === "user"
-                    ? "bg-[#0077b6] text-white shadow-md shadow-ocean-600/10"
+                    ? "bg-[#27272a] text-white shadow-md shadow-ocean-600/10"
                     : "bg-slate-50 text-slate-800 border border-slate-100 shadow-sm"
                     }`}
                 >
                   <div className="flex items-start gap-2 mb-1.5">
                     {msg.role === "ai" && (
-                      <Bot className="w-4 h-4 text-[#0077b6] mt-0.5 flex-shrink-0" />
+                      <Bot className="w-4 h-4 text-[#27272a] mt-0.5 flex-shrink-0" />
                     )}
                     <span className="text-xs font-semibold opacity-70">
                       {msg.role === "user" ? "You" : "AI Assistant"}
@@ -598,7 +598,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
             {isLoading && (
               <div className="flex justify-start">
                 <div className="max-w-[80%] rounded-2xl px-4 py-3 bg-slate-50 text-slate-800 border border-slate-100 shadow-sm flex items-center gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-[#0077b6]" />
+                  <Loader2 className="w-4 h-4 animate-spin text-[#27272a]" />
                   <span className="text-sm font-semibold text-slate-400">
                     AI is thinking...
                   </span>
@@ -610,7 +610,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
 
           {/* Input */}
           <div className="pt-4 border-t border-slate-100 bg-white">
-            <div className="flex items-end gap-3 bg-slate-50/70 rounded-2xl p-2 border border-ocean-100 focus-within:border-[#0077b6] focus-within:ring-2 focus-within:ring-ocean-500/10 transition-all">
+            <div className="flex items-end gap-3 bg-slate-50/70 rounded-2xl p-2 border border-ocean-100 focus-within:border-[#27272a] focus-within:ring-2 focus-within:ring-ocean-500/10 transition-all">
               <textarea
                 ref={textareaRef}
                 value={input}
@@ -624,7 +624,7 @@ ${paymentMethodsLines ? paymentMethodsLines + "\n" : ""}• လျှော့�
               <button
                 onClick={handleSend}
                 disabled={!input.trim() || isLoading}
-                className="p-3 sm:p-3.5 bg-[#0077b6] text-white rounded-xl hover:bg-[#0077b6]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-ocean-600/10 cursor-pointer"
+                className="p-3 sm:p-3.5 bg-[#27272a] text-white rounded-xl hover:bg-[#27272a]/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-ocean-600/10 cursor-pointer"
               >
                 {isLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin" />
