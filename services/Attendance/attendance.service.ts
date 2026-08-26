@@ -110,3 +110,29 @@ export const fetchAttendanceSummary = async (
     };
   }
 };
+
+export const deleteAttendance = async (
+  projectId: string,
+  attendanceId: string
+): Promise<{ success: boolean; message: string }> => {
+  try {
+    const response = await axios.delete(
+      `/projects/${projectId}/attendance/${attendanceId}`
+    );
+    return response.data;
+  } catch (error: any) {
+    console.error("Error deleting attendance:", error);
+    return {
+      success: false,
+      message: error.response?.data?.message || "Failed to delete attendance record.",
+    };
+  }
+};
+
+export const saveSingleAttendance = async (
+  projectId: string,
+  date: string,
+  record: BulkAttendanceRecordInput
+): Promise<SaveBulkAttendanceResponse> => {
+  return saveBulkAttendance(projectId, date, [record]);
+};

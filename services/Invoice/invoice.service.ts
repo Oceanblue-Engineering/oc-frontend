@@ -3,6 +3,8 @@ import { InvoiceData } from "../../components/Invoice/InvoiceDocument";
 
 export interface InvoiceRecord extends InvoiceData {
   _id?: string;
+  quotationNo?: string;
+  validityTerms?: string;
   status?: "draft" | "issued" | "paid" | "cancelled";
   paymentMethod?: string;
   paymentReceivedDate?: string;

@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Download,
   Image as ImageIcon,
@@ -6,10 +7,12 @@ import {
   X,
   FileText,
   Receipt as ReceiptIcon,
+  ClipboardList,
 } from "lucide-react";
 import { toast } from "sonner";
 import { InvoiceDocument, InvoiceData } from "./InvoiceDocument";
 import { ReceiptDocument } from "./ReceiptDocument";
+import { QuotationDocument } from "./QuotationDocument";
 import {
   downloadInvoiceAsPdf,
   downloadInvoiceAsPng,
@@ -17,14 +20,18 @@ import {
 } from "../../utils/invoiceExporter";
 import { Button } from "../ui/button";
 
+export type DocumentType = "invoice" | "receipt" | "quotation";
+
 interface InvoiceModalProps {
   isOpen: boolean;
   onClose: () => void;
   invoiceData: InvoiceData & {
+    quotationNo?: string;
+    validityTerms?: string;
     paymentReceivedDate?: string;
     paymentMethod?: string;
   };
-  initialDocumentType?: "invoice" | "receipt";
+  initialDocumentType?: DocumentType;
   title?: string;
 }
 
@@ -36,21 +43,51 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   title = "Official Document Preview",
 }) => {
   const documentRef = useRef<HTMLDivElement>(null);
-  const [documentType, setDocumentType] = useState<"invoice" | "receipt">(
+  const [documentType, setDocumentType] = useState<DocumentType>(
     initialDocumentType
   );
   const [isExportingPdf, setIsExportingPdf] = useState(false);
   const [isExportingPng, setIsExportingPng] = useState(false);
 
+  useEffect(() => {
+    setDocumentType(initialDocumentType);
+  }, [initialDocumentType, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
-  const docPrefix = documentType === "receipt" ? "Receipt" : "Invoice";
+  const getDocPrefix = () => {
+    switch (documentType) {
+      case "receipt":
+        return "Receipt";
+      case "quotation":
+        return "Quotation";
+      default:
+        return "Invoice";
+    }
+  };
+
+  const docPrefix = getDocPrefix();
+  const documentNumber =
+    documentType === "quotation"
+      ? invoiceData.quotationNo || invoiceData.invoiceNo.replace(/^OB-/, "OB-Q-")
+      : invoiceData.invoiceNo || "OceanBlue";
 
   const handleDownloadPdf = async () => {
     if (!documentRef.current) return;
     setIsExportingPdf(true);
     try {
-      const filename = `${docPrefix}_${invoiceData.invoiceNo || "OceanBlue"}`;
+      const filename = `${docPrefix}_${documentNumber}`;
       await downloadInvoiceAsPdf(documentRef.current, { filename });
       toast.success(`${docPrefix} PDF downloaded successfully!`);
     } catch (error) {
@@ -65,7 +102,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     if (!documentRef.current) return;
     setIsExportingPng(true);
     try {
-      const filename = `${docPrefix}_${invoiceData.invoiceNo || "OceanBlue"}.png`;
+      const filename = `${docPrefix}_${documentNumber}.png`;
       await downloadInvoiceAsPng(documentRef.current, {
         filename,
         scale: 2.5,
@@ -84,14 +121,25 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     printInvoice(documentRef.current);
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
       <div className="bg-slate-100 rounded-3xl shadow-2xl w-full max-w-5xl h-[94vh] flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
         {/* Top Control Bar */}
         <div className="bg-white px-5 py-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
           <div className="flex items-center gap-3">
-            {/* Document Switcher Toggle */}
+            {/* 3-Way Document Switcher Toggle: Quotation -> Invoice -> Receipt */}
             <div className="bg-slate-100 p-1 rounded-2xl flex items-center gap-1 border border-slate-200/80">
+              <button
+                onClick={() => setDocumentType("quotation")}
+                className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
+                  documentType === "quotation"
+                    ? "bg-white text-ocean-700 shadow-xs"
+                    : "text-slate-500 hover:text-slate-800"
+                }`}
+              >
+                <ClipboardList className="w-4 h-4" />
+                Quotation
+              </button>
               <button
                 onClick={() => setDocumentType("invoice")}
                 className={`px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-1.5 transition-all cursor-pointer ${
@@ -117,7 +165,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
             </div>
 
             <span className="text-xs text-slate-500 font-medium hidden md:inline">
-              No: {invoiceData.invoiceNo} • {invoiceData.billTo.name || "Customer"}
+              {documentNumber} • {invoiceData.billTo?.name || "Customer"}
             </span>
           </div>
 
@@ -164,14 +212,19 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         {/* Scrollable Document Container */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-slate-100">
           <div className="w-full max-w-[820px] transition-all flex justify-center">
-            {documentType === "invoice" ? (
+            {documentType === "invoice" && (
               <InvoiceDocument ref={documentRef} data={invoiceData} />
-            ) : (
+            )}
+            {documentType === "receipt" && (
               <ReceiptDocument ref={documentRef} data={invoiceData} />
+            )}
+            {documentType === "quotation" && (
+              <QuotationDocument ref={documentRef} data={invoiceData} />
             )}
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
