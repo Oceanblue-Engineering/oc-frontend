@@ -52,8 +52,12 @@ export const TopBar: React.FC<TopBarProps> = ({ showHome = true }) => {
           className="flex items-center gap-2.5 cursor-pointer select-none"
           aria-label={t("home.backToMenu")}
         >
-          <div className="w-9 h-9 bg-gradient-to-br from-ocean-600 to-ocean-500 rounded-xl flex items-center justify-center text-white shadow-md shadow-ocean-600/20">
-            <span className="font-black text-sm tracking-widest">OB</span>
+          <div className="w-9 h-9 bg-white border border-zinc-200/80 rounded-xl flex items-center justify-center shadow-sm overflow-hidden p-1">
+            <img
+              src="/logo.png"
+              alt="OceanBlue Logo"
+              className="w-full h-full object-contain"
+            />
           </div>
           <span className="hidden sm:block text-ocean-800 font-bold tracking-wide">
             OceanBlue CMS

@@ -71,7 +71,7 @@ export const Login: React.FC = () => {
         <div className="text-center mb-8">
           <div className="inline-flex items-center justify-center w-24 h-24 bg-white rounded-2xl mb-4 shadow-xl overflow-hidden p-2">
             <img
-              src="/autologo.jpg"
+              src="/logo.png"
               alt="OceanBlue CMS Logo"
               className="w-full h-full object-contain"
             />

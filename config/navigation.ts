@@ -25,8 +25,18 @@ import type { LucideIcon } from "lucide-react";
  *
  * `titleKey` / `descKey` are keys resolved through useLanguage().t(...).
  */
+export type NavigationCategory = "purchasing_orders" | "project_management";
+
+export interface NavigationSlide {
+  id: NavigationCategory;
+  titleKey: string;
+  descKey: string;
+  iconName: "shopping" | "project";
+}
+
 export interface NavigationItem {
   id: string;
+  category: NavigationCategory;
   titleKey: string; // translation key (reuses sidebar.* labels)
   descKey: string; // translation key (home.desc.* short helper text)
   icon: LucideIcon;
@@ -34,9 +44,26 @@ export interface NavigationItem {
   color: string; // Tailwind classes for the card icon accent
 }
 
+export const navigationSlides: NavigationSlide[] = [
+  {
+    id: "purchasing_orders",
+    titleKey: "home.slides.purchasingOrders",
+    descKey: "home.slides.purchasingOrdersDesc",
+    iconName: "shopping",
+  },
+  {
+    id: "project_management",
+    titleKey: "home.slides.projectManagement",
+    descKey: "home.slides.projectManagementDesc",
+    iconName: "project",
+  },
+];
+
 export const navigationItems: NavigationItem[] = [
+  // Slide 1: Purchasing & Orders (Sales, Stock, Purchasing, Financials & Operations)
   {
     id: "pos",
+    category: "purchasing_orders",
     titleKey: "sidebar.checkout",
     descKey: "home.desc.pos",
     icon: ShoppingCart,
@@ -45,6 +72,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     id: "inventory",
+    category: "purchasing_orders",
     titleKey: "sidebar.inventory",
     descKey: "home.desc.inventory",
     icon: Package,
@@ -53,6 +81,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     id: "storefront",
+    category: "purchasing_orders",
     titleKey: "sidebar.storefront",
     descKey: "home.desc.storefront",
     icon: Store,
@@ -61,6 +90,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     id: "orders",
+    category: "purchasing_orders",
     titleKey: "sidebar.orders",
     descKey: "home.desc.orders",
     icon: Receipt,
@@ -69,6 +99,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     id: "credit-orders",
+    category: "purchasing_orders",
     titleKey: "sidebar.creditOrder",
     descKey: "home.desc.creditOrders",
     icon: CreditCard,
@@ -77,6 +108,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     id: "credits",
+    category: "purchasing_orders",
     titleKey: "sidebar.creditSales",
     descKey: "home.desc.credits",
     icon: Users,
@@ -84,7 +116,17 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-rose-50 text-rose-700",
   },
   {
+    id: "purchasing",
+    category: "purchasing_orders",
+    titleKey: "sidebar.purchasing",
+    descKey: "home.desc.purchasing",
+    icon: Truck,
+    path: "/purchasing",
+    color: "bg-lime-50 text-lime-700",
+  },
+  {
     id: "suppliers",
+    category: "purchasing_orders",
     titleKey: "sidebar.suppliers",
     descKey: "home.desc.suppliers",
     icon: Truck,
@@ -93,6 +135,7 @@ export const navigationItems: NavigationItem[] = [
   },
   {
     id: "expenses",
+    category: "purchasing_orders",
     titleKey: "sidebar.expenses",
     descKey: "home.desc.expenses",
     icon: PieChart,
@@ -100,79 +143,8 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-orange-50 text-orange-700",
   },
   {
-    id: "reports",
-    titleKey: "sidebar.reports",
-    descKey: "home.desc.reports",
-    icon: LayoutDashboard,
-    path: "/reports",
-    color: "bg-ocean-50 text-ocean-700",
-  },
-  {
-    id: "accounts",
-    titleKey: "sidebar.accountManagement",
-    descKey: "home.desc.accounts",
-    icon: Shield,
-    path: "/accounts",
-    color: "bg-slate-100 text-slate-700",
-  },
-  {
-    id: "workers",
-    titleKey: "sidebar.workerManagement",
-    descKey: "home.desc.workers",
-    icon: Users,
-    path: "/workers",
-    color: "bg-zinc-50 text-zinc-700",
-  },
-  {
-    id: "daily-reports",
-    titleKey: "sidebar.dailyReports",
-    descKey: "home.desc.dailyReports",
-    icon: Bell,
-    path: "/daily-reports",
-    color: "bg-zinc-50 text-zinc-700",
-  },
-  {
-    id: "purchasing",
-    titleKey: "sidebar.purchasing",
-    descKey: "home.desc.purchasing",
-    icon: Truck,
-    path: "/purchasing",
-    color: "bg-lime-50 text-lime-700",
-  },
-  // {
-  //   id: "lucky-draw",
-  //   titleKey: "sidebar.luckyDraw",
-  //   descKey: "home.desc.luckyDraw",
-  //   icon: Gift,
-  //   path: "/lucky-draw",
-  //   color: "bg-zinc-50 text-zinc-700",
-  // },
-  // {
-  //   id: "ai-chat",
-  //   titleKey: "sidebar.aiChat",
-  //   descKey: "home.desc.aiChat",
-  //   icon: Bot,
-  //   path: "/ai-chat",
-  //   color: "bg-zinc-50 text-zinc-700",
-  // },
-  {
-    id: "settings",
-    titleKey: "sidebar.settings",
-    descKey: "home.desc.settings",
-    icon: Settings,
-    path: "/settings",
-    color: "bg-gray-100 text-gray-700",
-  },
-  {
-    id: "clientLeads",
-    titleKey: "sidebar.clientLeads",
-    descKey: "home.desc.clientLeads",
-    icon: Target,
-    path: "/clients",
-    color: "bg-ocean-50 text-ocean-600",
-  },
-  {
     id: "delivery",
+    category: "purchasing_orders",
     titleKey: "sidebar.delivery",
     descKey: "home.desc.delivery",
     icon: Truck,
@@ -180,28 +152,87 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-ocean-50 text-ocean-600",
   },
   {
-    id: "tickets",
-    titleKey: "sidebar.tickets",
-    descKey: "home.desc.tickets",
-    icon: Ticket,
-    path: "/tickets",
-    color: "bg-ocean-50 text-ocean-600",
+    id: "reports",
+    category: "purchasing_orders",
+    titleKey: "sidebar.reports",
+    descKey: "home.desc.reports",
+    icon: LayoutDashboard,
+    path: "/reports",
+    color: "bg-ocean-50 text-ocean-700",
   },
   {
-    id: "invoiceGenerator",
-    titleKey: "sidebar.invoiceGenerator",
-    descKey: "home.desc.invoiceGenerator",
-    icon: Receipt,
-    path: "/invoice-generator",
+    id: "daily-reports",
+    category: "purchasing_orders",
+    titleKey: "sidebar.dailyReports",
+    descKey: "home.desc.dailyReports",
+    icon: Bell,
+    path: "/daily-reports",
     color: "bg-zinc-50 text-zinc-700",
   },
   {
+    id: "accounts",
+    category: "purchasing_orders",
+    titleKey: "sidebar.accountManagement",
+    descKey: "home.desc.accounts",
+    icon: Shield,
+    path: "/accounts",
+    color: "bg-slate-100 text-slate-700",
+  },
+  {
+    id: "settings",
+    category: "purchasing_orders",
+    titleKey: "sidebar.settings",
+    descKey: "home.desc.settings",
+    icon: Settings,
+    path: "/settings",
+    color: "bg-gray-100 text-gray-700",
+  },
+
+  // Slide 2: Project Management (Client Leads, Projects, Invoice Generator, Site Workers, Support Tickets)
+  {
+    id: "clientLeads",
+    category: "project_management",
+    titleKey: "sidebar.clientLeads",
+    descKey: "home.desc.clientLeads",
+    icon: Target,
+    path: "/clients",
+    color: "bg-indigo-50 text-indigo-700",
+  },
+  {
     id: "clientProjects",
+    category: "project_management",
     titleKey: "sidebar.clientProjects",
     descKey: "home.desc.clientProjects",
     icon: Briefcase,
     path: "/client-projects",
-    color: "bg-zinc-50 text-zinc-700",
+    color: "bg-blue-50 text-blue-700",
+  },
+  {
+    id: "invoiceGenerator",
+    category: "project_management",
+    titleKey: "sidebar.invoiceGenerator",
+    descKey: "home.desc.invoiceGenerator",
+    icon: Receipt,
+    path: "/invoice-generator",
+    color: "bg-teal-50 text-teal-700",
+  },
+  {
+    id: "workers",
+    category: "project_management",
+    titleKey: "sidebar.workerManagement",
+    descKey: "home.desc.workers",
+    icon: Users,
+    path: "/workers",
+    color: "bg-amber-50 text-amber-700",
+  },
+  {
+    id: "tickets",
+    category: "project_management",
+    titleKey: "sidebar.tickets",
+    descKey: "home.desc.tickets",
+    icon: Ticket,
+    path: "/tickets",
+    color: "bg-violet-50 text-violet-700",
   },
 ];
 
@@ -220,3 +251,4 @@ export const hasPermission = (path: string, role?: string): boolean => {
   }
   return true;
 };
+

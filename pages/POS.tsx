@@ -131,6 +131,7 @@ export const POS: React.FC = () => {
     try {
       // Load storefronts
       const sfResponse = await fetchStorefrontProfiles();
+      let defaultSfId = "";
       if (sfResponse.success && sfResponse.data) {
         const activeStorefronts = sfResponse.data.filter(
           (sf) => sf.status === "active",
@@ -139,7 +140,8 @@ export const POS: React.FC = () => {
 
         // Auto-select first storefront
         if (activeStorefronts.length > 0) {
-          setSelectedStorefrontId(activeStorefronts[0]._id);
+          defaultSfId = activeStorefronts[0]._id;
+          setSelectedStorefrontId(defaultSfId);
         }
       }
 
@@ -149,8 +151,10 @@ export const POS: React.FC = () => {
         setCategories(catResponse.data);
       }
 
-      // Load stock items
-      await loadStockItems();
+      // Load stock items with the initial selected storefront ID
+      if (defaultSfId) {
+        await loadStockItems(defaultSfId);
+      }
     } catch (error) {
       // console.error("Error loading initial data:", error);
       toast.error(t("pos.failedToLoadData"));
@@ -190,7 +194,9 @@ export const POS: React.FC = () => {
   };
 
   useEffect(() => {
-    loadStockItems();
+    if (selectedStorefrontId) {
+      loadStockItems(selectedStorefrontId);
+    }
   }, [selectedStorefrontId, search, selectedCategory, currentPage]);
 
   useEffect(() => {
@@ -227,10 +233,15 @@ export const POS: React.FC = () => {
     };
   }, [activeWholesalePopoverId]);
 
-  const loadStockItems = async () => {
+  const loadStockItems = async (storefrontIdToUse?: string) => {
+    const targetSfId = storefrontIdToUse || selectedStorefrontId;
+    if (!targetSfId) {
+      return;
+    }
+
     try {
       const response = await fetchStorefrontStock(
-        selectedStorefrontId,
+        targetSfId,
         currentPage,
         itemsPerPage,
         selectedCategory === "All" ? undefined : selectedCategory,

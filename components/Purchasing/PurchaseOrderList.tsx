@@ -7,6 +7,7 @@ import {
   PackageCheck,
   Trash2,
   RotateCcw,
+  Loader2,
 } from "lucide-react";
 import { ApiPurchaseOrder, Supplier } from "../../types";
 import { updatePurchaseStatus } from "../../services/Purchase/updatePurchaseStatus";
@@ -69,6 +70,7 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<
     "all" | "unpaid" | "partial" | "paid"
   >("all");
+  const [isLoading, setIsLoading] = useState(true);
   const [deleteModalOpen, setDeleteModalOpen] = useState(false);
   const [poToDelete, setPoToDelete] = useState<ApiPurchaseOrder | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -77,23 +79,38 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
   const displayList = poFilter === "deleted" ? deletedPOList : poList;
 
   useEffect(() => {
-    if (poFilter === "deleted") {
-      loadDeletedPurchases(
-        deletedPagination.currentPage,
-        deletedPagination.itemsPerPage,
-        paymentTypeFilter,
-        paymentStatusFilter
-      );
-    } else {
-      // Load purchases with status and payment filters
-      loadPurchases(
-        pagination.currentPage,
-        pagination.itemsPerPage,
-        poFilter,
-        paymentTypeFilter,
-        paymentStatusFilter
-      );
-    }
+    let isCancelled = false;
+    const fetchData = async () => {
+      setIsLoading(true);
+      try {
+        if (poFilter === "deleted") {
+          await loadDeletedPurchases(
+            deletedPagination.currentPage,
+            deletedPagination.itemsPerPage,
+            paymentTypeFilter,
+            paymentStatusFilter
+          );
+        } else {
+          // Load purchases with status and payment filters
+          await loadPurchases(
+            pagination.currentPage,
+            pagination.itemsPerPage,
+            poFilter,
+            paymentTypeFilter,
+            paymentStatusFilter
+          );
+        }
+      } finally {
+        if (!isCancelled) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchData();
+    return () => {
+      isCancelled = true;
+    };
   }, [poFilter, paymentTypeFilter, paymentStatusFilter]);
 
   const handleUpdateStatus = async (id: string, status: string) => {
@@ -102,13 +119,18 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
       if (res.success) {
         toast.success("Status updated successfully");
         // Reload with current filter status
-        loadPurchases(
-          pagination.currentPage,
-          pagination.itemsPerPage,
-          poFilter === "arrived" ? "arrived" : "pending",
-          paymentTypeFilter,
-          paymentStatusFilter
-        );
+        setIsLoading(true);
+        try {
+          await loadPurchases(
+            pagination.currentPage,
+            pagination.itemsPerPage,
+            poFilter === "arrived" ? "arrived" : "pending",
+            paymentTypeFilter,
+            paymentStatusFilter
+          );
+        } finally {
+          setIsLoading(false);
+        }
       } else {
         toast.error(res.message || "Failed to update status");
       }
@@ -118,26 +140,36 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
     }
   };
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = async (page: number) => {
     if (page >= 1 && page <= pagination.totalPages) {
-      loadPurchases(
-        page,
-        pagination.itemsPerPage,
+      setIsLoading(true);
+      try {
+        await loadPurchases(
+          page,
+          pagination.itemsPerPage,
+          poFilter,
+          paymentTypeFilter,
+          paymentStatusFilter
+        );
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  const handleLimitChange = async (newLimit: number) => {
+    setIsLoading(true);
+    try {
+      await loadPurchases(
+        1,
+        newLimit,
         poFilter,
         paymentTypeFilter,
         paymentStatusFilter
       );
+    } finally {
+      setIsLoading(false);
     }
-  };
-
-  const handleLimitChange = (newLimit: number) => {
-    loadPurchases(
-      1,
-      newLimit,
-      poFilter,
-      paymentTypeFilter,
-      paymentStatusFilter
-    );
   };
 
   const handleSoftDelete = async (po: ApiPurchaseOrder) => {
@@ -211,24 +243,34 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
     }
   };
 
-  const handleDeletedPageChange = (page: number) => {
+  const handleDeletedPageChange = async (page: number) => {
     if (page >= 1 && page <= deletedPagination.totalPages) {
-      loadDeletedPurchases(
-        page,
-        deletedPagination.itemsPerPage,
-        paymentTypeFilter,
-        paymentStatusFilter
-      );
+      setIsLoading(true);
+      try {
+        await loadDeletedPurchases(
+          page,
+          deletedPagination.itemsPerPage,
+          paymentTypeFilter,
+          paymentStatusFilter
+        );
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
-  const handleDeletedLimitChange = (newLimit: number) => {
-    loadDeletedPurchases(
-      1,
-      newLimit,
-      paymentTypeFilter,
-      paymentStatusFilter
-    );
+  const handleDeletedLimitChange = async (newLimit: number) => {
+    setIsLoading(true);
+    try {
+      await loadDeletedPurchases(
+        1,
+        newLimit,
+        paymentTypeFilter,
+        paymentStatusFilter
+      );
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const getPaymentStatus = (
@@ -483,7 +525,18 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
               </tr>
             </thead>
             <tbody className="divide-y">
-              {displayList.length === 0 ? (
+              {isLoading ? (
+                <tr>
+                  <td colSpan={9} className="p-16 text-center text-slate-500">
+                    <div className="flex flex-col items-center justify-center gap-3">
+                      <Loader2 className="w-8 h-8 animate-spin text-amber-700" />
+                      <span className="text-sm font-medium text-slate-600">
+                        {t("common.loading") || "Loading purchase orders..."}
+                      </span>
+                    </div>
+                  </td>
+                </tr>
+              ) : displayList.length === 0 ? (
                 <tr>
                   <td colSpan={9} className="p-8 text-center text-slate-400">
                     No {poFilter} purchase orders found
@@ -534,31 +587,31 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                             <>
                               <button
                                 onClick={() => onViewPO?.(po)}
-                                className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
+                                className="text-xs bg-ocean-50 text-ocean-700 hover:bg-ocean-100 hover:text-ocean-800 px-3 py-1.5 rounded-lg border border-ocean-200/80 font-semibold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
                               >
-                                <Eye className="w-3 h-3" /> View
+                                <Eye className="w-3.5 h-3.5" /> View
                               </button>
                               <button
                                 onClick={() => handleRestore(po)}
-                                className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded hover:bg-green-100 border border-green-200 font-medium transition-colors flex items-center gap-1"
+                                className="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200 font-semibold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
                               >
-                                <RotateCcw className="w-3 h-3" /> Restore
+                                <RotateCcw className="w-3.5 h-3.5" /> Restore
                               </button>
                             </>
                           ) : (
                             <>
                               <button
                                 onClick={() => onViewPO?.(po)}
-                                className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
+                                className="text-xs bg-ocean-50 text-ocean-700 hover:bg-ocean-100 hover:text-ocean-800 px-3 py-1.5 rounded-lg border border-ocean-200/80 font-semibold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
                               >
-                                <Eye className="w-3 h-3" /> View
+                                <Eye className="w-3.5 h-3.5" /> View
                               </button>
                               {po.status === "pending" && (
                                 <button
                                   onClick={() =>
                                     handleUpdateStatus(po._id, "arrived")
                                   }
-                                  className="text-xs bg-green-50 text-green-600 px-3 py-1.5 rounded hover:bg-green-100 border border-green-200 font-medium transition-colors"
+                                  className="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 hover:text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200 font-semibold transition-colors shadow-sm cursor-pointer"
                                 >
                                   Mark Arrived
                                 </button>
@@ -568,18 +621,18 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                                 (po.totalRemainingQuantity ?? 0) > 0 && (
                                   <button
                                     onClick={() => onCreateGRN?.(po)}
-                                    className="text-xs bg-zinc-50 text-zinc-600 px-3 py-1.5 rounded hover:bg-zinc-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
+                                    className="text-xs bg-amber-50 text-amber-700 hover:bg-amber-100 hover:text-amber-800 px-3 py-1.5 rounded-lg border border-amber-200 font-semibold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
                                   >
-                                    <PackageCheck className="w-3 h-3" />
+                                    <PackageCheck className="w-3.5 h-3.5" />
                                     GRN
                                   </button>
                                 )}
                               {po.status === "pending" && (
                                 <button
                                   onClick={() => handleSoftDelete(po)}
-                                  className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded hover:bg-red-100 border border-red-200 font-medium transition-colors flex items-center gap-1"
+                                  className="text-xs bg-rose-50 text-rose-700 hover:bg-rose-100 hover:text-rose-800 px-3 py-1.5 rounded-lg border border-rose-200 font-semibold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
                                 >
-                                  <Trash2 className="w-3 h-3" /> Delete
+                                  <Trash2 className="w-3.5 h-3.5" /> Delete
                                 </button>
                               )}
                             </>

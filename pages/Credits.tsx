@@ -40,6 +40,7 @@ export const Credits: React.FC = () => {
   const { t } = useLanguage();
   const [creditPersonas, setCreditPersonas] = useState<CreditPersona[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "blacklist">("all");
   const [search, setSearch] = useState("");
 
   // Add/Edit Modal State
@@ -80,7 +81,13 @@ export const Credits: React.FC = () => {
 
   const handleOpenAddModal = () => {
     setEditingId(null);
-    setFormData({ name: "", phone: "", address: "" });
+    setFormData({
+      name: "",
+      phone: "",
+      address: "",
+      blacklist: false,
+      blacklistReason: "",
+    });
     setIsAddModalOpen(true);
   };
 
@@ -90,6 +97,8 @@ export const Credits: React.FC = () => {
       name: persona.name,
       phone: persona.phone,
       address: persona.address || "",
+      blacklist: Boolean(persona.blacklist),
+      blacklistReason: persona.blacklistReason || "",
     });
     setIsAddModalOpen(true);
   };
@@ -97,7 +106,36 @@ export const Credits: React.FC = () => {
   const handleCloseAddModal = () => {
     setIsAddModalOpen(false);
     setEditingId(null);
-    setFormData({ name: "", phone: "", address: "" });
+    setFormData({
+      name: "",
+      phone: "",
+      address: "",
+      blacklist: false,
+      blacklistReason: "",
+    });
+  };
+
+  const handleToggleBlacklist = async (persona: CreditPersona) => {
+    const newStatus = !persona.blacklist;
+    const actionText = newStatus ? "blacklist" : "activate";
+    try {
+      const response = await updateCreditPersona(persona._id, {
+        blacklist: newStatus,
+        blacklistReason: newStatus ? "Manual blacklist" : undefined,
+      });
+      if (response.success) {
+        toast.success(
+          newStatus
+            ? `Customer "${persona.name}" has been blacklisted`
+            : `Customer "${persona.name}" is now active`
+        );
+        loadCreditPersonas();
+      } else {
+        toast.error(response.message || `Failed to ${actionText} customer`);
+      }
+    } catch (err: any) {
+      toast.error(err.message || `Failed to ${actionText} customer`);
+    }
   };
 
   const handleSubmitProfile = async (e: React.FormEvent) => {
@@ -118,8 +156,11 @@ export const Credits: React.FC = () => {
           name: formData.name.trim(),
           phone: formData.phone.trim(),
           address: formData.address.trim() || undefined,
+          blacklist: formData.blacklist,
+          blacklistReason: formData.blacklist
+            ? formData.blacklistReason.trim() || undefined
+            : undefined,
         });
-
         if (response.success) {
           toast.success(t("credits.profileUpdated"));
           handleCloseAddModal();
@@ -132,8 +173,11 @@ export const Credits: React.FC = () => {
           name: formData.name.trim(),
           phone: formData.phone.trim(),
           address: formData.address.trim() || undefined,
+          blacklist: formData.blacklist,
+          blacklistReason: formData.blacklist
+            ? formData.blacklistReason.trim() || undefined
+            : undefined,
         });
-
         if (response.success) {
           toast.success(t("credits.profileCreated"));
           handleCloseAddModal();
@@ -159,6 +203,11 @@ export const Credits: React.FC = () => {
   };
 
   const filteredPersonas = creditPersonas.filter((persona) => {
+    // Status filter
+    if (statusFilter === "active" && persona.blacklist) return false;
+    if (statusFilter === "blacklist" && !persona.blacklist) return false;
+
+    // Search filter
     const searchLower = search.toLowerCase();
     return (
       persona.name.toLowerCase().includes(searchLower) ||
@@ -206,30 +255,110 @@ export const Credits: React.FC = () => {
         }
       />
 
-      {/* Stats Cards & Search */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 stagger-children">
-        <StatsCard
-          label={t("credits.totalProfiles")}
-          value={`${totalPersonas} ယောက်`}
-          icon={<User className="w-5 h-5" />}
-          variant="ocean"
-        />
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 stagger-children">
+        <div
+          onClick={() => setStatusFilter("all")}
+          className={`cursor-pointer transition-all rounded-2xl ${
+            statusFilter === "all" ? "ring-2 ring-ocean-500 shadow-sm" : ""
+          }`}
+        >
+          <StatsCard
+            label={t("credits.totalProfiles")}
+            value={`${totalPersonas} ယောက်`}
+            icon={<User className="w-5 h-5" />}
+            variant="ocean"
+          />
+        </div>
 
-        <StatsCard
-          label="Active Customer"
-          value={`${activeCount} ယောက်`}
-          subValue={`${blacklistedCount} Blacklisted`}
-          icon={<CheckCircle className="w-5 h-5" />}
-          variant="emerald"
-        />
+        <div
+          onClick={() => setStatusFilter("active")}
+          className={`cursor-pointer transition-all rounded-2xl ${
+            statusFilter === "active" ? "ring-2 ring-emerald-500 shadow-sm" : ""
+          }`}
+        >
+          <StatsCard
+            label="Active Customer"
+            value={`${activeCount} ယောက်`}
+            icon={<CheckCircle className="w-5 h-5" />}
+            variant="emerald"
+          />
+        </div>
 
-        <div className="flex items-end">
+        <div
+          onClick={() => setStatusFilter("blacklist")}
+          className={`cursor-pointer transition-all rounded-2xl ${
+            statusFilter === "blacklist" ? "ring-2 ring-red-500 shadow-sm" : ""
+          }`}
+        >
+          <StatsCard
+            label="Blacklisted Customer"
+            value={`${blacklistedCount} ယောက်`}
+            icon={<User className="w-5 h-5" />}
+            variant="destructive"
+          />
+        </div>
+      </div>
+
+      {/* Filter Toolbar & Search */}
+      <div className="bg-white p-3.5 rounded-2xl shadow-xs border border-slate-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        {/* Status Filter Buttons */}
+        <div className="flex items-center gap-1.5 p-1 bg-slate-100/80 rounded-xl w-full sm:w-auto">
+          <button
+            type="button"
+            onClick={() => setStatusFilter("all")}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              statusFilter === "all"
+                ? "bg-white text-slate-900 shadow-xs"
+                : "text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            <span>All ({totalPersonas})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter("active")}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              statusFilter === "active"
+                ? "bg-emerald-600 text-white shadow-xs"
+                : "text-emerald-700 hover:bg-emerald-50/80"
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                statusFilter === "active" ? "bg-white" : "bg-emerald-500"
+              }`}
+            />
+            <span>Active ({activeCount})</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setStatusFilter("blacklist")}
+            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+              statusFilter === "blacklist"
+                ? "bg-red-600 text-white shadow-xs"
+                : "text-red-700 hover:bg-red-50/80"
+            }`}
+          >
+            <span
+              className={`w-2 h-2 rounded-full ${
+                statusFilter === "blacklist" ? "bg-white" : "bg-red-500"
+              }`}
+            />
+            <span>Blacklisted ({blacklistedCount})</span>
+          </button>
+        </div>
+
+        {/* Search Input */}
+        <div className="w-full sm:w-80">
           <Input
             leftIcon={<Search className="w-4 h-4" />}
             placeholder={t("credits.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full"
+            className="w-full bg-slate-50/50 focus:bg-white"
           />
         </div>
       </div>
@@ -296,11 +425,28 @@ export const Credits: React.FC = () => {
                   </TableCell>
 
                   <TableCell>
-                    {persona.blacklist ? (
-                      <Badge variant="destructive">Blacklisted</Badge>
-                    ) : (
-                      <Badge variant="success">Active</Badge>
-                    )}
+                    <button
+                      type="button"
+                      onClick={() => handleToggleBlacklist(persona)}
+                      title={`Click to ${persona.blacklist ? "Activate" : "Blacklist"} customer`}
+                      className="cursor-pointer transition-transform hover:scale-105"
+                    >
+                      {persona.blacklist ? (
+                        <Badge variant="destructive">
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
+                            Blacklisted
+                          </span>
+                        </Badge>
+                      ) : (
+                        <Badge variant="success">
+                          <span className="flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                            Active
+                          </span>
+                        </Badge>
+                      )}
+                    </button>
                   </TableCell>
 
                   <TableCell className="text-slate-500 text-xs font-medium whitespace-nowrap">
@@ -340,8 +486,8 @@ export const Credits: React.FC = () => {
         onClose={handleCloseAddModal}
         title={
           editingId
-            ? t("credits.editProfile") || "Edit Credit Profile"
-            : t("credits.addProfile") || "New Credit Profile"
+            ? t("credits.editProfile") || "Edit Customer Profile"
+            : t("credits.addProfile") || "New Customer Profile"
         }
         description="Fill in customer credit information"
         size="default"
@@ -393,6 +539,69 @@ export const Credits: React.FC = () => {
                 setFormData({ ...formData, address: e.target.value })
               }
             />
+          </div>
+
+          {/* Status Selection (Active / Blacklisted) */}
+          <div className="space-y-2 pt-2 border-t border-slate-100">
+            <label className="text-xs font-bold text-slate-700 block">
+              {t("credits.status") || "Customer Status"}
+            </label>
+            <div className="grid grid-cols-2 gap-2.5">
+              <label
+                className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${
+                  !formData.blacklist
+                    ? "border-emerald-600 bg-emerald-50/70 text-emerald-800 font-bold shadow-xs"
+                    : "border-slate-200 hover:bg-slate-50 text-slate-600 font-medium"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="customerStatus"
+                  checked={!formData.blacklist}
+                  onChange={() =>
+                    setFormData({ ...formData, blacklist: false })
+                  }
+                  className="w-4 h-4 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="text-xs sm:text-sm">Active (ပုံမှန်)</span>
+              </label>
+
+              <label
+                className={`flex items-center gap-2.5 p-2.5 rounded-xl border cursor-pointer transition-all ${
+                  formData.blacklist
+                    ? "border-red-600 bg-red-50/70 text-red-800 font-bold shadow-xs"
+                    : "border-slate-200 hover:bg-slate-50 text-slate-600 font-medium"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="customerStatus"
+                  checked={formData.blacklist}
+                  onChange={() =>
+                    setFormData({ ...formData, blacklist: true })
+                  }
+                  className="w-4 h-4 text-red-600 focus:ring-red-500"
+                />
+                <span className="text-xs sm:text-sm">Blacklisted (စာရင်းမည်း)</span>
+              </label>
+            </div>
+
+            {formData.blacklist && (
+              <div className="mt-2.5 space-y-1 animate-in fade-in duration-200">
+                <label className="text-xs font-bold text-red-700">
+                  {t("credits.blacklistReason") || "Blacklist Reason"}
+                </label>
+                <Input
+                  type="text"
+                  placeholder="e.g. Overdue payment, bad credit..."
+                  value={formData.blacklistReason}
+                  onChange={(e) =>
+                    setFormData({ ...formData, blacklistReason: e.target.value })
+                  }
+                  className="border-red-200 focus:border-red-500 focus:ring-red-500/10"
+                />
+              </div>
+            )}
           </div>
 
           <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">

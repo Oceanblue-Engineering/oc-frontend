@@ -1,6 +1,7 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { Plus, Trash2, AlertCircle, Building2 } from "lucide-react";
 import { Modal } from "../Modal";
+import { ConfirmModal } from "../Common/ConfirmModal";
 import { Supplier, Product, PurchaseOrderItem } from "../../types";
 import { createPurchase } from "../../services/Purchase/createPurchase";
 import { toast } from "sonner";
@@ -12,6 +13,38 @@ interface CreatePOModalProps {
   products: Product[];
   onSuccess: () => void;
 }
+
+/**
+ * Helper to determine if a product is linked to a specific supplier.
+ * Checks populated supplier objects, string IDs, and direct supplierId.
+ */
+const isProductFromSupplier = (product: Product, supplierId: string): boolean => {
+  if (!supplierId || !product) return false;
+
+  // Direct supplierId field check
+  if ((product as any).supplierId) {
+    const sId =
+      typeof (product as any).supplierId === "object"
+        ? (product as any).supplierId?._id || (product as any).supplierId?.id
+        : (product as any).supplierId;
+    if (sId && String(sId) === String(supplierId)) return true;
+  }
+
+  // Suppliers array check (supports string IDs and populated supplier objects)
+  if (product.suppliers && Array.isArray(product.suppliers)) {
+    return product.suppliers.some((s: any) => {
+      if (!s) return false;
+      if (typeof s === "string") return String(s) === String(supplierId);
+      if (typeof s === "object") {
+        const id = s._id || s.id;
+        return id && String(id) === String(supplierId);
+      }
+      return false;
+    });
+  }
+
+  return false;
+};
 
 export const CreatePOModal: React.FC<CreatePOModalProps> = ({
   isOpen,
@@ -32,13 +65,32 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
   const [paymentType, setPaymentType] = useState<"paid" | "credit">("paid");
   const [paidAmount, setPaidAmount] = useState<number | "">(0);
   const [dueDate, setDueDate] = useState("");
+  const [pendingSupplierId, setPendingSupplierId] = useState<string | null>(null);
+  const [showSupplierChangeModal, setShowSupplierChangeModal] = useState(false);
   const productDropdownRef = useRef<HTMLDivElement>(null);
 
-  const filteredProducts = products.filter((product) =>
-    product.productName
-      ?.toLowerCase()
-      .includes(productSearchQuery.toLowerCase()),
-  );
+  // Filter products that exclusively belong to the selected supplier
+  const supplierProducts = useMemo(() => {
+    if (!poSupplierId) return [];
+    return products.filter((product) =>
+      isProductFromSupplier(product, poSupplierId)
+    );
+  }, [products, poSupplierId]);
+
+  // Search filtered products of this supplier
+  const filteredProducts = useMemo(() => {
+    if (!productSearchQuery.trim()) return supplierProducts;
+    const query = productSearchQuery.toLowerCase();
+    return supplierProducts.filter((product) => {
+      const nameMatch = (product.productName || product.name || "")
+        .toLowerCase()
+        .includes(query);
+      const codeMatch =
+        product.productCode &&
+        product.productCode.toLowerCase().includes(query);
+      return nameMatch || codeMatch;
+    });
+  }, [supplierProducts, productSearchQuery]);
 
   const totalAmount = poItems.reduce(
     (sum, item) => sum + item.qty * item.costPrice,
@@ -58,11 +110,46 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
     setPaymentType("paid");
     setPaidAmount(0);
     setDueDate("");
+    setPendingSupplierId(null);
+    setShowSupplierChangeModal(false);
   };
 
   const handleModalClose = () => {
     resetForm();
     onClose();
+  };
+
+  const handleSupplierChange = (newSupplierId: string) => {
+    if (newSupplierId === poSupplierId) return;
+
+    // If items exist, ask user confirmation via custom modal
+    if (poItems.length > 0) {
+      setPendingSupplierId(newSupplierId);
+      setShowSupplierChangeModal(true);
+      return;
+    }
+
+    setPOSupplierId(newSupplierId);
+    setPOSelectedProduct("");
+    setProductSearchQuery("");
+    setShowProductDropdown(false);
+  };
+
+  const handleConfirmSupplierChange = () => {
+    if (pendingSupplierId !== null) {
+      setPOSupplierId(pendingSupplierId);
+      setPOItems([]);
+      setPOSelectedProduct("");
+      setProductSearchQuery("");
+      setShowProductDropdown(false);
+      setPendingSupplierId(null);
+    }
+    setShowSupplierChangeModal(false);
+  };
+
+  const handleCancelSupplierChange = () => {
+    setPendingSupplierId(null);
+    setShowSupplierChangeModal(false);
   };
 
   const handleProductSelect = (productId: string, productName: string) => {
@@ -74,7 +161,9 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
 
   const handleProductInputChange = (value: string) => {
     setProductSearchQuery(value);
-    setShowProductDropdown(true);
+    if (poSupplierId) {
+      setShowProductDropdown(true);
+    }
     if (value === "") {
       setPOSelectedProduct("");
     }
@@ -97,8 +186,20 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
   }, []);
 
   const addPOItem = () => {
-    if (!poSelectedProduct && !poNewProductName) return;
-    if (poQty <= 0) return;
+    if (!poSupplierId) {
+      toast.error("Please select a supplier first (Supplier ကို အရင်ရွေးချယ်ပါ)");
+      return;
+    }
+
+    if (!poSelectedProduct && !poNewProductName) {
+      toast.error("Please select a product from this supplier");
+      return;
+    }
+
+    if (poQty <= 0) {
+      toast.error("Quantity must be greater than 0");
+      return;
+    }
 
     let productId = poSelectedProduct;
     let productName = "";
@@ -108,7 +209,18 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
       const product = products.find(
         (p) => (p._id || p.id) === poSelectedProduct,
       );
-      if (!product) return;
+      if (!product) {
+        toast.error("Selected product not found");
+        return;
+      }
+
+      if (!isProductFromSupplier(product, poSupplierId)) {
+        toast.error(
+          `Product "${product.productName || product.name}" is not supplied by the selected supplier.`
+        );
+        return;
+      }
+
       productName = product.productName || product.name;
       buyingPrice = product.buyingPrice ?? product.costPrice ?? 0;
     } else {
@@ -130,6 +242,7 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
     setPOItems((prev) => [...prev, newItem]);
     setPOSelectedProduct("");
     setPONewProductName("");
+    setProductSearchQuery("");
     setPOQty(1);
     setPOItemNote("");
   };
@@ -141,6 +254,22 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
   const submitPO = async () => {
     if (!poSupplierId || poItems.length === 0) {
       toast.error("Please select supplier and add at least one item");
+      return;
+    }
+
+    // Double validate that all items in PO belong to this supplier
+    const invalidItem = poItems.find((item) => {
+      if (item.productId.startsWith("new-")) return false;
+      const prod = products.find(
+        (p) => (p._id || p.id) === item.productId
+      );
+      return prod && !isProductFromSupplier(prod, poSupplierId);
+    });
+
+    if (invalidItem) {
+      toast.error(
+        `Item "${invalidItem.name}" does not belong to the selected supplier.`
+      );
       return;
     }
 
@@ -198,56 +327,103 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
         <div className="bg-white p-6 rounded-xl shadow-sm border">
           <div className="space-y-4">
             <div>
-              <label className="block text-xs font-bold text-slate-500 mb-1">
-                Supplier Name
+              <label className="block text-xs font-bold text-slate-700 mb-1">
+                Supplier Name <span className="text-red-500">*</span>
               </label>
               <select
-                className="w-full border rounded p-2"
+                className="w-full border border-slate-300 rounded-lg p-2.5 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-ocean-500 cursor-pointer bg-white"
                 value={poSupplierId}
-                onChange={(e) => setPOSupplierId(e.target.value)}
+                onChange={(e) => handleSupplierChange(e.target.value)}
               >
-                <option value="">Select Supplier</option>
+                <option value="">Select Supplier (ရွေးချယ်ပါ)</option>
                 {suppliers.map((supplier) => (
                   <option
                     key={supplier.id || supplier._id}
                     value={supplier.id || supplier._id}
                   >
-                    {supplier.supplierName}
+                    {supplier.supplierName} {supplier.contactNumber ? `(${supplier.contactNumber})` : ""}
                   </option>
                 ))}
               </select>
             </div>
 
             <div className="border-t pt-4">
-              <label className="block text-xs font-bold text-slate-500 mb-2">
-                Add Item to PO
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="block text-xs font-bold text-slate-700">
+                  Add Item to PO
+                </label>
+                {poSupplierId && (
+                  <span className="text-[11px] font-semibold text-ocean-700 bg-ocean-50 px-2 py-0.5 rounded-full border border-ocean-200">
+                    {supplierProducts.length} products available
+                  </span>
+                )}
+              </div>
+
+              {!poSupplierId ? (
+                <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800 flex items-center gap-2 mb-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0 text-amber-600" />
+                  <span>Please select a supplier above to view and add their products.</span>
+                </div>
+              ) : null}
+
               <div className="mb-2 relative" ref={productDropdownRef}>
                 <input
                   type="text"
-                  className="w-full border rounded p-2 text-sm"
-                  placeholder="Type to search and select product..."
+                  disabled={!poSupplierId}
+                  className={`w-full border rounded-lg p-2.5 text-sm transition-all ${
+                    !poSupplierId
+                      ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
+                      : "bg-white border-slate-300 focus:outline-none focus:ring-2 focus:ring-ocean-500"
+                  }`}
+                  placeholder={
+                    poSupplierId
+                      ? "Type to search and select product..."
+                      : "Select a supplier first..."
+                  }
                   value={productSearchQuery}
                   onChange={(e) => handleProductInputChange(e.target.value)}
-                  onFocus={() => setShowProductDropdown(true)}
+                  onFocus={() => {
+                    if (poSupplierId) setShowProductDropdown(true);
+                  }}
                 />
-                {showProductDropdown && (
-                  <div className="absolute z-10 w-full bg-white border border-gray-300 rounded mt-1 max-h-60 overflow-y-auto shadow-lg">
+                {showProductDropdown && poSupplierId && (
+                  <div className="absolute z-20 w-full bg-white border border-slate-200 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl divide-y divide-slate-100">
                     {filteredProducts.length > 0 ? (
                       filteredProducts.map((p) => (
                         <div
-                          key={p._id}
-                          className="px-3 py-2 hover:bg-gray-100 cursor-pointer text-sm"
+                          key={p._id || p.id}
+                          className="px-3.5 py-2.5 hover:bg-ocean-50 cursor-pointer text-sm flex items-center justify-between transition-colors"
                           onClick={() =>
-                            handleProductSelect(p._id, p.productName)
+                            handleProductSelect(p._id || p.id, p.productName || p.name)
                           }
                         >
-                          {p.productName}
+                          <div>
+                            <div className="font-semibold text-slate-800">
+                              {p.productName || p.name}
+                            </div>
+                            {p.productCode && (
+                              <div className="text-xs text-slate-400 font-mono">
+                                Code: {p.productCode}
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right">
+                            <span className="text-xs font-bold text-ocean-700 bg-ocean-50/80 px-2 py-1 rounded border border-ocean-200/60">
+                              {(p.buyingPrice ?? p.costPrice ?? 0).toLocaleString()} MMK
+                            </span>
+                          </div>
                         </div>
                       ))
+                    ) : supplierProducts.length === 0 ? (
+                      <div className="p-4 text-amber-700 bg-amber-50/70 text-xs text-center space-y-1">
+                        <p className="font-semibold">No products linked to this supplier</p>
+                        <p className="text-[11px] text-slate-500">
+                          Please link products to this supplier in the Inventory module.
+                        </p>
+                      </div>
                     ) : (
-                      <div className="px-3 py-2 text-gray-500 text-sm">
-                        No products found
+                      <div className="px-3 py-3 text-slate-400 text-xs text-center">
+                        No matching products found for this supplier
                       </div>
                     )}
                   </div>
@@ -491,7 +667,7 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
           <button
             onClick={submitPO}
             disabled={poItems.length === 0 || !poSupplierId}
-            className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors"
+            className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors cursor-pointer"
           >
             Create Purchase Order
           </button>
@@ -500,6 +676,18 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
           </p>
         </div>
       </div>
+
+      {/* Supplier Change Confirmation Modal */}
+      <ConfirmModal
+        isOpen={showSupplierChangeModal}
+        title="Change Supplier"
+        message="Changing the supplier will clear all current PO items, as products must belong to the selected supplier. Do you want to proceed?"
+        confirmText="Change Supplier"
+        cancelText="Cancel"
+        confirmButtonColor="red"
+        onConfirm={handleConfirmSupplierChange}
+        onCancel={handleCancelSupplierChange}
+      />
     </Modal>
   );
 };

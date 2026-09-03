@@ -353,24 +353,30 @@ export const getSharedTableStyles = (): string => `
     width: 100%;
     border-collapse: collapse;
     margin: 16px 0;
+    border: 1px solid #cbd5e1;
+    font-size: 12px;
   }
   .voucher-table th {
-    background-color: #1E90FF;
-    color: white;
+    background-color: #1c3d73 !important;
+    color: white !important;
     text-align: center;
     font-weight: 700;
-    text-transform: uppercase;
+    padding: 10px 12px;
+    border-right: 1px solid #cbd5e1;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
   }
-  .voucher-table th:first-child { text-align: left; }
-  .voucher-table th:last-child { text-align: right; }
+  .voucher-table th:last-child {
+    border-right: none;
+  }
   .voucher-table td {
-    background-color: #E8E8E8;
-    color: #000;
-    border-bottom: 3px solid white;
+    background-color: transparent !important;
+    color: #1e293b !important;
+    border-bottom: 1px solid #cbd5e1;
+    border-right: 1px solid #cbd5e1;
+    padding: 9px 12px;
   }
-  .voucher-table td:first-child { text-align: left; }
-  .voucher-table td:nth-child(2) { text-align: left; }
-  .voucher-table td:nth-child(3),
-  .voucher-table td:nth-child(4) { text-align: center; }
-  .voucher-table td:last-child { text-align: right; font-weight: 600; }
+  .voucher-table td:last-child {
+    border-right: none;
+  }
 `;

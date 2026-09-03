@@ -12,8 +12,8 @@ export interface PrintShopBranding {
 export const getPrintShopBranding = (
   settings: ShopSettings | null,
 ): PrintShopBranding => ({
-  shopName: settings?.shopName || "Shop",
-  logo: settings?.logo || undefined,
+  shopName: settings?.shopName || "OceanBlue",
+  logo: settings?.logo || "/logo.png",
   phone: settings?.phoneNumber,
   address: settings?.address,
   website: settings?.socialMedia?.website,

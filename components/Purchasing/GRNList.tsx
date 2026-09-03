@@ -265,9 +265,9 @@ export const GRNList: React.FC<GRNListProps> = ({
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => onViewGRN?.(grn)}
-                          className="text-xs bg-primary/50 text-yellow-800 px-3 py-1.5 rounded hover:bg-yellow-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1"
+                          className="text-xs bg-ocean-50 text-ocean-700 hover:bg-ocean-100 hover:text-ocean-800 px-3 py-1.5 rounded-lg border border-ocean-200/80 font-semibold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
                         >
-                          <Eye className="w-3 h-3" /> View
+                          <Eye className="w-3.5 h-3.5" /> View
                         </button>
                         {grn.status?.toLowerCase() === "pending" && (
                           <button

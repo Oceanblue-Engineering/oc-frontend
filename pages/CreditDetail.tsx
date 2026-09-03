@@ -45,6 +45,8 @@ import { Order } from "../services/Order/fetchOrders";
 import { OrderDetailModal } from "../components/Orders/OrderDetailModal";
 import { useLanguage } from "../context/LanguageContext";
 
+import { updateCreditPersona } from "../services/Credit/updateCreditPersona";
+
 type TabType = "orders" | "products" | "payments";
 
 export const CreditDetail: React.FC = () => {
@@ -72,6 +74,7 @@ export const CreditDetail: React.FC = () => {
   );
   const [personPhone, setPersonPhone] = useState(personInfo?.phone || "");
   const [personAddress, setPersonAddress] = useState(personInfo?.address || "");
+  const [isTogglingStatus, setIsTogglingStatus] = useState(false);
 
   const [paymentsPage, setPaymentsPage] = useState(1);
   const [paymentsPagination, setPaymentsPagination] =
@@ -111,6 +114,33 @@ export const CreditDetail: React.FC = () => {
       loadCreditDetail();
     }
   }, [id]);
+
+  const handleToggleStatus = async () => {
+    if (!id || !personaDetail) return;
+    const currentBlacklist = Boolean(personaDetail.creditPerson?.blacklist);
+    const newStatus = !currentBlacklist;
+    setIsTogglingStatus(true);
+    try {
+      const response = await updateCreditPersona(id, {
+        blacklist: newStatus,
+        blacklistReason: newStatus ? "Manual blacklist" : undefined,
+      });
+      if (response.success) {
+        toast.success(
+          newStatus
+            ? `Customer "${personName}" has been blacklisted`
+            : `Customer "${personName}" is now active`
+        );
+        await loadCreditDetail();
+      } else {
+        toast.error(response.message || "Failed to update status");
+      }
+    } catch (err: any) {
+      toast.error(err.message || "Failed to update status");
+    } finally {
+      setIsTogglingStatus(false);
+    }
+  };
 
   const loadPaymentRecords = async (page: number = 1) => {
     if (!id) return;
@@ -360,58 +390,98 @@ export const CreditDetail: React.FC = () => {
   return (
     <div className="p-6">
       {/* Header */}
-      <div className="flex items-center gap-4 mb-6">
-        <button
-          onClick={() => navigate("/credits")}
-          className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
-        >
-          <ArrowLeft className="w-5 h-5 text-slate-600" />
-        </button>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
-            <User className="w-6 h-6 text-primary" />
-            {personName}
-          </h1>
-          {personPhone && (
-            <p className="text-slate-500 text-sm flex items-center gap-1 mt-1">
-              <Phone className="w-4 h-4" />
-              {personPhone}
-            </p>
-          )}
-          {personAddress && (
-            <p className="text-slate-500 text-sm flex items-center gap-1 mt-1">
-              {personAddress}
-            </p>
-          )}
-        </div>
-        <button
-          onClick={loadCreditDetail}
-          disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-          {t("creditDetail.refresh")}
-        </button>
-        {personaDetail && (
-          <div className="flex gap-2">
-            {/* <button
-              onClick={handleOpenAddCredit}
-              className="flex items-center gap-2 px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors font-medium shadow-sm transition-all active:scale-95"
-            >
-              <Box className="w-4 h-4" />
-              Add Credit
-            </button> */}
-            {personaDetail.orders.length > 0 && (
-              <button
-                onClick={handleOpenAddPayment}
-                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-medium shadow-sm transition-all active:scale-95"
-              >
-                <Plus className="w-4 h-4" />
-                {t("creditDetail.addPayment")}
-              </button>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate("/credits")}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+          >
+            <ArrowLeft className="w-5 h-5 text-slate-600" />
+          </button>
+          <div>
+            <div className="flex items-center gap-3 flex-wrap">
+              <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                <User className="w-6 h-6 text-primary" />
+                {personName}
+              </h1>
+              {personaDetail?.creditPerson && (
+                <span
+                  className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold border ${
+                    personaDetail.creditPerson.blacklist
+                      ? "bg-red-50 text-red-700 border-red-200"
+                      : "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  }`}
+                >
+                  <span
+                    className={`w-2 h-2 rounded-full ${
+                      personaDetail.creditPerson.blacklist
+                        ? "bg-red-500 animate-pulse"
+                        : "bg-emerald-500"
+                    }`}
+                  />
+                  {personaDetail.creditPerson.blacklist ? "Blacklisted" : "Active"}
+                </span>
+              )}
+            </div>
+
+            <div className="flex items-center gap-4 mt-1 flex-wrap text-sm text-slate-500">
+              {personPhone && (
+                <p className="flex items-center gap-1">
+                  <Phone className="w-4 h-4" />
+                  {personPhone}
+                </p>
+              )}
+              {personAddress && (
+                <p className="flex items-center gap-1">{personAddress}</p>
+              )}
+            </div>
+            {personaDetail?.creditPerson?.blacklist && personaDetail.creditPerson.blacklistReason && (
+              <p className="text-xs text-red-600 font-medium mt-1">
+                Reason: {personaDetail.creditPerson.blacklistReason}
+              </p>
             )}
           </div>
-        )}
+        </div>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          {personaDetail?.creditPerson && (
+            <button
+              onClick={handleToggleStatus}
+              disabled={isTogglingStatus || loading}
+              className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${
+                personaDetail.creditPerson.blacklist
+                  ? "bg-emerald-50 border-emerald-300 text-emerald-700 hover:bg-emerald-100"
+                  : "bg-red-50 border-red-300 text-red-700 hover:bg-red-100"
+              } disabled:opacity-50`}
+            >
+              {isTogglingStatus ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : null}
+              {personaDetail.creditPerson.blacklist
+                ? "Activate Customer"
+                : "Blacklist Customer"}
+            </button>
+          )}
+
+          <button
+            onClick={loadCreditDetail}
+            disabled={loading}
+            className="flex items-center gap-2 px-3.5 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors disabled:opacity-50 cursor-pointer"
+          >
+            <RefreshCw className={`w-3.5 h-3.5 ${loading ? "animate-spin" : ""}`} />
+            {t("creditDetail.refresh")}
+          </button>
+
+          {personaDetail && personaDetail.orders.length > 0 && (
+            <button
+              onClick={handleOpenAddPayment}
+              className="flex items-center gap-1.5 px-3.5 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-bold rounded-lg transition-colors shadow-xs cursor-pointer active:scale-95"
+            >
+              <Plus className="w-4 h-4" />
+              {t("creditDetail.addPayment")}
+            </button>
+          )}
+        </div>
       </div>
 
       {loading ? (

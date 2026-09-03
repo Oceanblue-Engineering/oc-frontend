@@ -5,6 +5,8 @@ export interface CreateCreditPersonaPayload {
   name: string;
   phone: string;
   address?: string;
+  blacklist?: boolean;
+  blacklistReason?: string;
 }
 
 interface CreateCreditPersonaResponse {

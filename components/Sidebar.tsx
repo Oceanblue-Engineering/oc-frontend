@@ -138,23 +138,23 @@ export const Sidebar: React.FC<SidebarProps> = ({
               onClick={toggleCollapse}
               className="py-3 flex flex-col items-center justify-center border-b border-gray-100 cursor-pointer select-none"
             >
-              <div className="text-[#27272a] text-center">
-                <div className="flex flex-col items-center justify-center font-black leading-none transition-all duration-500 ease-in-out py-1">
-                  <span
-                    className={`tracking-widest font-black transition-all duration-500 ease-in-out ${
-                      isCollapsed ? "text-[10px]" : "text-xl"
-                    }`}
-                  >
-                    AUTO
-                  </span>
-                  <span
-                    className={`tracking-widest font-black transition-all duration-500 ease-in-out ${
-                      isCollapsed ? "text-[10px] mt-0" : "text-xl mt-0.5"
-                    }`}
-                  >
-                    SHOP
-                  </span>
+              <div className="flex flex-col items-center justify-center transition-all duration-500 ease-in-out py-1">
+                <div
+                  className={`flex items-center justify-center rounded-2xl bg-white border border-gray-200/80 shadow-sm overflow-hidden transition-all duration-500 ${
+                    isCollapsed ? "w-10 h-10 p-1" : "w-12 h-12 p-1.5 mb-1.5"
+                  }`}
+                >
+                  <img
+                    src="/logo.png"
+                    alt="OceanBlue Logo"
+                    className="w-full h-full object-contain"
+                  />
                 </div>
+                {!isCollapsed && (
+                  <span className="font-bold text-xs tracking-wider text-slate-800 uppercase">
+                    OceanBlue CMS
+                  </span>
+                )}
               </div>
             </div>
 
