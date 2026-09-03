@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios from "../axios";
 import { InvoiceData } from "../../components/Invoice/InvoiceDocument";
 
 export interface InvoiceRecord extends InvoiceData {
@@ -19,6 +19,7 @@ export interface GetInvoicesParams {
   status?: string;
   startDate?: string;
   endDate?: string;
+  projectId?: string;
   page?: number;
   limit?: number;
 }
@@ -72,7 +73,7 @@ export async function createInvoice(
       success: boolean;
       data: InvoiceRecord;
       message?: string;
-    }>("/api/v1/invoices", invoiceData);
+    }>("/invoices", invoiceData);
 
     if (res.data && res.data.success) {
       // Sync local cache
@@ -110,7 +111,7 @@ export async function fetchInvoices(
   params: GetInvoicesParams = {}
 ): Promise<InvoicesResponse> {
   try {
-    const res = await axios.get<InvoicesResponse>("/api/v1/invoices", {
+    const res = await axios.get<InvoicesResponse>("/invoices", {
       params,
     });
     if (res.data && res.data.success) {
@@ -129,6 +130,10 @@ export async function fetchInvoices(
 
   if (params.status && params.status !== "all") {
     list = list.filter((i) => (i.status || "issued") === params.status);
+  }
+
+  if (params.projectId) {
+    list = list.filter((i) => i.projectId === params.projectId);
   }
 
   if (params.search) {
@@ -175,7 +180,7 @@ export async function updateInvoice(
 ): Promise<{ success: boolean; data?: InvoiceRecord; message?: string }> {
   try {
     if (!id.startsWith("local_")) {
-      const res = await axios.put(`/api/v1/invoices/${id}`, data);
+      const res = await axios.put(`/invoices/${id}`, data);
       if (res.data.success) {
         return res.data;
       }
@@ -203,7 +208,7 @@ export async function deleteInvoice(
 ): Promise<{ success: boolean; message?: string }> {
   try {
     if (!id.startsWith("local_")) {
-      await axios.delete(`/api/v1/invoices/${id}`);
+      await axios.delete(`/invoices/${id}`);
     }
   } catch (err) {
     console.warn("Backend delete failed:", err);
@@ -225,7 +230,7 @@ export async function updateInvoiceStatus(
 ): Promise<{ success: boolean; data?: InvoiceRecord; message?: string }> {
   try {
     if (!id.startsWith("local_")) {
-      const res = await axios.patch(`/api/v1/invoices/${id}/status`, {
+      const res = await axios.patch(`/invoices/${id}/status`, {
         status,
         ...extraData,
       });

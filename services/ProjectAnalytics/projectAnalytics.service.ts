@@ -162,30 +162,10 @@ export const fetchProjectFinancialSummary = async (
   }
 };
 
-// Utility function to format currency — language-aware
-// my: သိန်း/သန်း/ထောင်/ကျပ် abbreviated units. en: comma-grouped number + " Ks".
-export const formatCurrency = (amount: number, language: Language = "my"): string => {
-  const formatWithCommas = (num: number): string => {
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-
-  if (language === "en") {
-    return `${Math.floor(amount).toLocaleString("en-US")} Ks`;
-  }
-
-  if (amount >= 1000000) {
-    const millions = amount / 1000000;
-    return `${formatWithCommas(Math.floor(millions))}သန်း`;
-  }
-  if (amount >= 100000) {
-    const lakhs = amount / 100000;
-    return `${formatWithCommas(Math.floor(lakhs))}သိန်း`;
-  }
-  if (amount >= 1000) {
-    const thousands = amount / 1000;
-    return `${formatWithCommas(Math.floor(thousands))}ထောင်`;
-  }
-  return formatWithCommas(Math.floor(amount)) + " ကျပ်";
+// Utility function to format currency — standard MMK currency format
+export const formatCurrency = (amount: number, language?: Language): string => {
+  const num = Math.floor(Number(amount) || 0);
+  return `${num.toLocaleString("en-US")} MMK`;
 };
 
 // Utility function to format percentage

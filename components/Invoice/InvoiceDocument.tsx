@@ -22,6 +22,7 @@ export interface InvoiceData {
   };
   items: InvoiceItem[];
   subTotal: number;
+  projectId?: string;
   discountOrTaxLabel?: string;
   discountOrTaxAmount?: number;
   totalAmount: number;

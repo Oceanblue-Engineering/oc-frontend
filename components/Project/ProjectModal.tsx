@@ -9,8 +9,9 @@ import { useLanguage } from "../../context/LanguageContext";
 interface ProjectModalProps {
   isOpen: boolean;
   onClose: () => void;
-  project: Project | null; // null => create mode
-  onSaved: () => void;
+  project?: Project | null; // null => create mode
+  onSaved?: () => void;
+  onSuccess?: () => void;
   onDeleted?: () => void; // optional: called after successful delete instead of onSaved
 }
 
@@ -19,8 +20,9 @@ const PROJECT_STATUSES = ["Signed", "In-Development", "Delivered", "Completed"];
 export const ProjectModal: React.FC<ProjectModalProps> = ({
   isOpen,
   onClose,
-  project,
+  project = null,
   onSaved,
+  onSuccess,
   onDeleted,
 }) => {
   const { t } = useLanguage();
@@ -133,7 +135,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
         await createProject(form);
         toast.success("Project created successfully");
       }
-      onSaved();
+      if (onSaved) onSaved();
+      else if (onSuccess) onSuccess();
       onClose();
     } catch (error: any) {
       toast.error(error.message || "Failed to save project");
@@ -152,7 +155,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     try {
       await deleteProject(project._id);
       toast.success("Project deleted successfully");
-      (onDeleted || onSaved)();
+      if (onDeleted) onDeleted();
+      else if (onSaved) onSaved();
+      else if (onSuccess) onSuccess();
       onClose();
     } catch (error: any) {
       toast.error(error.message || "Failed to delete project");

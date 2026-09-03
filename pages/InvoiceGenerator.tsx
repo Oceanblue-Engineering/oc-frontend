@@ -30,6 +30,7 @@ import {
   Layers,
   FolderPlus,
   ChevronDown,
+  Briefcase,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -64,6 +65,7 @@ import {
   createQuotationCategory,
   QuotationCategoryItem,
 } from "../services/Invoice/quotationCategory.service";
+import { fetchProjects, Project } from "../services/Project/project.service";
 import { Product } from "../types";
 import {
   PageHeader,
@@ -137,6 +139,10 @@ export const InvoiceGenerator: React.FC = () => {
   const [isCreatingCategory, setIsCreatingCategory] = useState(false);
   const [newCategoryName, setNewCategoryName] = useState("");
 
+  // Projects Linker state
+  const [availableProjects, setAvailableProjects] = useState<Project[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(false);
+
   const getInitialInvoiceData = (): InvoiceData & {
     quotationNo?: string;
     validityTerms?: string;
@@ -173,6 +179,7 @@ export const InvoiceGenerator: React.FC = () => {
       paymentMethod: "KBZ Pay",
       paymentReceivedDate: "",
       status: "issued",
+      projectId: null,
       billTo: {
         name: "",
         company: "",
@@ -228,9 +235,54 @@ export const InvoiceGenerator: React.FC = () => {
     }
   };
 
+  // Load Projects for Project Linker
+  const loadProjects = async () => {
+    setIsLoadingProjects(true);
+    try {
+      const res = await fetchProjects();
+      if (res && res.success && res.data) {
+        setAvailableProjects(res.data.clients || []);
+      }
+    } catch (err) {
+      console.error("Error loading projects:", err);
+    } finally {
+      setIsLoadingProjects(false);
+    }
+  };
+
+  const handleSelectProject = (projId: string) => {
+    if (!projId) {
+      handleUnlinkProject();
+      return;
+    }
+    const selectedProj = availableProjects.find((p) => p._id === projId);
+    if (selectedProj) {
+      setInvoiceData((prev) => ({
+        ...prev,
+        projectId: selectedProj._id,
+        billTo: {
+          ...prev.billTo,
+          name: selectedProj.customer || prev.billTo.name,
+          company: selectedProj.siteName || prev.billTo.company,
+          address: selectedProj.description || prev.billTo.address,
+        },
+      }));
+      toast.success(`Linked to Project: "${selectedProj.siteName}"`);
+    }
+  };
+
+  const handleUnlinkProject = () => {
+    setInvoiceData((prev) => ({
+      ...prev,
+      projectId: null,
+    }));
+    toast.info("Unlinked from project. Manual custom editing enabled.");
+  };
+
   useEffect(() => {
     loadInvoices();
     loadCategories();
+    loadProjects();
   }, [statusFilter]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
@@ -1159,6 +1211,44 @@ export const InvoiceGenerator: React.FC = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="pt-4 space-y-3">
+                  {/* Project Linker Dropdown */}
+                  <div className="p-3 bg-ocean-50/70 rounded-2xl border border-ocean-100/80 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="text-xs font-bold text-ocean-900 flex items-center gap-1.5">
+                        <Briefcase className="w-3.5 h-3.5 text-ocean-600" />
+                        Link to Client Project (Optional)
+                      </label>
+                      {invoiceData.projectId && (
+                        <button
+                          type="button"
+                          onClick={handleUnlinkProject}
+                          className="text-[11px] font-bold text-slate-500 hover:text-red-600 flex items-center gap-1 cursor-pointer transition-colors"
+                          title="Unlink project and edit manually"
+                        >
+                          <X className="w-3 h-3" /> Unlink
+                        </button>
+                      )}
+                    </div>
+                    <Select
+                      value={invoiceData.projectId || ""}
+                      onChange={(e) => handleSelectProject(e.target.value)}
+                      className="bg-white text-xs sm:text-sm h-9"
+                    >
+                      <option value="">✨ Manual / Custom Entry (No Project Linked)</option>
+                      {availableProjects.map((proj) => (
+                        <option key={proj._id} value={proj._id}>
+                          📁 {proj.siteName} — {proj.customer} ({proj.status})
+                        </option>
+                      ))}
+                    </Select>
+                    {invoiceData.projectId && (
+                      <div className="flex items-center gap-1.5 text-[11px] text-ocean-700 font-medium">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                        <span>Auto-filled from Project. You can still modify any fields below freely.</span>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="space-y-1">
                     <label className="text-xs font-bold text-slate-700">
                       Customer / Client Name <span className="text-red-500">*</span>

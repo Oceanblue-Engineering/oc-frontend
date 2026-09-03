@@ -12,6 +12,12 @@ import {
   Edit,
   Activity,
   Briefcase,
+  FileText,
+  Receipt,
+  Eye,
+  CheckCircle2,
+  Printer,
+  ExternalLink,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "../context/LanguageContext";
@@ -31,6 +37,8 @@ import { ProjectExpensesTable } from "../components/ProjectAnalytics/ProjectExpe
 import { ProjectExpenseModal } from "../components/ProjectAnalytics/ProjectExpenseModal";
 import { ProjectModal } from "../components/Project/ProjectModal";
 import { fetchProjectById, Project } from "../services/Project/project.service";
+import { fetchInvoices, InvoiceRecord } from "../services/Invoice/invoice.service";
+import { InvoiceModal, DocumentType } from "../components/Invoice/InvoiceModal";
 import {
   PageHeader,
   Button,
@@ -39,6 +47,15 @@ import {
   CardHeader,
   CardTitle,
   CardContent,
+  StatsCard,
+  TableContainer,
+  Table,
+  TableHeader,
+  TableHead,
+  TableBody,
+  TableRow,
+  TableCell,
+  TableEmpty,
 } from "../components/ui";
 
 const ProjectDetailAnalytics: React.FC = () => {
@@ -51,11 +68,18 @@ const ProjectDetailAnalytics: React.FC = () => {
     useState<ProjectFinancialSummary | null>(null);
   const [expensesData, setExpensesData] = useState<any>(null);
   const [payrollData, setPayrollData] = useState<any>(null);
+  const [projectInvoices, setProjectInvoices] = useState<InvoiceRecord[]>([]);
+  const [invoiceStats, setInvoiceStats] = useState<any>(null);
+  const [selectedInvoiceForModal, setSelectedInvoiceForModal] =
+    useState<InvoiceRecord | null>(null);
+  const [isInvoiceModalOpen, setIsInvoiceModalOpen] = useState(false);
+  const [modalDocumentType, setModalDocumentType] =
+    useState<DocumentType>("quotation");
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "expenses" | "payroll" | "timeline"
+    "overview" | "expenses" | "payroll" | "invoices" | "timeline"
   >("overview");
 
   const loadData = async (showFullPageLoader = false) => {
@@ -63,10 +87,11 @@ const ProjectDetailAnalytics: React.FC = () => {
     if (showFullPageLoader) setLoading(true);
 
     try {
-      const [financialRes, expensesRes, payrollRes] = await Promise.all([
+      const [financialRes, expensesRes, payrollRes, invoicesRes] = await Promise.all([
         fetchProjectFinancialSummary(id),
         fetchProjectExpenses(id),
         fetchProjectPayrollSummary(id),
+        fetchInvoices({ projectId: id }),
       ]);
 
       if (financialRes.success && financialRes.data) {
@@ -91,6 +116,11 @@ const ProjectDetailAnalytics: React.FC = () => {
         toast.error(
           payrollRes.message || t("projects.payrollLoadFailed")
         );
+      }
+
+      if (invoicesRes && invoicesRes.success) {
+        setProjectInvoices(invoicesRes.data || []);
+        setInvoiceStats(invoicesRes.stats || null);
       }
     } catch (error: any) {
       console.error("Error loading project analytics:", error);
@@ -173,6 +203,12 @@ const ProjectDetailAnalytics: React.FC = () => {
       label: t("projects.tabPayroll") || "Payroll & Workers",
       icon: Users,
       badge: payrollData?.summary?.totalWorkers || 0,
+    },
+    {
+      id: "invoices",
+      label: "Quotations & Invoices",
+      icon: FileText,
+      badge: projectInvoices.length,
     },
     {
       id: "timeline",
@@ -577,7 +613,207 @@ const ProjectDetailAnalytics: React.FC = () => {
         </div>
       )}
 
-      {/* TAB 4: TIMELINE & DETAILS */}
+      {/* TAB 4: QUOTATIONS, INVOICES & RECEIPTS */}
+      {activeTab === "invoices" && (
+        <div className="space-y-6 animate-in fade-in duration-200">
+          {/* KPI Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <StatsCard
+              title="Total Invoiced Amount"
+              value={formatCurrency(
+                invoiceStats?.totalInvoicedAmount ??
+                  projectInvoices.reduce((s, i) => s + (i.totalAmount || 0), 0),
+                language
+              )}
+              icon={<FileText className="w-5 h-5" />}
+              color="ocean"
+              description="Total billing value for this project"
+            />
+            <StatsCard
+              title="Paid / Received Amount"
+              value={formatCurrency(
+                invoiceStats?.paidAmount ??
+                  projectInvoices
+                    .filter((i) => i.status === "paid")
+                    .reduce((s, i) => s + (i.totalAmount || 0), 0),
+                language
+              )}
+              icon={<CheckCircle2 className="w-5 h-5" />}
+              color="emerald"
+              description="Confirmed customer payments"
+            />
+            <StatsCard
+              title="Outstanding Balance"
+              value={formatCurrency(
+                Math.max(
+                  0,
+                  (invoiceStats?.totalInvoicedAmount ??
+                    projectInvoices.reduce((s, i) => s + (i.totalAmount || 0), 0)) -
+                    (invoiceStats?.paidAmount ??
+                      projectInvoices
+                        .filter((i) => i.status === "paid")
+                        .reduce((s, i) => s + (i.totalAmount || 0), 0))
+                ),
+                language
+              )}
+              icon={<DollarSign className="w-5 h-5" />}
+              color="amber"
+              description="Pending payments due"
+            />
+            <StatsCard
+              title="Total Documents"
+              value={projectInvoices.length}
+              icon={<Receipt className="w-5 h-5" />}
+              color="violet"
+              description="Quotations, Invoices & Receipts"
+            />
+          </div>
+
+          {/* Table Container */}
+          <Card>
+            <CardHeader className="border-b border-slate-100 flex flex-row items-center justify-between gap-4 py-4">
+              <div>
+                <CardTitle className="text-base font-bold text-slate-800 flex items-center gap-2">
+                  <FileText className="w-4 h-4 text-ocean-600" />
+                  Project Quotations, Invoices & Receipts
+                </CardTitle>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Official financial documents linked directly to this project
+                </p>
+              </div>
+              <Button
+                variant="default"
+                size="sm"
+                onClick={() => navigate("/invoice-generator")}
+                leftIcon={<Plus className="w-4 h-4" />}
+              >
+                Create Document
+              </Button>
+            </CardHeader>
+            <CardContent className="p-0">
+              <TableContainer>
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-12 text-center">#</TableHead>
+                      <TableHead>Document No</TableHead>
+                      <TableHead>Quotation No</TableHead>
+                      <TableHead>Date</TableHead>
+                      <TableHead>Customer / Client</TableHead>
+                      <TableHead className="text-right">Total Amount</TableHead>
+                      <TableHead className="text-center">Status</TableHead>
+                      <TableHead>Payment Method</TableHead>
+                      <TableHead className="text-right">Actions</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {projectInvoices.length === 0 ? (
+                      <TableEmpty
+                        colSpan={9}
+                        icon={<FileText className="w-8 h-8 text-slate-300" />}
+                        title="No Documents Issued for This Project Yet"
+                        description="You can generate official Quotations, Invoices and Receipts linked to this project."
+                        action={
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => navigate("/invoice-generator")}
+                            leftIcon={<Plus className="w-4 h-4" />}
+                          >
+                            Create First Document
+                          </Button>
+                        }
+                      />
+                    ) : (
+                      projectInvoices.map((inv, idx) => (
+                        <TableRow key={inv._id || idx} hoverable>
+                          <TableCell className="text-center font-semibold text-slate-500 text-xs">
+                            {idx + 1}
+                          </TableCell>
+                          <TableCell className="font-bold text-slate-900 text-xs sm:text-sm">
+                            {inv.invoiceNo}
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-600 font-mono">
+                            {inv.quotationNo || "-"}
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-600 whitespace-nowrap">
+                            {inv.invoiceDate
+                              ? new Date(inv.invoiceDate).toLocaleDateString()
+                              : "-"}
+                          </TableCell>
+                          <TableCell className="text-xs font-semibold text-slate-800">
+                            {inv.billTo?.name || "-"}
+                          </TableCell>
+                          <TableCell className="text-right font-bold text-slate-900 text-xs sm:text-sm">
+                            {formatCurrency(inv.totalAmount, language)}
+                          </TableCell>
+                          <TableCell className="text-center">
+                            {inv.status === "paid" ? (
+                              <Badge variant="success">Paid</Badge>
+                            ) : inv.status === "cancelled" ? (
+                              <Badge variant="destructive">Cancelled</Badge>
+                            ) : (
+                              <Badge variant="default">Issued</Badge>
+                            )}
+                          </TableCell>
+                          <TableCell className="text-xs text-slate-500">
+                            {inv.paymentMethod || "KBZ Pay"}
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <div className="flex items-center justify-end gap-1.5">
+                              <Button
+                                variant="subtle"
+                                size="xs"
+                                onClick={() => {
+                                  setSelectedInvoiceForModal(inv);
+                                  setModalDocumentType("quotation");
+                                  setIsInvoiceModalOpen(true);
+                                }}
+                                title="View Quotation"
+                              >
+                                Quotation
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="xs"
+                                onClick={() => {
+                                  setSelectedInvoiceForModal(inv);
+                                  setModalDocumentType("invoice");
+                                  setIsInvoiceModalOpen(true);
+                                }}
+                                title="View Invoice"
+                              >
+                                Invoice
+                              </Button>
+                              {inv.status === "paid" && (
+                                <Button
+                                  variant="subtle"
+                                  size="xs"
+                                  onClick={() => {
+                                    setSelectedInvoiceForModal(inv);
+                                    setModalDocumentType("receipt");
+                                    setIsInvoiceModalOpen(true);
+                                  }}
+                                  title="View Receipt"
+                                  className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
+                                >
+                                  Receipt
+                                </Button>
+                              )}
+                            </div>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
+      {/* TAB 5: TIMELINE & DETAILS */}
       {activeTab === "timeline" && (
         <div className="space-y-6">
           <Card>
@@ -661,6 +897,20 @@ const ProjectDetailAnalytics: React.FC = () => {
           projectName={project.siteName}
           onClose={() => setExpenseModalOpen(false)}
           onExpenseCreated={() => loadData(false)}
+        />
+      )}
+
+      {/* Official Invoice / Quotation / Receipt Modal */}
+      {isInvoiceModalOpen && selectedInvoiceForModal && (
+        <InvoiceModal
+          isOpen={isInvoiceModalOpen}
+          onClose={() => {
+            setIsInvoiceModalOpen(false);
+            setSelectedInvoiceForModal(null);
+          }}
+          invoiceData={selectedInvoiceForModal}
+          initialDocumentType={modalDocumentType}
+          title={`Document Preview — ${selectedInvoiceForModal.invoiceNo}`}
         />
       )}
     </div>
