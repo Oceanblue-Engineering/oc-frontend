@@ -42,6 +42,7 @@ export const Purchasing: React.FC = () => {
   });
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [selectedPOId, setSelectedPOId] = useState<string | null>(null);
+  const [editingPO, setEditingPO] = useState<ApiPurchaseOrder | null>(null);
   const [isPODetailModalOpen, setIsPODetailModalOpen] = useState(false);
 
   // GRN State
@@ -171,6 +172,11 @@ export const Purchasing: React.FC = () => {
     setIsCreateGRNModalOpen(true);
   };
 
+  const handleEditPO = (po: ApiPurchaseOrder) => {
+    setEditingPO(po);
+    setIsCreateModalOpen(true);
+  };
+
   const handleViewPO = (po: ApiPurchaseOrder) => {
     setSelectedPOId(po._id);
     setIsPODetailModalOpen(true);
@@ -231,20 +237,30 @@ export const Purchasing: React.FC = () => {
             poList={poList}
             deletedPOList={deletedPOList}
             suppliers={suppliers}
-            setIsCreateModalOpen={setIsCreateModalOpen}
+            setIsCreateModalOpen={(isOpen) => {
+              if (isOpen) setEditingPO(null);
+              setIsCreateModalOpen(isOpen);
+            }}
             loadPurchases={loadPurchases}
             loadDeletedPurchases={loadDeletedPurchases}
             onViewPO={handleViewPO}
+            onEditPO={handleEditPO}
             pagination={poPagination}
             deletedPagination={deletedPoPagination}
             onCreateGRN={handleCreateGRNFromPO}
           />
           <CreatePOModal
             isOpen={isCreateModalOpen}
-            onClose={() => setIsCreateModalOpen(false)}
+            onClose={() => {
+              setIsCreateModalOpen(false);
+              setEditingPO(null);
+            }}
             suppliers={suppliers}
             products={products}
-            onSuccess={loadPurchases}
+            editingPO={editingPO}
+            onSuccess={() => {
+              loadPurchases(poPagination.currentPage);
+            }}
           />
           <PODetailModal
             isOpen={isPODetailModalOpen}

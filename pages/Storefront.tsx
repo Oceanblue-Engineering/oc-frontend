@@ -52,6 +52,7 @@ export const Storefront: React.FC = () => {
     StorefrontProfile[]
   >([]);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
   // Inventory State
   const [inventoryItems, setInventoryItems] = useState<StorefrontStockItem[]>(
@@ -121,12 +122,10 @@ export const Storefront: React.FC = () => {
     setLoading(true);
     try {
       const response = await fetchStorefrontProfiles();
-      // console.log(response);
       if (response.success && response.data) {
         setStorefrontProfiles(response.data.reverse());
       }
     } catch (error) {
-      // console.log(error);
       console.error("Failed to load storefront profiles:", error);
     } finally {
       setLoading(false);
@@ -235,570 +234,678 @@ export const Storefront: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
-      <div className="bg-white h-[calc(100vh-2rem)] border border-gray-200/70 rounded-3xl p-6 shadow-md flex flex-col gap-6">
-
-        {/* Header Section */}
-        <div className="flex flex-col lg:flex-row lg:justify-between lg:items-center gap-4 border-b border-gray-100 pb-5">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-800">
-              {t("storefront.title")}
-            </h1>
-            <p className="text-xs text-slate-400 mt-1.5 font-medium">
-              {t("storefront.subtitle")}
-            </p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              onClick={() => {
-                setShowInventory(!showInventory);
-                if (!showInventory) {
-                  loadInventory();
-                }
-              }}
-              className="px-4 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer"
-            >
-              <Package className="w-4 h-4" />
-              <span>
-                {showInventory ? t("storefront.hideInventory") : t("storefront.showAllInventory")}
-              </span>
-            </button>
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="px-5 py-2 text-sm font-semibold rounded-full bg-[#27272a] text-white hover:bg-[#27272a]/90 transition-all shadow-md shadow-ocean-600/10 flex items-center gap-2 cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>{t("storefront.addStorefront")}</span>
-            </button>
-          </div>
+    <div className="p-4 sm:p-6">
+      <div className="flex flex-row justify-between items-start gap-4 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-800 flex items-center gap-2">
+          {t("storefront.title")}
+        </h1>
+        <div className="flex flex-wrap gap-2">
+          <button
+            onClick={() => {
+              setShowInventory(!showInventory);
+              if (!showInventory) {
+                loadInventory();
+              }
+            }}
+            className="bg-slate-600 hover:bg-slate-700 text-white px-3 py-2 sm:px-4 rounded-lg flex items-center gap-2 transition-colors text-sm sm:text-base cursor-pointer"
+          >
+            <Package className="w-4 h-4" />
+            <span className="hidden sm:inline">
+              {showInventory
+                ? `${t("storefront.hideInventory")}`
+                : `${t("storefront.showAllInventory")}`}
+            </span>
+          </button>
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="bg-primary hover:bg-primary/90 text-white px-3 py-2 sm:px-4 rounded-lg flex items-center gap-2 transition-colors text-sm sm:text-base cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />{" "}
+            <span className="hidden sm:inline">
+              {t("storefront.addStorefront")}
+            </span>
+          </button>
         </div>
+      </div>
 
-        {/* All Inventory Products Section */}
-        {showInventory && (
-          <div className="bg-white rounded-3xl border border-gray-100 overflow-hidden mb-6 flex flex-col gap-5 p-5 shadow-sm">
-            <div className="flex justify-between items-center border-b border-gray-100 pb-4">
-              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                {t("storefront.inventoryTitle")}
-              </h2>
-              <button
-                onClick={loadInventory}
-                disabled={loadingInventory}
-                className="px-4 py-1.5 text-xs font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
-              >
-                <RefreshCw
-                  className={`w-3.5 h-3.5 ${loadingInventory ? "animate-spin" : ""}`}
-                />
-                <span>{t("storefront.refresh")}</span>
-              </button>
-            </div>
+      {/* All Inventory Products Section */}
+      {showInventory && (
+        <div className="bg-white rounded-xl shadow-sm border overflow-hidden mb-6">
+          <div className="p-4 border-b bg-slate-50 flex justify-between items-center">
+            <h2 className="font-semibold text-slate-800 flex items-center gap-2">
+              <Package className="w-5 h-5 text-primary" />
+              {t("storefront.inventoryTitle") || "All Storefront Inventory"}
+            </h2>
+            <button
+              onClick={loadInventory}
+              disabled={loadingInventory}
+              className="flex items-center gap-2 px-3 py-1.5 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50 text-sm cursor-pointer"
+            >
+              <RefreshCw
+                className={`w-4 h-4 ${loadingInventory ? "animate-spin" : ""}`}
+              />
+              {t("storefront.refresh") || "Refresh"}
+            </button>
+          </div>
 
-            {/* Stats Cards */}
-            {!loadingInventory && inventoryItems.length > 0 && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* Total Product Types */}
-                <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-3.5 shadow-sm">
-                  <div className="p-3 bg-ocean-50 text-[#27272a] rounded-xl flex-shrink-0">
-                    <Box className="w-5 h-5" />
+          {/* Stats Cards */}
+          {!loadingInventory && inventoryItems.length > 0 && (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 p-4 border-b bg-slate-50">
+              <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 bg-primary/20 rounded-lg">
+                    <Box className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-700">
-                      {t("storefront.productTypes")}
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      {t("storefront.productTypes") || "Total Products"}
                     </p>
-                    <p className="text-sm font-semibold text-slate-500 mt-0.5">
-                      {t("storefront.itemsCount").replace("{count}", String(inventoryItems.length))}
+                    <p className="text-lg sm:text-2xl font-bold text-slate-800 truncate">
+                      {inventoryItems.length}
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Total Quantity */}
-                <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-3.5 shadow-sm">
-                  <div className="p-3 bg-ocean-50 text-[#27272a] rounded-xl flex-shrink-0">
-                    <Package className="w-5 h-5" />
+              <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 bg-green-100 rounded-lg">
+                    <Package className="w-4 h-4 sm:w-5 sm:h-5 text-green-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-700">
-                      {t("storefront.totalQty")}
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      {t("storefront.totalQty") || "Total Quantity"}
                     </p>
-                    <p className="text-sm font-semibold text-slate-500 mt-0.5">
-                      {t("storefront.itemsCount").replace("{count}", String(totalQuantity))}
+                    <p className="text-lg sm:text-2xl font-bold text-slate-800 truncate">
+                      {totalQuantity}
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Low Stock count */}
-                <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-3.5 shadow-sm">
-                  <div className="p-3 bg-amber-50 text-amber-600 rounded-xl flex-shrink-0">
-                    <AlertTriangle className="w-5 h-5" />
+              <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 bg-amber-100 rounded-lg">
+                    <AlertTriangle className="w-4 h-4 sm:w-5 sm:h-5 text-amber-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-700">
-                      {t("storefront.lowStock")}
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      {t("storefront.lowStock") || "Low Stock"}
                     </p>
-                    <p className="text-sm font-semibold text-slate-500 mt-0.5">
-                      {t("storefront.itemsCount").replace("{count}", String(lowStockCount))}
+                    <p className="text-lg sm:text-2xl font-bold text-slate-800 truncate">
+                      {lowStockCount}
                     </p>
                   </div>
                 </div>
+              </div>
 
-                {/* Total Amount */}
-                <div className="bg-white p-4 rounded-2xl border border-gray-100 flex items-center gap-3.5 shadow-sm">
-                  <div className="p-3 bg-ocean-50 text-[#27272a] rounded-xl flex-shrink-0">
-                    <Store className="w-5 h-5" />
+              <div className="bg-white p-3 sm:p-4 rounded-xl shadow-sm border border-ocean-100">
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <div className="p-2 bg-ocean-100 rounded-lg">
+                    <Store className="w-4 h-4 sm:w-5 sm:h-5 text-ocean-600" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-xs font-bold text-slate-700">
-                      {t("storefront.totalSales")}
+                    <p className="text-xs sm:text-sm text-slate-500">
+                      {t("storefront.totalSales") || "Total Amount"}
                     </p>
-                    <p className="text-sm font-black text-[#27272a] mt-0.5">
+                    <p className="text-lg sm:text-2xl font-bold text-ocean-600 truncate">
                       {totalInventoryAmount.toLocaleString()} MMK
                     </p>
                   </div>
                 </div>
               </div>
-            )}
-
-            {loadingInventory ? (
-              <div className="p-8 text-center text-slate-500">
-                <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
-                <p>Loading inventory...</p>
-              </div>
-            ) : inventoryItems.length === 0 ? (
-              <div className="p-8 text-center text-slate-500">
-                <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                <p>No inventory items found.</p>
-              </div>
-            ) : (
-              <div className="bg-white border border-gray-150 rounded-2xl overflow-hidden flex flex-col min-h-0">
-                {/* Table container with horizontal scroll on mobile */}
-                <div className="overflow-x-auto overflow-y-auto max-h-[450px]">
-                  <table className="w-full text-sm text-left min-w-[800px]">
-                    <thead className="text-slate-500">
-                      <tr className="sticky top-0 z-10 bg-slate-50 shadow-[0_1px_0_0_rgba(229,231,235,1)]">
-                        <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">No</th>
-                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Code</th>
-                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Name</th>
-                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Category</th>
-                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Cost</th>
-                        <th className="px-4 py-4 text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Price</th>
-                        <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Status</th>
-                        <th className="px-4 py-4 text-center text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-100">
-                      {inventoryItems.map((item, index) => {
-                        const storefrontName =
-                          item.storefrontId.locationName ||
-                          item.storefrontId.storefrontName ||
-                          "Unknown";
-                        const storefrontCode =
-                          item.storefrontId.locationCode ||
-                          item.storefrontId.storefrontCode ||
-                          "";
-
-                        return (
-                          <tr
-                            key={item._id}
-                            className="hover:bg-slate-50/40 transition-colors"
-                          >
-                            {/* No */}
-                            <td className="px-4 py-4 text-center font-bold text-slate-400 text-xs">
-                              {String(index + 1).padStart(2, "0")}
-                            </td>
-
-                            {/* Code */}
-                            <td className="px-4 py-4 text-slate-600 font-semibold text-xs">
-                              {item.inventoryId.productCode}
-                            </td>
-
-                            {/* Name */}
-                            <td className="px-4 py-4 font-bold text-slate-800 text-xs">
-                              {item.inventoryId.productName}
-                            </td>
-
-                            {/* Category */}
-                            <td className="px-4 py-4 text-slate-500 text-xs font-medium">
-                              {item.inventoryId.category}
-                            </td>
-
-                            {/* Cost */}
-                            <td className="px-4 py-4 font-bold text-slate-800 text-xs whitespace-nowrap">
-                              {(item.inventoryId.cost || 0).toLocaleString()}{" "}
-                              <span className="text-[10px] text-slate-400 font-medium">MMK</span>
-                            </td>
-
-                            {/* Price */}
-                            <td className="px-4 py-4 font-bold text-slate-800 text-xs whitespace-nowrap">
-                              {(item.inventoryId.sellingPrice || 0).toLocaleString()}{" "}
-                              <span className="text-[10px] text-slate-400 font-medium">MMK</span>
-                            </td>
-
-                            {/* Status */}
-                            <td className="px-4 py-4 text-center">
-                              {item.isLowStock ? (
-                                <span className="bg-amber-50 border border-amber-200 text-amber-600 px-3 py-1 rounded-full text-xs font-semibold">
-                                  Low Stock
-                                </span>
-                              ) : item.quantity === 0 ? (
-                                <span className="bg-red-50 border border-red-200 text-red-600 px-3 py-1 rounded-full text-xs font-semibold">
-                                  Out of Stock
-                                </span>
-                              ) : (
-                                <span className="bg-green-50 border border-green-200 text-green-700 px-3 py-1 rounded-full text-xs font-semibold">
-                                  Active
-                                </span>
-                              )}
-                            </td>
-
-                            {/* Actions */}
-                            <td className="px-4 py-4 text-center">
-                              <div className="flex items-center justify-center gap-2">
-                                <button
-                                  onClick={() =>
-                                    navigate(`/storefront/${item.storefrontId._id}`, {
-                                      state: { storefrontName, storefrontCode },
-                                    })
-                                  }
-                                  className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm shadow-ocean-600/5 transition-all cursor-pointer whitespace-nowrap"
-                                >
-                                  {t("common.edit")}
-                                </button>
-                                <button
-                                  onClick={() =>
-                                    navigate(`/storefront/${item.storefrontId._id}`, {
-                                      state: { storefrontName, storefrontCode },
-                                    })
-                                  }
-                                  className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm shadow-ocean-600/5 transition-all cursor-pointer whitespace-nowrap"
-                                >
-                                  {t("common.view")}
-                                </button>
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Storefront Profiles List */}
-        <div>
-          <h2 className="text-xl font-bold text-slate-800 mb-6 pb-4 border-b border-gray-100 flex items-center gap-2">
-            {t("storefront.profiles")}
-          </h2>
-          {loading ? (
-            <div className="text-center py-12 text-slate-400">
-              <Loader2 className="w-8 h-8 text-[#27272a] animate-spin mx-auto mb-3" />
-              <p className="text-sm font-medium">{t("storefront.loading")}</p>
             </div>
-          ) : storefrontProfiles.length === 0 ? (
-            <div className="text-center py-12 text-slate-400">
-              <Store className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-              <p className="text-sm font-medium">{t("storefront.noStorefronts")}</p>
+          )}
+
+          {loadingInventory ? (
+            <div className="p-8 text-center text-slate-500">
+              <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-2" />
+              <p>{t("storefront.loading") || "Loading inventory..."}</p>
+            </div>
+          ) : inventoryItems.length === 0 ? (
+            <div className="p-8 text-center text-slate-500">
+              <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+              <p>No inventory items found.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {storefrontProfiles.map((profile) => (
-                <div
-                  key={profile._id}
-                  onClick={() =>
-                    navigate(`/storefront/${profile._id}`, {
-                      state: {
-                        storefrontName: profile.locationName,
-                        storefrontCode: profile.locationCode,
-                      },
-                    })
-                  }
-                  className="bg-white border border-gray-200/70 rounded-3xl p-5 hover:shadow-md transition-all cursor-pointer flex flex-col justify-between group"
-                >
-                  <div>
-                    {/* Name and Location Code Row */}
-                    <div className="flex justify-between items-center mb-4">
-                      <h3 className="font-bold text-slate-800 text-base group-hover:text-primary transition-colors truncate pr-2">
-                        {profile.locationName}
-                      </h3>
-                      <span className="text-[10px] px-2.5 py-0.5 bg-[#f4f4f5] text-[#3f3f46] border border-[#e4e4e7] rounded-full font-semibold flex-shrink-0">
-                        {profile.locationCode}
-                      </span>
-                    </div>
+            <div>
+              {/* Mobile scroll indicator */}
+              <div className="sm:hidden px-4 py-2 bg-slate-50 text-xs text-slate-500 text-center">
+                ← Swipe to see more →
+              </div>
 
-                    {/* Details Section */}
-                    <div className="space-y-3 pb-5 text-sm text-slate-500 border-b border-gray-100">
-                      <div className="flex items-start gap-3">
-                        <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                        <span className="leading-tight line-clamp-2">{profile.locationAddress}</span>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <Phone className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                        <span>{profile.locationPhone}</span>
-                      </div>
-                      {profile.managerName && (
-                        <div className="flex items-center gap-3">
-                          <User className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                          <span>{profile.managerName}</span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+              {/* Table container with horizontal scroll on mobile */}
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm text-left min-w-[1000px]">
+                  <thead className="bg-slate-50 border-b">
+                    <tr>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600">
+                        <span className="hidden sm:inline">Product Name</span>
+                        <span className="sm:hidden">Name</span>
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600">
+                        <span className="hidden sm:inline">Product Code</span>
+                        <span className="sm:hidden">Code</span>
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600">
+                        SKU
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600">
+                        Category
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600">
+                        <span className="hidden sm:inline">Storefront</span>
+                        <span className="sm:hidden">SF</span>
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600 text-right">
+                        Qty
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600 text-right">
+                        <span className="hidden sm:inline">Available</span>
+                        <span className="sm:hidden">Avail</span>
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600 text-right">
+                        <span className="hidden sm:inline">Price</span>
+                        <span className="sm:hidden">$</span>
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600 text-right">
+                        <span className="hidden sm:inline">Total</span>
+                        <span className="sm:hidden">T</span>
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600">
+                        <span className="hidden sm:inline">Status</span>
+                        <span className="sm:hidden">S</span>
+                      </th>
+                      <th className="px-2 sm:px-4 py-3 font-medium text-slate-600">
+                        <span className="hidden sm:inline">Updated</span>
+                        <span className="sm:hidden">U</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {inventoryItems.map((item) => {
+                      const storefrontName =
+                        item.storefrontId?.locationName ||
+                        item.storefrontId?.storefrontName ||
+                        "Unknown";
+                      const storefrontCode =
+                        item.storefrontId?.locationCode ||
+                        item.storefrontId?.storefrontCode ||
+                        "";
 
-                  {/* Bottom Status / Edit row */}
-                  <div className="flex justify-between items-center mt-4">
-                    <span
-                      className={`text-xs px-3 py-1 font-semibold rounded-full border transition-all ${profile.status === "active"
-                        ? "bg-green-50 border-green-200 text-green-700"
-                        : "bg-red-50 border-red-200 text-red-600"
-                        }`}
-                    >
-                      {profile.status === "active" ? t("storefront.activeLabel") : t("storefront.inactiveLabel")}
-                    </span>
-
-                    {userRole === "owner" && (
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenEdit(profile);
-                        }}
-                        className="px-4 py-1.5 text-xs font-semibold rounded-full bg-[#27272a] hover:bg-[#27272a]/90 text-white shadow-sm flex items-center gap-1.5 cursor-pointer transition-all"
-                      >
-                        <Edit className="w-3.5 h-3.5" />
-                        <span>{t("common.edit")}</span>
-                      </button>
-                    )}
-                  </div>
-                </div>
-              ))}
+                      return (
+                        <tr
+                          key={item._id}
+                          className="hover:bg-slate-50 cursor-pointer"
+                          onClick={() =>
+                            navigate(`/storefront/${item.storefrontId?._id}`, {
+                              state: {
+                                storefrontName,
+                                storefrontCode,
+                              },
+                            })
+                          }
+                        >
+                          <td className="px-2 sm:px-4 py-3 font-medium text-slate-800">
+                            <div className="font-semibold">
+                              {item.inventoryId.productName}
+                            </div>
+                            {item.inventoryId.description && (
+                              <div className="text-xs text-slate-500 truncate max-w-xs">
+                                {item.inventoryId.description}
+                              </div>
+                            )}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-slate-600 font-mono text-xs">
+                            {item.inventoryId.productCode}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-slate-600 font-mono text-xs">
+                            {item.inventoryId.sku || "-"}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-slate-600">
+                            <span className="bg-slate-100 text-slate-700 px-2 py-1 rounded text-xs">
+                              {item.inventoryId.category}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-slate-600">
+                            <div>{storefrontName}</div>
+                            <div className="text-xs text-slate-400">
+                              {storefrontCode}
+                            </div>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-right font-medium">
+                            <span
+                              className={
+                                item.isLowStock
+                                  ? "text-amber-600 font-bold"
+                                  : "text-slate-800"
+                              }
+                            >
+                              {item.quantity}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-right text-slate-600">
+                            {item.quantity - item.reservedQuantity}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-right text-slate-600">
+                            {(
+                              item.inventoryId.sellingPrice || 0
+                            ).toLocaleString()}{" "}
+                            <span className="hidden sm:inline">MMK</span>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-right font-semibold text-slate-800">
+                            {(
+                              item.quantity *
+                              (item.inventoryId.sellingPrice || 0)
+                            ).toLocaleString()}{" "}
+                            <span className="hidden sm:inline">MMK</span>
+                          </td>
+                          <td className="px-2 sm:px-4 py-3">
+                            {item.isLowStock ? (
+                              <span className="bg-amber-100 text-amber-700 px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 w-fit">
+                                <AlertTriangle className="w-3 h-3" />{" "}
+                                <span className="hidden sm:inline">
+                                  Low Stock
+                                </span>
+                                <span className="sm:hidden">Low</span>
+                              </span>
+                            ) : item.quantity === 0 ? (
+                              <span className="bg-red-100 text-red-700 px-2 py-1 rounded-full text-xs font-medium">
+                                <span className="hidden sm:inline">
+                                  Out of Stock
+                                </span>
+                                <span className="sm:hidden">Out</span>
+                              </span>
+                            ) : (
+                              <span className="bg-green-100 text-green-700 px-2 py-1 rounded-full text-xs font-medium">
+                                <span className="hidden sm:inline">
+                                  In Stock
+                                </span>
+                                <span className="sm:hidden">In</span>
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-2 sm:px-4 py-3 text-slate-500 text-xs">
+                            <span className="hidden sm:inline">
+                              {new Date(item.lastUpdated).toLocaleDateString()}{" "}
+                              {new Date(item.lastUpdated).toLocaleTimeString(
+                                [],
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                },
+                              )}
+                            </span>
+                            <span className="sm:hidden">
+                              {new Date(item.lastUpdated).toLocaleDateString()}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
           )}
         </div>
+      )}
 
-        {/* Add Storefront Modal */}
-        {isModalOpen && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-              <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
-                <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                  <Store className="w-5 h-5 text-primary" />
-                  {editingId
-                    ? t("storefront.editProfile")
-                    : t("storefront.newProfile")}
-                </h2>
+      {/* Storefront Profiles List */}
+      {(() => {
+        const activeCount = storefrontProfiles.filter((p) => p.status === "active").length;
+        const inactiveCount = storefrontProfiles.filter((p) => p.status === "inactive").length;
+        const filteredProfiles = storefrontProfiles.filter((p) => {
+          if (statusFilter === "active") return p.status === "active";
+          if (statusFilter === "inactive") return p.status === "inactive";
+          return true;
+        });
+
+        return (
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-800">
+                <Store className="w-5 h-5 text-slate-500" />
+                {t("storefront.profiles")}
+              </h2>
+
+              {/* Status Segmented Tabs */}
+              <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 w-fit">
                 <button
-                  onClick={handleCloseModal}
-                  className="text-slate-400 hover:text-slate-600 p-1"
+                  onClick={() => setStatusFilter("all")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === "all"
+                      ? "bg-white text-slate-900 shadow-xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
                 >
-                  <X className="w-6 h-6" />
+                  <span>{t("storefront.allTab") || "All"}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      statusFilter === "all"
+                        ? "bg-slate-200 text-slate-800"
+                        : "bg-slate-200/60 text-slate-600"
+                    }`}
+                  >
+                    {storefrontProfiles.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setStatusFilter("active")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === "active"
+                      ? "bg-white text-emerald-700 shadow-xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>{t("storefront.activeTab") || "Active"}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      statusFilter === "active"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-slate-200/60 text-slate-600"
+                    }`}
+                  >
+                    {activeCount}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setStatusFilter("inactive")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === "inactive"
+                      ? "bg-white text-rose-700 shadow-xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                  <span>{t("storefront.inactiveTab") || "Inactive"}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      statusFilter === "inactive"
+                        ? "bg-rose-100 text-rose-800"
+                        : "bg-slate-200/60 text-slate-600"
+                    }`}
+                  >
+                    {inactiveCount}
+                  </span>
                 </button>
               </div>
+            </div>
 
-              <form onSubmit={handleSubmit} className="p-6 space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {/* Required Fields */}
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("storefront.locationCode")}{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={50}
-                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none uppercase"
-                      placeholder={t("storefront.codePlaceholder")}
-                      value={formData.storefrontCode}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          storefrontCode: e.target.value.toUpperCase(),
-                        })
-                      }
-                      disabled={!!editingId}
-                    />
+            {loading ? (
+              <div className="text-center py-8 text-slate-500">
+                {t("storefront.loading")}
+              </div>
+            ) : filteredProfiles.length === 0 ? (
+              <div className="text-center py-10 text-slate-500">
+                <Store className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <p className="font-medium">
+                  {statusFilter === "active"
+                    ? t("storefront.noActiveStorefronts") || "No active storefronts found."
+                    : statusFilter === "inactive"
+                    ? t("storefront.noInactiveStorefronts") || "No inactive storefronts found."
+                    : t("storefront.noStorefronts")}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredProfiles.map((profile) => (
+                  <div
+                    key={profile._id}
+                    onClick={() =>
+                      navigate(`/storefront/${profile._id}`, {
+                        state: {
+                          storefrontName: profile.locationName,
+                          storefrontCode: profile.locationCode,
+                        },
+                      })
+                    }
+                    className="border rounded-lg p-3 sm:p-4 hover:shadow-md transition-all cursor-pointer hover:border-primary group"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-semibold text-slate-800 flex items-center gap-2 group-hover:text-primary transition-colors text-sm sm:text-base">
+                          <span className="truncate">{profile.locationName}</span>
+                          <span className="text-xs px-2 py-0.5 bg-primary/20 text-primary-700 rounded-full flex-shrink-0 mt-1">
+                            {profile.locationCode}
+                          </span>
+                        </h3>
+                        <div className="flex items-center gap-1 text-sm text-slate-500 mt-1">
+                          <MapPin className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">
+                            {profile.locationAddress}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 ml-2">
+                        <span
+                          className={`text-xs px-2 py-1 rounded-full ${
+                            profile.status === "active"
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                          }`}
+                        >
+                          {profile.status}
+                        </span>
+                        {userRole === "owner" && (
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenEdit(profile);
+                            }}
+                            className="p-1.5 text-slate-600 hover:text-primary hover:bg-primary/10 rounded transition-colors cursor-pointer"
+                            title={t("common.edit")}
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                        )}
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-primary transition-colors" />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-2 text-sm text-slate-600 mt-3 pt-3 border-t">
+                      <div className="flex items-center gap-2">
+                        <Phone className="w-3 h-3 flex-shrink-0" />
+                        <span className="truncate">{profile.locationPhone}</span>
+                      </div>
+                      {profile.managerName && (
+                        <div className="flex items-center gap-2">
+                          <User className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{profile.managerName}</span>
+                        </div>
+                      )}
+                      {profile.locationEmail && (
+                        <div className="flex items-center gap-2">
+                          <Mail className="w-3 h-3 flex-shrink-0" />
+                          <span className="truncate">{profile.locationEmail}</span>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="mt-3 pt-3 border-t text-xs text-primary font-medium flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      {t("storefront.viewStockItems")}{" "}
+                      <ChevronRight className="w-3 h-3" />
+                    </div>
                   </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      })()}
 
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("storefront.status")}
-                    </label>
-                    <select
-                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                      value={formData.status}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          status: e.target.value as "active" | "inactive",
-                        })
-                      }
-                    >
-                      <option value="active">{t("storefront.active")}</option>
-                      <option value="inactive">{t("storefront.inactive")}</option>
-                    </select>
-                  </div>
+      {/* Add / Edit Storefront Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <Store className="w-5 h-5 text-primary" />
+                {editingId
+                  ? t("storefront.editProfile")
+                  : t("storefront.newProfile")}
+              </h2>
+              <button
+                onClick={handleCloseModal}
+                className="text-slate-400 hover:text-slate-600 p-1 cursor-pointer"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
 
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("storefront.locationName")}{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      maxLength={200}
-                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                      placeholder={t("storefront.namePlaceholder")}
-                      value={formData.storefrontName}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          storefrontName: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div className="md:col-span-2">
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("storefront.locationAddress")}{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <textarea
-                      required
-                      maxLength={500}
-                      rows={2}
-                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                      placeholder={t("storefront.addressPlaceholder")}
-                      value={formData.storefrontAddress}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          storefrontAddress: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("storefront.locationPhone")}{" "}
-                      <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="tel"
-                      required
-                      maxLength={20}
-                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                      placeholder={t("storefront.phonePlaceholder")}
-                      value={formData.storefrontPhone}
-                      onChange={(e) =>
-                        setFormData({
-                          ...formData,
-                          storefrontPhone: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-
-                  {/*  <div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Required Fields */}
+                <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1">
-                    {t("storefront.locationEmail")}
+                    {t("storefront.locationCode")}{" "}
+                    <span className="text-red-500">*</span>
                   </label>
                   <input
-                    type="email"
-                    maxLength={200}
-                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                    placeholder={t("storefront.emailPlaceholder")}
-                    value={formData.storefrontEmail}
+                    type="text"
+                    required
+                    maxLength={50}
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none uppercase"
+                    placeholder={t("storefront.codePlaceholder")}
+                    value={formData.storefrontCode}
                     onChange={(e) =>
                       setFormData({
                         ...formData,
-                        storefrontEmail: e.target.value,
+                        storefrontCode: e.target.value.toUpperCase(),
+                      })
+                    }
+                    disabled={!!editingId}
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t("storefront.status")}
+                  </label>
+                  <select
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
+                    value={formData.status}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        status: e.target.value as "active" | "inactive",
+                      })
+                    }
+                  >
+                    <option value="active">{t("storefront.active")}</option>
+                    <option value="inactive">{t("storefront.inactive")}</option>
+                  </select>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t("storefront.locationName")}{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    maxLength={200}
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
+                    placeholder={t("storefront.namePlaceholder")}
+                    value={formData.storefrontName}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        storefrontName: e.target.value,
                       })
                     }
                   />
                 </div>
 
-                */}
-
-                  <div>
-                    <label className="block text-sm font-medium text-slate-700 mb-1">
-                      {t("storefront.managerName")}
-                    </label>
-                    <input
-                      type="text"
-                      maxLength={200}
-                      className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                      placeholder={t("storefront.managerPlaceholder")}
-                      value={formData.managerName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, managerName: e.target.value })
-                      }
-                    />
-                  </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t("storefront.locationAddress")}{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <textarea
+                    required
+                    maxLength={500}
+                    rows={2}
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
+                    placeholder={t("storefront.addressPlaceholder")}
+                    value={formData.storefrontAddress}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        storefrontAddress: e.target.value,
+                      })
+                    }
+                  />
                 </div>
 
-                {/* <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t("storefront.description")}
-                </label>
-                <textarea
-                  maxLength={1000}
-                  rows={2}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                  placeholder={t("storefront.descriptionPlaceholder")}
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
-                />
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t("storefront.locationPhone")}{" "}
+                    <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    maxLength={20}
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
+                    placeholder={t("storefront.phonePlaceholder")}
+                    value={formData.storefrontPhone}
+                    onChange={(e) =>
+                      setFormData({
+                        ...formData,
+                        storefrontPhone: e.target.value,
+                      })
+                    }
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    {t("storefront.managerName")}
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={200}
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
+                    placeholder={t("storefront.managerPlaceholder")}
+                    value={formData.managerName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, managerName: e.target.value })
+                    }
+                  />
+                </div>
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  {t("storefront.notes")}
-                </label>
-                <textarea
-                  maxLength={500}
-                  rows={2}
-                  className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
-                  placeholder={t("storefront.notesPlaceholder")}
-                  value={formData.notes}
-                  onChange={(e) =>
-                    setFormData({ ...formData, notes: e.target.value })
-                  }
-                />
-              </div> */}
-
-                <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6 pt-4 border-t">
-                  <button
-                    type="button"
-                    onClick={handleCloseModal}
-                    className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors order-2 sm:order-1"
-                  >
-                    {t("common.cancel")}
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
-                  >
-                    {isSubmitting
-                      ? editingId
-                        ? t("storefront.updating")
-                        : t("storefront.creating")
-                      : editingId
-                        ? t("storefront.updateStorefront")
-                        : t("storefront.createStorefront")}
-                  </button>
-                </div>
-              </form>
-            </div>
+              <div className="flex flex-col sm:flex-row justify-end gap-3 mt-6 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors order-2 sm:order-1 cursor-pointer"
+                >
+                  {t("common.cancel")}
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2 cursor-pointer"
+                >
+                  {isSubmitting
+                    ? editingId
+                      ? t("storefront.updating")
+                      : t("storefront.creating")
+                    : editingId
+                      ? t("storefront.updateStorefront")
+                      : t("storefront.createStorefront")}
+                </button>
+              </div>
+            </form>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 };

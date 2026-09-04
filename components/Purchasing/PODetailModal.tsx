@@ -189,6 +189,8 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
       ? purchase.remainingBalance
       : Math.max(0, (purchase?.totalAmount || 0) - (purchase?.paidAmount || 0));
 
+  const isArrived = purchase?.status?.toLowerCase() === "arrived";
+
   return (
     <Modal isOpen={isOpen} onClose={handleClose} title="Purchase Order Details">
       {loading ? (
@@ -265,7 +267,7 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
                     </span>
                     {renderPaymentStatusBadge(purchase)}
                   </div>
-                  {remainingBalance > 0 && (
+                  {remainingBalance > 0 && isArrived && (
                     <button
                       onClick={() => setIsAddPaymentModalOpen(true)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs hover:shadow"
@@ -485,15 +487,6 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
                   {payments.length}
                 </span>
               </h3>
-              {purchase.paymentType === "credit" && remainingBalance > 0 && (
-                <button
-                  onClick={() => setIsAddPaymentModalOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 rounded-lg text-xs font-bold transition-colors"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  Record Payment
-                </button>
-              )}
             </div>
 
             {paymentsLoading ? (
@@ -512,7 +505,7 @@ export const PODetailModal: React.FC<PODetailModalProps> = ({
                 <p className="text-xs text-slate-400 mt-0.5">
                   ဆပ်ငွေမှတ်တမ်း မရှိသေးပါ
                 </p>
-                {purchase.paymentType === "credit" && remainingBalance > 0 && (
+                {purchase.paymentType === "credit" && remainingBalance > 0 && isArrived && (
                   <button
                     onClick={() => setIsAddPaymentModalOpen(true)}
                     className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition-all shadow-xs"

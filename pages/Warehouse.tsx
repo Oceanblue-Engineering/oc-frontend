@@ -50,6 +50,7 @@ export const Warehouse: React.FC = () => {
     WarehouseProfile[]
   >([]);
   const [loading, setLoading] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "active" | "inactive">("all");
 
   // Inventory State
   const [inventoryItems, setInventoryItems] = useState<WarehouseStockItem[]>(
@@ -553,22 +554,107 @@ export const Warehouse: React.FC = () => {
       )}
 
       {/* Warehouse Profiles List */}
-      <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
-        <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-          <Building2 className="w-5 h-5 text-slate-500" />
-          {t("warehouse.profiles")}
-        </h2>
-        {loading ? (
-          <div className="text-center py-8 text-slate-500">
-            {t("warehouse.loading")}
-          </div>
-        ) : warehouseProfiles.length === 0 ? (
-          <div className="text-center py-8 text-slate-500">
-            {t("warehouse.noWarehouses")}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {warehouseProfiles.map((profile) => (
+      {(() => {
+        const activeCount = warehouseProfiles.filter((p) => p.status === "active").length;
+        const inactiveCount = warehouseProfiles.filter((p) => p.status === "inactive").length;
+        const filteredProfiles = warehouseProfiles.filter((p) => {
+          if (statusFilter === "active") return p.status === "active";
+          if (statusFilter === "inactive") return p.status === "inactive";
+          return true;
+        });
+
+        return (
+          <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+              <h2 className="text-lg font-semibold flex items-center gap-2 text-slate-800">
+                <Building2 className="w-5 h-5 text-slate-500" />
+                {t("warehouse.profiles")}
+              </h2>
+
+              {/* Status Segmented Tabs */}
+              <div className="flex items-center p-1 bg-slate-100 rounded-xl border border-slate-200/80 w-fit">
+                <button
+                  onClick={() => setStatusFilter("all")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === "all"
+                      ? "bg-white text-slate-900 shadow-xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <span>{t("warehouse.allTab") || "All"}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      statusFilter === "all"
+                        ? "bg-slate-200 text-slate-800"
+                        : "bg-slate-200/60 text-slate-600"
+                    }`}
+                  >
+                    {warehouseProfiles.length}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setStatusFilter("active")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === "active"
+                      ? "bg-white text-emerald-700 shadow-xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  <span>{t("warehouse.activeTab") || "Active"}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      statusFilter === "active"
+                        ? "bg-emerald-100 text-emerald-800"
+                        : "bg-slate-200/60 text-slate-600"
+                    }`}
+                  >
+                    {activeCount}
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setStatusFilter("inactive")}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    statusFilter === "inactive"
+                      ? "bg-white text-rose-700 shadow-xs"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                  <span>{t("warehouse.inactiveTab") || "Inactive"}</span>
+                  <span
+                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-extrabold ${
+                      statusFilter === "inactive"
+                        ? "bg-rose-100 text-rose-800"
+                        : "bg-slate-200/60 text-slate-600"
+                    }`}
+                  >
+                    {inactiveCount}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {loading ? (
+              <div className="text-center py-8 text-slate-500">
+                {t("warehouse.loading")}
+              </div>
+            ) : filteredProfiles.length === 0 ? (
+              <div className="text-center py-10 text-slate-500">
+                <Building2 className="w-10 h-10 text-slate-300 mx-auto mb-2" />
+                <p className="font-medium">
+                  {statusFilter === "active"
+                    ? t("warehouse.noActiveWarehouses") || "No active warehouses found."
+                    : statusFilter === "inactive"
+                    ? t("warehouse.noInactiveWarehouses") || "No inactive warehouses found."
+                    : t("warehouse.noWarehouses")}
+                </p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {filteredProfiles.map((profile) => (
               <div
                 key={profile._id}
                 onClick={() =>
@@ -649,6 +735,8 @@ export const Warehouse: React.FC = () => {
           </div>
         )}
       </div>
+    );
+  })()}
 
       {/* Add Warehouse Modal */}
       {isModalOpen && (

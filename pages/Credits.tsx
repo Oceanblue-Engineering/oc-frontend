@@ -467,7 +467,7 @@ export const Credits: React.FC = () => {
                         variant="default"
                         size="icon-sm"
                         onClick={() => handleViewPersona(persona)}
-                        title={t("common.checkItem")}
+                        title={t("common.view") || "View"}
                       >
                         <Eye className="w-3.5 h-3.5" />
                       </Button>

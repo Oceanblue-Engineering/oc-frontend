@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import { Plus, Trash2, AlertCircle, Building2 } from "lucide-react";
+import { Plus, Trash2, AlertCircle, Building2, X } from "lucide-react";
 import { Modal } from "../Modal";
 import { ConfirmModal } from "../Common/ConfirmModal";
-import { Supplier, Product, PurchaseOrderItem } from "../../types";
+import { Supplier, Product, PurchaseOrderItem, ApiPurchaseOrder } from "../../types";
 import { createPurchase } from "../../services/Purchase/createPurchase";
+import { updatePurchase } from "../../services/Purchase/updatePurchase";
 import { toast } from "sonner";
 
 interface CreatePOModalProps {
@@ -12,6 +13,7 @@ interface CreatePOModalProps {
   suppliers: Supplier[];
   products: Product[];
   onSuccess: () => void;
+  editingPO?: ApiPurchaseOrder | null;
 }
 
 /**
@@ -52,6 +54,7 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
   suppliers,
   products,
   onSuccess,
+  editingPO,
 }) => {
   const [poSupplierId, setPOSupplierId] = useState("");
   const [poItems, setPOItems] = useState<PurchaseOrderItem[]>([]);
@@ -113,6 +116,64 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
     setPendingSupplierId(null);
     setShowSupplierChangeModal(false);
   };
+
+  useEffect(() => {
+    if (isOpen && editingPO) {
+      const supId =
+        typeof editingPO.supplierId === "object" && editingPO.supplierId !== null
+          ? editingPO.supplierId._id || editingPO.supplierId.id
+          : editingPO.supplierId;
+      setPOSupplierId(supId || "");
+
+      if (editingPO.products && Array.isArray(editingPO.products)) {
+        const items: PurchaseOrderItem[] = editingPO.products.map((p) => {
+          const prodId =
+            typeof p.inventoryId === "object" && p.inventoryId !== null
+              ? (p.inventoryId as any)._id || (p.inventoryId as any).id
+              : p.inventoryId;
+          const matchedProd = products.find(
+            (prod) => (prod._id || prod.id) === prodId
+          );
+          const cost =
+            p.buyingPrice ??
+            matchedProd?.buyingPrice ??
+            matchedProd?.costPrice ??
+            0;
+          return {
+            productId: String(prodId),
+            name:
+              p.productName ||
+              matchedProd?.productName ||
+              matchedProd?.name ||
+              "Product",
+            qty: p.purchaseQuantity || 1,
+            costPrice: cost,
+            note: p.productCode || "",
+          };
+        });
+        setPOItems(items);
+      } else {
+        setPOItems([]);
+      }
+
+      setPONote(
+        editingPO.note === "No note available" ? "" : editingPO.note || ""
+      );
+      setPaymentType(editingPO.paymentType === "credit" ? "credit" : "paid");
+      setPaidAmount(
+        editingPO.paymentType === "credit" ? (editingPO.paidAmount ?? 0) : 0
+      );
+      setDueDate(
+        editingPO.dueDate
+          ? new Date(editingPO.dueDate).toISOString().split("T")[0]
+          : ""
+      );
+      setProductSearchQuery("");
+      setShowProductDropdown(false);
+    } else if (isOpen && !editingPO) {
+      resetForm();
+    }
+  }, [isOpen, editingPO, products]);
 
   const handleModalClose = () => {
     resetForm();
@@ -304,25 +365,45 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
     };
 
     try {
-      const response = await createPurchase(payload);
-      if (response.success) {
-        toast.success("Purchase Order Created Successfully!");
-        resetForm();
-        onSuccess();
-        onClose();
+      if (editingPO) {
+        const response = await updatePurchase(editingPO._id, payload);
+        if (response.success) {
+          toast.success("Purchase Order Updated Successfully!");
+          resetForm();
+          onSuccess();
+          onClose();
+        } else {
+          toast.error(response.message || "Failed to update Purchase Order");
+        }
       } else {
-        toast.error(response.message || "Failed to create Purchase Order");
+        const response = await createPurchase(payload);
+        if (response.success) {
+          toast.success("Purchase Order Created Successfully!");
+          resetForm();
+          onSuccess();
+          onClose();
+        } else {
+          toast.error(response.message || "Failed to create Purchase Order");
+        }
       }
     } catch (error: any) {
-      console.error("Failed to create PO:", error);
+      console.error("Failed to save PO:", error);
       toast.error(
-        error.message || "An error occurred while creating the Purchase Order",
+        error.message || "An error occurred while saving the Purchase Order",
       );
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleModalClose} title="Create Purchase Order">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleModalClose}
+      title={
+        editingPO
+          ? `Edit Purchase Order (${editingPO.poNumber})`
+          : "Create Purchase Order"
+      }
+    >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-full">
         <div className="bg-white p-6 rounded-xl shadow-sm border">
           <div className="space-y-4">
@@ -371,6 +452,8 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
                   type="text"
                   disabled={!poSupplierId}
                   className={`w-full border rounded-lg p-2.5 text-sm transition-all ${
+                    productSearchQuery ? "pr-9" : ""
+                  } ${
                     !poSupplierId
                       ? "bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed"
                       : "bg-white border-slate-300 focus:outline-none focus:ring-2 focus:ring-ocean-500"
@@ -386,6 +469,22 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
                     if (poSupplierId) setShowProductDropdown(true);
                   }}
                 />
+                {productSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setProductSearchQuery("");
+                      setPOSelectedProduct("");
+                      setPONewProductName("");
+                      if (poSupplierId) setShowProductDropdown(true);
+                    }}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors cursor-pointer"
+                    title="Clear item search"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                )}
                 {showProductDropdown && poSupplierId && (
                   <div className="absolute z-20 w-full bg-white border border-slate-200 rounded-lg mt-1 max-h-60 overflow-y-auto shadow-xl divide-y divide-slate-100">
                     {filteredProducts.length > 0 ? (
@@ -669,7 +768,7 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
             disabled={poItems.length === 0 || !poSupplierId}
             className="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 disabled:opacity-50 font-medium transition-colors cursor-pointer"
           >
-            Create Purchase Order
+            {editingPO ? "Update Purchase Order" : "Create Purchase Order"}
           </button>
           <p className="text-xs text-slate-500 mt-2">
             Note: PO does NOT update stock. Use GRN to receive goods.

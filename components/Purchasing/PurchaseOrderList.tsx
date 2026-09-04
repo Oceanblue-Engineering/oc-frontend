@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import {
   Plus,
   Eye,
+  Edit,
   ChevronLeft,
   ChevronRight,
   PackageCheck,
@@ -43,6 +44,7 @@ interface PurchaseOrderListProps {
     paymentStatus?: "all" | "unpaid" | "partial" | "paid"
   ) => Promise<void>;
   onViewPO?: (po: ApiPurchaseOrder) => void;
+  onEditPO?: (po: ApiPurchaseOrder) => void;
   pagination: PaginationData;
   deletedPagination: PaginationData;
   onCreateGRN?: (po: ApiPurchaseOrder) => void;
@@ -56,6 +58,7 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
   loadPurchases,
   loadDeletedPurchases,
   onViewPO,
+  onEditPO,
   pagination,
   deletedPagination,
   onCreateGRN,
@@ -520,14 +523,13 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                 <th className="p-4">Status</th>
                 <th className="p-4">Payment Status</th>
                 <th className="p-4">Note</th>
-                <th className="p-4">Total Remaining</th>
                 <th className="p-4">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {isLoading ? (
                 <tr>
-                  <td colSpan={9} className="p-16 text-center text-slate-500">
+                  <td colSpan={8} className="p-16 text-center text-slate-500">
                     <div className="flex flex-col items-center justify-center gap-3">
                       <Loader2 className="w-8 h-8 animate-spin text-amber-700" />
                       <span className="text-sm font-medium text-slate-600">
@@ -538,7 +540,7 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                 </tr>
               ) : displayList.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="p-8 text-center text-slate-400">
+                  <td colSpan={8} className="p-8 text-center text-slate-400">
                     No {poFilter} purchase orders found
                   </td>
                 </tr>
@@ -580,7 +582,6 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                       <td className="p-4 text-slate-500 truncate max-w-xs">
                         {po.note || "-"}
                       </td>
-                      <td className="p-4">{po.totalRemainingQuantity ?? 0}</td>
                       <td className="p-4">
                         <div className="flex items-center gap-2">
                           {poFilter === "deleted" ? (
@@ -606,6 +607,14 @@ export const PurchaseOrderList: React.FC<PurchaseOrderListProps> = ({
                               >
                                 <Eye className="w-3.5 h-3.5" /> View
                               </button>
+                              {po.status === "pending" && onEditPO && (
+                                <button
+                                  onClick={() => onEditPO(po)}
+                                  className="text-xs bg-slate-50 text-slate-700 hover:bg-slate-100 hover:text-slate-800 px-3 py-1.5 rounded-lg border border-slate-200/90 font-semibold transition-colors flex items-center gap-1.5 shadow-sm cursor-pointer"
+                                >
+                                  <Edit className="w-3.5 h-3.5" /> Edit
+                                </button>
+                              )}
                               {po.status === "pending" && (
                                 <button
                                   onClick={() =>

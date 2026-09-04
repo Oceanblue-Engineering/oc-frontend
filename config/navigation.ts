@@ -1,6 +1,7 @@
 import {
   ShoppingCart,
   Package,
+  Warehouse,
   Store,
   Receipt,
   CreditCard,
@@ -78,6 +79,15 @@ export const navigationItems: NavigationItem[] = [
     icon: Package,
     path: "/inventory",
     color: "bg-emerald-50 text-emerald-700",
+  },
+  {
+    id: "warehouse",
+    category: "purchasing_orders",
+    titleKey: "sidebar.warehouse",
+    descKey: "home.desc.warehouse",
+    icon: Warehouse,
+    path: "/warehouse",
+    color: "bg-blue-50 text-blue-700",
   },
   {
     id: "storefront",
