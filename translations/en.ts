@@ -792,7 +792,9 @@ export const en = {
   },
   creditDetail: {
     totalRecords: "Total Records",
+    totalOrderAmount: "Total Order Amount",
     totalPaid: "Total Paid",
+    creditPaid: "Credit Repaid",
     outstanding: "Outstanding",
     associatedOrders: "Associated Orders",
     noOrders: "No orders associated",

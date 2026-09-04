@@ -798,8 +798,10 @@ export const my = {
   },
   creditDetail: {
     totalRecords: "စုစုပေါင်းမှတ်တမ်း",
-    totalPaid: "စုစုပေါင်းပေးချေပြီး",
-    outstanding: "လက်ကျန်",
+    totalOrderAmount: "ဝယ်ယူထားသော စုစုပေါင်းငွေ",
+    totalPaid: "စုစုပေါင်း ပေးချေပြီးငွေ",
+    creditPaid: "အကြွေးဆပ်ငွေ",
+    outstanding: "ကျန်ရှိသည့် အကြွေးငွေ",
     associatedOrders: "ဆက်နွယ်သောအော်ဒါများ",
     noOrders: "ဆက်နွယ်သောအော်ဒါများ မရှိပါ",
     paymentRecords: "ပေးချေမှုမှတ်တမ်းများ",

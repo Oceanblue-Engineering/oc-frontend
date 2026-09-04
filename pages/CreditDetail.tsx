@@ -492,18 +492,19 @@ export const CreditDetail: React.FC = () => {
       ) : personaDetail ? (
         <>
           {/* Summary Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div className="bg-white p-5 rounded-xl shadow-sm border">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-zinc-100 rounded-xl">
-                  <LayoutGrid className="w-6 h-6 text-zinc-600" />
+                <div className="p-3 bg-blue-100 rounded-xl">
+                  <Receipt className="w-6 h-6 text-blue-600" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">
-                    {t("creditDetail.totalRecords")}
+                    {t("creditDetail.totalOrderAmount")}
                   </p>
-                  <p className="text-2xl font-bold text-slate-800">
-                    {personaDetail.summary.totalCreditRecords}
+                  <p className="text-2xl font-bold text-blue-600">
+                    {(personaDetail.summary.totalOrderAmount ?? 0).toLocaleString()}{" "}
+                    MMK
                   </p>
                 </div>
               </div>
@@ -511,15 +512,36 @@ export const CreditDetail: React.FC = () => {
 
             <div className="bg-white p-5 rounded-xl shadow-sm border">
               <div className="flex items-center gap-3">
-                <div className="p-3 bg-green-100 rounded-xl">
-                  <DollarSign className="w-6 h-6 text-green-600" />
+                <div className="p-3 bg-emerald-100 rounded-xl">
+                  <DollarSign className="w-6 h-6 text-emerald-600" />
                 </div>
                 <div>
                   <p className="text-sm text-slate-500">
                     {t("creditDetail.totalPaid")}
                   </p>
-                  <p className="text-2xl font-bold text-green-600">
-                    {personaDetail?.summary?.totalPaidViaCreditRecords?.toLocaleString()}{" "}
+                  <p className="text-2xl font-bold text-emerald-600">
+                    {(
+                      personaDetail?.summary?.totalPaidAmount ??
+                      personaDetail?.summary?.totalPaidViaCreditRecords ??
+                      0
+                    ).toLocaleString()}{" "}
+                    MMK
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-white p-5 rounded-xl shadow-sm border">
+              <div className="flex items-center gap-3">
+                <div className="p-3 bg-purple-100 rounded-xl">
+                  <Coins className="w-6 h-6 text-purple-600" />
+                </div>
+                <div>
+                  <p className="text-sm text-slate-500">
+                    {t("creditDetail.creditPaid")}
+                  </p>
+                  <p className="text-2xl font-bold text-purple-600">
+                    {(personaDetail.summary.totalPaidViaCreditRecords ?? 0).toLocaleString()}{" "}
                     MMK
                   </p>
                 </div>

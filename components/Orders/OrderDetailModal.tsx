@@ -13,6 +13,8 @@ import {
   Minus,
   Printer,
   FileText,
+  Truck,
+  MapPin,
 } from "lucide-react";
 import { Order } from "../../services/Order/fetchOrders";
 import {
@@ -306,6 +308,57 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 </div>
               )}
 
+              {/* Delivery Details Info */}
+              {order.deliveryDetails &&
+                (Boolean(order.deliveryDetails.deliveryFee) ||
+                  Boolean(order.deliveryDetails.townshipName) ||
+                  Boolean(order.deliveryDetails.deliveryAddress) ||
+                  Boolean(order.deliveryDetails.recipientName)) && (
+                  <div className="p-4 bg-blue-50/60 rounded-2xl border border-blue-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center border border-blue-200/60 shrink-0">
+                        <Truck className="w-5 h-5" />
+                      </div>
+                      <div className="space-y-0.5">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-xs font-bold text-blue-600 uppercase tracking-wider">
+                            Delivery Details
+                          </p>
+                          {order.deliveryStatus && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 capitalize border border-blue-200">
+                              {order.deliveryStatus.replace(/_/g, " ")}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-sm font-bold text-slate-800">
+                          {order.deliveryDetails.townshipName || "Delivery Service"}
+                          {order.deliveryDetails.recipientName
+                            ? ` • ${order.deliveryDetails.recipientName}`
+                            : ""}
+                          {order.deliveryDetails.recipientPhone
+                            ? ` (${order.deliveryDetails.recipientPhone})`
+                            : ""}
+                        </p>
+                        {order.deliveryDetails.deliveryAddress && (
+                          <p className="text-xs text-slate-500 flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                            {order.deliveryDetails.deliveryAddress}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {(order.deliveryDetails.deliveryFee ?? 0) > 0 && (
+                      <div className="sm:text-right sm:border-l sm:border-blue-200/60 sm:pl-4">
+                        <p className="text-[11px] text-slate-500 font-medium">Delivery Fee</p>
+                        <p className="text-sm font-black text-blue-600">
+                          +{order.deliveryDetails.deliveryFee?.toLocaleString()} MMK
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
               {/* Items Table */}
               <div className="space-y-3">
                 <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
@@ -379,6 +432,28 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     <div className="flex justify-between text-emerald-600 font-semibold">
                       <span>Discount</span>
                       <span>-{order.discount.toLocaleString()} MMK</span>
+                    </div>
+                  )}
+                  {(order.deliveryDetails?.deliveryFee ?? 0) > 0 && (
+                    <div className="flex justify-between text-blue-600 font-semibold">
+                      <span className="flex items-center gap-1.5">
+                        <Truck className="w-3.5 h-3.5" />
+                        Delivery Fee
+                        {order.deliveryDetails?.townshipName
+                          ? ` (${order.deliveryDetails.townshipName})`
+                          : ""}
+                      </span>
+                      <span>
+                        +{order.deliveryDetails?.deliveryFee?.toLocaleString()} MMK
+                      </span>
+                    </div>
+                  )}
+                  {order.tax > 0 && (
+                    <div className="flex justify-between text-slate-600">
+                      <span>Tax</span>
+                      <span className="font-semibold">
+                        +{order.tax.toLocaleString()} MMK
+                      </span>
                     </div>
                   )}
                   <div className="border-t border-slate-200 pt-2.5 flex justify-between font-black text-base sm:text-lg text-slate-900">

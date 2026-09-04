@@ -414,8 +414,7 @@ export const POS: React.FC = () => {
 
         // Show success feedback
         toast.success(
-          `${matchingProduct.inventoryId.productName} ${
-            t("pos.addedToCart") || "added to cart"
+          `${matchingProduct.inventoryId.productName} ${t("pos.addedToCart") || "added to cart"
           }`,
         );
 
@@ -544,13 +543,13 @@ export const POS: React.FC = () => {
         // Delivery details
         deliveryDetails: isDelivery
           ? {
-              township: selectedTownshipId || null,
-              townshipName: selectedTownship?.name || "",
-              deliveryFee: Number(deliveryFee) || 0,
-              recipientName: recipientName || "",
-              recipientPhone: recipientPhone || "",
-              deliveryAddress: deliveryAddress || "",
-            }
+            township: selectedTownshipId || null,
+            townshipName: selectedTownship?.name || "",
+            deliveryFee: Number(deliveryFee) || 0,
+            recipientName: recipientName || "",
+            recipientPhone: recipientPhone || "",
+            deliveryAddress: deliveryAddress || "",
+          }
           : undefined,
       };
 
@@ -750,9 +749,8 @@ export const POS: React.FC = () => {
                     ?.locationName || "Store"}
                 </span>
                 <ChevronDown
-                  className={`w-4 h-4 text-primary transition-transform duration-200 ${
-                    showStorefrontMenu ? "rotate-180" : ""
-                  }`}
+                  className={`w-4 h-4 text-primary transition-transform duration-200 ${showStorefrontMenu ? "rotate-180" : ""
+                    }`}
                 />
               </button>
 
@@ -779,18 +777,16 @@ export const POS: React.FC = () => {
                             handleStorefrontChange(sf._id);
                             setShowStorefrontMenu(false);
                           }}
-                          className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/10 transition-colors ${
-                            sf._id === selectedStorefrontId
+                          className={`w-full flex items-center gap-3 px-4 py-3 text-left hover:bg-primary/10 transition-colors ${sf._id === selectedStorefrontId
                               ? "bg-primary/20 border-l-4 border-primary"
                               : ""
-                          }`}
+                            }`}
                         >
                           <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                              sf._id === selectedStorefrontId
+                            className={`w-8 h-8 rounded-lg flex items-center justify-center ${sf._id === selectedStorefrontId
                                 ? "bg-primary text-white"
                                 : "bg-dark-100 text-dark-500"
-                            }`}
+                              }`}
                           >
                             <Store className="w-4 h-4" />
                           </div>
@@ -880,11 +876,10 @@ export const POS: React.FC = () => {
                     <button
                       key={pageNum}
                       onClick={() => setCurrentPage(pageNum)}
-                      className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-colors text-sm ${
-                        currentPage === pageNum
+                      className={`w-8 h-8 flex items-center justify-center rounded-lg border transition-colors text-sm ${currentPage === pageNum
                           ? "bg-primary text-white border-primary"
                           : "hover:bg-gray-50 border-gray-200"
-                      }`}
+                        }`}
                     >
                       {pageNum}
                     </button>
@@ -926,11 +921,10 @@ export const POS: React.FC = () => {
               <div
                 key={stockItem._id}
                 onClick={() => addToCart(stockItem)}
-                className={`bg-white p-2 sm:p-4 rounded-xl shadow-sm border border-dark-200 cursor-pointer transition-all hover:shadow-lg hover:border-primary hover:scale-[1.02] flex flex-col ${
-                  stockItem.quantity === 0
+                className={`bg-white p-2 sm:p-4 rounded-xl shadow-sm border border-dark-200 cursor-pointer transition-all hover:shadow-lg hover:border-primary hover:scale-[1.02] flex flex-col ${stockItem.quantity === 0
                     ? "opacity-50 grayscale pointer-events-none"
                     : ""
-                }`}
+                  }`}
               >
                 <div className="">
                   <h3 className="font-medium text-gray-800 text-xs sm:text-sm line-clamp-2">
@@ -1264,7 +1258,7 @@ export const POS: React.FC = () => {
                 onClick={() => {
                   const initialPaidAmount =
                     paymentMethod === PaymentMethod.FOC ||
-                    paymentType === "credit"
+                      paymentType === "credit"
                       ? 0
                       : Math.ceil(total);
                   setPaidAmount(initialPaidAmount);
@@ -1497,11 +1491,10 @@ export const POS: React.FC = () => {
                         setIsDelivery(opt.id);
                         if (!opt.id) setDeliveryFee(0);
                       }}
-                      className={`flex-1 px-4 py-2 text-sm font-semibold rounded-lg transition-all cursor-pointer ${
-                        isDelivery === opt.id
+                      className={`flex-1 px-4 py-2 text-sm font-semibold rounded-lg transition-all cursor-pointer ${isDelivery === opt.id
                           ? "bg-ocean-600 text-white shadow-sm"
                           : "text-slate-500 hover:bg-white"
-                      }`}
+                        }`}
                     >
                       {opt.label}
                     </button>
@@ -1535,27 +1528,7 @@ export const POS: React.FC = () => {
                     </select>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <input
-                      className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none"
-                      placeholder={t("pos.recipientName")}
-                      value={recipientName}
-                      onChange={(e) => setRecipientName(e.target.value)}
-                    />
-                    <input
-                      className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none"
-                      placeholder={t("pos.recipientPhone")}
-                      value={recipientPhone}
-                      onChange={(e) => setRecipientPhone(e.target.value)}
-                    />
-                  </div>
-                  <textarea
-                    className="w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-ocean-600 focus:border-transparent outline-none"
-                    placeholder={t("pos.deliveryAddress")}
-                    value={deliveryAddress}
-                    onChange={(e) => setDeliveryAddress(e.target.value)}
-                    rows={2}
-                  />
+
                   {selectedTownshipId && (
                     <p className="text-xs font-semibold text-ocean-700">
                       {t("pos.deliveryFee")}:{" "}
@@ -1602,11 +1575,10 @@ export const POS: React.FC = () => {
                   type="number"
                   min="0"
                   disabled={paymentMethod === PaymentMethod.FOC}
-                  className={`w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all ${
-                    paymentMethod === PaymentMethod.FOC
+                  className={`w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all ${paymentMethod === PaymentMethod.FOC
                       ? "bg-slate-100 cursor-not-allowed"
                       : ""
-                  }`}
+                    }`}
                   value={paymentMethod === PaymentMethod.FOC ? 0 : paidAmount}
                   onChange={(e) => {
                     const value =

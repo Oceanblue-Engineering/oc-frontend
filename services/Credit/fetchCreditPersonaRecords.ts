@@ -36,8 +36,10 @@ export interface CreditRecord {
 
 export interface CreditPersonaSummary {
   totalCreditRecords: number;
+  totalPaidAmount?: number;
   totalPaidViaCreditRecords: number;
   totalOutstandingAmount: number;
+  totalOrderAmount?: number;
 }
 
 export interface CreditPersonaOrder {
