@@ -47,8 +47,20 @@ import { CreditOrdersTab } from "../components/Reports/CreditOrdersTab";
 import { SaleStatisticsTab } from "../components/Reports/SaleStatisticsTab";
 import { TotalRevenueTab } from "../components/Reports/TotalRevenueTab";
 import { FOCTab } from "../components/Reports/FOCTab";
+import { PurchasingReportTab } from "../components/Reports/PurchasingReportTab";
+import {
+  fetchPurchasingReport,
+  PurchasingReportData,
+} from "../services/Reports/fetchPurchasingReport";
 
-type TabType = "overall" | "paid" | "credit" | "statistics" | "revenue" | "foc";
+type TabType =
+  | "overall"
+  | "purchasing"
+  | "paid"
+  | "credit"
+  | "statistics"
+  | "revenue"
+  | "foc";
 
 // Helper function to get today's date
 const getToday = () => {
@@ -104,6 +116,29 @@ export const Reports: React.FC = () => {
   const [allStorefrontsFocOrders, setAllStorefrontsFocOrders] = useState<
     FOCOrder[]
   >([]);
+  const [purchasingReportData, setPurchasingReportData] =
+    useState<PurchasingReportData | null>(null);
+  const [loadingPurchasing, setLoadingPurchasing] = useState(false);
+
+  const loadPurchasingReport = async () => {
+    setLoadingPurchasing(true);
+    try {
+      const startDateStr = formatDateForAPI(startDate);
+      const endDateStr = formatDateForAPI(endDate);
+      const response = await fetchPurchasingReport({
+        startDate: startDateStr || undefined,
+        endDate: endDateStr || undefined,
+      });
+      if (response.success && response.data) {
+        setPurchasingReportData(response.data);
+      }
+    } catch (error) {
+      console.error("Error loading purchasing report:", error);
+      toast.error("Failed to load purchasing report");
+    } finally {
+      setLoadingPurchasing(false);
+    }
+  };
 
   useEffect(() => {
     loadReports();
@@ -121,6 +156,8 @@ export const Reports: React.FC = () => {
         loadRevenueData();
       } else if (activeTab === "foc") {
         loadFOCOrders();
+      } else if (activeTab === "purchasing") {
+        loadPurchasingReport();
       } else if (activeTab === "overall") {
         loadReports();
       }
@@ -136,6 +173,8 @@ export const Reports: React.FC = () => {
         loadRevenueData();
       } else if (activeTab === "foc") {
         loadAllStorefrontsFOCOrders();
+      } else if (activeTab === "purchasing") {
+        loadPurchasingReport();
       } else if (activeTab === "overall") {
         loadReports();
       }
@@ -490,7 +529,9 @@ export const Reports: React.FC = () => {
     // Logic to reset date if switching away from revenue or to revenue handled by user choice or default
     // We don't force fixed start date anymore.
 
-    if (selectedStorefront !== "all") {
+    if (tab === "purchasing" && !purchasingReportData) {
+      loadPurchasingReport();
+    } else if (selectedStorefront !== "all") {
       if (tab === "paid" && !paidOrdersReport) {
         loadPaidOrdersReport();
       } else if (tab === "credit" && !creditOrdersReport) {
@@ -528,7 +569,9 @@ export const Reports: React.FC = () => {
 
   const handleRefresh = () => {
     loadReports();
-    if (activeTab === "paid") {
+    if (activeTab === "purchasing") {
+      loadPurchasingReport();
+    } else if (activeTab === "paid") {
       if (selectedStorefront === "all") {
         loadAllStorefrontsPaidOrdersReport();
       } else {
@@ -654,17 +697,17 @@ export const Reports: React.FC = () => {
     <div className="w-full">
       <div className="bg-white border border-gray-200/70 rounded-3xl p-6 shadow-md flex flex-col gap-6">
         <ReportsHeader
-        storefronts={storefronts}
-        selectedStorefront={selectedStorefront}
-        onStorefrontChange={setSelectedStorefront}
-        onRefresh={handleRefresh}
-        loading={loading}
-        startDate={startDate}
-        endDate={endDate}
-        onDateRangeChange={handleDateRangeChange}
-        onGeneratePDF={handleGeneratePDF}
-      // singleDate={activeTab === "overall"}
-      />
+          storefronts={storefronts}
+          selectedStorefront={selectedStorefront}
+          onStorefrontChange={setSelectedStorefront}
+          onRefresh={handleRefresh}
+          loading={loading}
+          startDate={startDate}
+          endDate={endDate}
+          onDateRangeChange={handleDateRangeChange}
+          onGeneratePDF={handleGeneratePDF}
+          showStorefrontSelector={activeTab !== "purchasing"}
+        />
 
       <ReportTabs activeTab={activeTab} onTabChange={handleTabChange} />
 
@@ -675,6 +718,14 @@ export const Reports: React.FC = () => {
           saleReports={saleReports}
           allStorefrontsReport={allStorefrontsReport}
           selectedStorefront={selectedStorefront}
+        />
+      )}
+
+      {/* Purchasing & Profit/Loss Tab */}
+      {activeTab === "purchasing" && (
+        <PurchasingReportTab
+          data={purchasingReportData}
+          loading={loadingPurchasing}
         />
       )}
 

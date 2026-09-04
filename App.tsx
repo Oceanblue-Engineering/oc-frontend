@@ -40,6 +40,7 @@ import { TicketDetail } from "./pages/TicketDetail";
 import { ProjectAttendance } from "./pages/ProjectAttendance";
 import ProjectDetailAnalytics from "./pages/ProjectDetailAnalytics";
 import { InvoiceGenerator } from "./pages/InvoiceGenerator";
+import { ActivityLogs } from "./pages/ActivityLogs";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -293,6 +294,14 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <InvoiceGenerator />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/activity-logs"
+            element={
+              <ProtectedRoute>
+                <ActivityLogs />
               </ProtectedRoute>
             }
           />

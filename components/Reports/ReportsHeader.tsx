@@ -16,6 +16,7 @@ interface ReportsHeaderProps {
   fixedStartDate?: boolean;
   singleDate?: boolean;
   onGeneratePDF: () => void;
+  showStorefrontSelector?: boolean;
 }
 
 export const ReportsHeader: React.FC<ReportsHeaderProps> = ({
@@ -30,6 +31,7 @@ export const ReportsHeader: React.FC<ReportsHeaderProps> = ({
   fixedStartDate,
   singleDate,
   onGeneratePDF,
+  showStorefrontSelector = true,
 }) => {
   const { t } = useLanguage();
   return (
@@ -45,27 +47,29 @@ export const ReportsHeader: React.FC<ReportsHeaderProps> = ({
       
       <div className="flex flex-wrap items-center gap-3">
         {/* Storefront Selector dropdown styled as a pill */}
-        <div className="relative flex items-center">
-          <Home className="absolute left-4 w-4 h-4 text-[#27272a]" />
-          <select
-            value={selectedStorefront}
-            onChange={(e) => onStorefrontChange(e.target.value)}
-            className="pl-10 pr-8 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all outline-none cursor-pointer appearance-none"
-          >
-            <option value="all">{t("reports.allStorefronts")}</option>
-            {storefronts.map((sf) => (
-              <option key={sf._id} value={sf._id}>
-                {sf.locationName || sf.storefrontName}
-              </option>
-            ))}
-          </select>
-          {/* Custom chevron indicator */}
-          <div className="pointer-events-none absolute right-3 flex items-center text-[#27272a]">
-            <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-              <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
-            </svg>
+        {showStorefrontSelector && (
+          <div className="relative flex items-center">
+            <Home className="absolute left-4 w-4 h-4 text-[#27272a]" />
+            <select
+              value={selectedStorefront}
+              onChange={(e) => onStorefrontChange(e.target.value)}
+              className="pl-10 pr-8 py-2 text-sm font-semibold rounded-full border border-ocean-200 text-[#27272a] bg-white hover:bg-ocean-50/50 transition-all outline-none cursor-pointer appearance-none"
+            >
+              <option value="all">{t("reports.allStorefronts")}</option>
+              {storefronts.map((sf) => (
+                <option key={sf._id} value={sf._id}>
+                  {sf.locationName || sf.storefrontName}
+                </option>
+              ))}
+            </select>
+            {/* Custom chevron indicator */}
+            <div className="pointer-events-none absolute right-3 flex items-center text-[#27272a]">
+              <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+              </svg>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Refresh */}
         <button

@@ -17,6 +17,7 @@ import {
   Target,
   Briefcase,
   Ticket,
+  Activity,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -197,6 +198,15 @@ export const navigationItems: NavigationItem[] = [
     path: "/settings",
     color: "bg-gray-100 text-gray-700",
   },
+  {
+    id: "activity-logs",
+    category: "purchasing_orders",
+    titleKey: "sidebar.activityLogs",
+    descKey: "home.desc.activityLogs",
+    icon: Activity,
+    path: "/activity-logs",
+    color: "bg-sky-50 text-sky-700",
+  },
 
   // Slide 2: Project Management (Client Leads, Projects, Invoice Generator, Site Workers, Support Tickets)
   {
@@ -252,6 +262,7 @@ export const navigationItems: NavigationItem[] = [
  */
 export const hasPermission = (path: string, role?: string): boolean => {
   if (path === "/accounts" && role !== "owner") return false;
+  if (path === "/activity-logs" && role !== "owner" && role !== "admin") return false;
   if (
     ["/purchasing", "/inventory", "/warehouse", "/suppliers"].includes(path) &&
     role !== "admin" &&

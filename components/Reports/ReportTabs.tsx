@@ -5,10 +5,18 @@ import {
   CreditCard,
   BarChart3,
   Gift,
+  Truck,
 } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 
-type TabType = "overall" | "foc" | "paid" | "credit" | "statistics" | "revenue";
+type TabType =
+  | "overall"
+  | "purchasing"
+  | "foc"
+  | "paid"
+  | "credit"
+  | "statistics"
+  | "revenue";
 
 interface ReportTabsProps {
   activeTab: TabType;
@@ -32,6 +40,17 @@ export const ReportTabs: React.FC<ReportTabsProps> = ({
       >
         <Store className="w-3.5 h-3.5" />
         <span>{t("reports.overall")}</span>
+      </button>
+      <button
+        onClick={() => onTabChange("purchasing")}
+        className={`px-4 py-3 font-bold text-xs sm:text-sm flex items-center gap-2 transition-all whitespace-nowrap cursor-pointer ${
+          activeTab === "purchasing"
+            ? "border-b-2 border-[#27272a] text-[#27272a]"
+            : "text-slate-400 hover:text-slate-600"
+        }`}
+      >
+        <Truck className="w-3.5 h-3.5" />
+        <span>{t("reports.purchasingReport") || "Purchasing & Profit"}</span>
       </button>
       <button
         onClick={() => onTabChange("paid")}
