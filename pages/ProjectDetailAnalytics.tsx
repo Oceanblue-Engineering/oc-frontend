@@ -619,18 +619,18 @@ const ProjectDetailAnalytics: React.FC = () => {
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
-              title="Total Invoiced Amount"
+              label="Total Invoiced Amount"
               value={formatCurrency(
                 invoiceStats?.totalInvoicedAmount ??
                   projectInvoices.reduce((s, i) => s + (i.totalAmount || 0), 0),
                 language
               )}
               icon={<FileText className="w-5 h-5" />}
-              color="ocean"
-              description="Total billing value for this project"
+              variant="ocean"
+              subValue="Total billing value for this project"
             />
             <StatsCard
-              title="Paid / Received Amount"
+              label="Paid / Received Amount"
               value={formatCurrency(
                 invoiceStats?.paidAmount ??
                   projectInvoices
@@ -639,11 +639,11 @@ const ProjectDetailAnalytics: React.FC = () => {
                 language
               )}
               icon={<CheckCircle2 className="w-5 h-5" />}
-              color="emerald"
-              description="Confirmed customer payments"
+              variant="emerald"
+              subValue="Confirmed customer payments"
             />
             <StatsCard
-              title="Outstanding Balance"
+              label="Outstanding Balance"
               value={formatCurrency(
                 Math.max(
                   0,
@@ -657,15 +657,15 @@ const ProjectDetailAnalytics: React.FC = () => {
                 language
               )}
               icon={<DollarSign className="w-5 h-5" />}
-              color="amber"
-              description="Pending payments due"
+              variant="amber"
+              subValue="Pending payments due"
             />
             <StatsCard
-              title="Total Documents"
+              label="Total Documents"
               value={projectInvoices.length}
               icon={<Receipt className="w-5 h-5" />}
-              color="violet"
-              description="Quotations, Invoices & Receipts"
+              variant="purple"
+              subValue="Quotations, Invoices & Receipts"
             />
           </div>
 

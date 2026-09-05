@@ -12,13 +12,14 @@ import {
   ChevronRight,
   Eye,
   X,
-  Copy,
-  Check,
   Laptop,
   Layers,
-  FileCode,
   AlertTriangle,
   Loader2,
+  PlusCircle,
+  Edit3,
+  Trash2,
+  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -36,7 +37,6 @@ export const ActivityLogs: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [statsLoading, setStatsLoading] = useState<boolean>(true);
   const [selectedLog, setSelectedLog] = useState<ActivityLog | null>(null);
-  const [copiedPayload, setCopiedPayload] = useState<boolean>(false);
 
   // Filter & Pagination States
   const [search, setSearch] = useState<string>("");
@@ -140,13 +140,6 @@ export const ActivityLogs: React.FC = () => {
     }
   };
 
-  const handleCopyPayload = (payload: any) => {
-    if (!payload) return;
-    navigator.clipboard.writeText(JSON.stringify(payload, null, 2));
-    setCopiedPayload(true);
-    toast.success("Payload copied to clipboard");
-    setTimeout(() => setCopiedPayload(false), 2000);
-  };
 
   const formatDateTime = (iso: string) => {
     if (!iso) return "-";
@@ -187,6 +180,58 @@ export const ActivityLogs: React.FC = () => {
       default:
         return "bg-slate-100 text-slate-700 border-slate-200";
     }
+  };
+
+  const getActionTypeInfo = (method: string, action: string) => {
+    const m = (method || "").toUpperCase();
+    const act = (action || "").toLowerCase();
+
+    if (m === "POST" || act.includes("create") || act.includes("add") || act.includes("record")) {
+      return {
+        type: "CREATE",
+        myanmarType: "အသစ်ထည့်သွင်းခြင်း (Create)",
+        badgeBg: "bg-emerald-50 text-emerald-700 border-emerald-200",
+        cardBg: "bg-emerald-50/60 border-emerald-200",
+        icon: PlusCircle,
+        iconColor: "text-emerald-600",
+      };
+    }
+    if (m === "DELETE" || act.includes("delete") || act.includes("remove") || act.includes("cancel")) {
+      return {
+        type: "DELETE",
+        myanmarType: "ဖျက်သိမ်းခြင်း (Delete)",
+        badgeBg: "bg-rose-50 text-rose-700 border-rose-200",
+        cardBg: "bg-rose-50/60 border-rose-200",
+        icon: Trash2,
+        iconColor: "text-rose-600",
+      };
+    }
+    return {
+      type: "UPDATE",
+      myanmarType: "ပြင်ဆင်ခြင်း (Update)",
+      badgeBg: "bg-blue-50 text-blue-700 border-blue-200",
+      cardBg: "bg-blue-50/60 border-blue-200",
+      icon: Edit3,
+      iconColor: "text-blue-600",
+    };
+  };
+
+  const getTargetName = (body: any): string => {
+    if (!body || typeof body !== "object") return "";
+    return (
+      body.storefrontName ||
+      body.warehouseName ||
+      body.productName ||
+      body.name ||
+      body.clientName ||
+      body.supplierName ||
+      body.workerName ||
+      body.recipientName ||
+      body.title ||
+      body.invoiceNumber ||
+      body.transferNumber ||
+      ""
+    );
   };
 
   return (
@@ -595,96 +640,91 @@ export const ActivityLogs: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto flex-1 space-y-5 text-xs sm:text-sm">
-              {/* Meta Grid */}
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">User</p>
-                  <p className="font-black text-slate-800">{selectedLog.user?.name || "System"}</p>
-                  <p className="text-[10px] text-slate-500">{selectedLog.user?.email || selectedLog.user?.role}</p>
+            <div className="p-6 overflow-y-auto flex-1 space-y-4 text-xs sm:text-sm">
+              {/* Action Banner (Create / Update / Delete) */}
+              {(() => {
+                const actionInfo = getActionTypeInfo(selectedLog.method, selectedLog.action);
+                const ActionIcon = actionInfo.icon;
+                const targetName = getTargetName(selectedLog.requestBody);
+
+                return (
+                  <div className={`p-4 sm:p-5 rounded-2xl border flex items-start gap-4 ${actionInfo.cardBg}`}>
+                    <div className={`p-3 rounded-xl bg-white shadow-xs shrink-0 ${actionInfo.iconColor}`}>
+                      <ActionIcon className="w-6 h-6" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1.5">
+                        <span className={`px-2.5 py-0.5 rounded-md text-xs font-black border uppercase tracking-wide ${actionInfo.badgeBg}`}>
+                          {actionInfo.myanmarType}
+                        </span>
+                        <span className="text-xs font-bold text-slate-500 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60">
+                          {selectedLog.module}
+                        </span>
+                      </div>
+                      <h4 className="text-base sm:text-lg font-black text-slate-900 leading-tight">
+                        {selectedLog.action}
+                      </h4>
+                      {targetName && (
+                        <p className="text-xs sm:text-sm text-slate-700 font-bold mt-2 bg-white/90 px-3 py-1.5 rounded-xl border border-slate-200/80 inline-block shadow-2xs">
+                          Target: <span className="text-ocean-700">{targetName}</span>
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
+
+              {/* Information Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                {/* User Card */}
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-sm shrink-0 shadow-2xs">
+                    {selectedLog.user?.name?.charAt(0) || "U"}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">လုပ်ဆောင်ခဲ့သူ (User)</p>
+                    <p className="font-black text-slate-800 text-sm truncate">
+                      {selectedLog.user?.name || "System"}
+                    </p>
+                    <p className="text-[11px] text-slate-500 font-semibold capitalize">
+                      {selectedLog.user?.email || selectedLog.user?.role || "User"}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">Timestamp</p>
-                  <p className="font-bold text-slate-700">{formatDateTime(selectedLog.createdAt)}</p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">Status & Code</p>
-                  <span
-                    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-bold border mt-0.5 ${
-                      selectedLog.status === "SUCCESS"
-                        ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                        : "bg-rose-50 text-rose-700 border-rose-200"
-                    }`}
-                  >
-                    {selectedLog.statusCode} ({selectedLog.status})
-                  </span>
-                </div>
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">Duration</p>
-                  <p className="font-bold text-slate-700">{selectedLog.durationMs || 0} ms</p>
-                </div>
-                <div>
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">IP Address</p>
-                  <p className="font-mono text-slate-700 text-xs">{selectedLog.ipAddress || "Localhost"}</p>
-                </div>
-                <div className="sm:col-span-1">
-                  <p className="text-[11px] font-bold text-slate-400 uppercase">Endpoint</p>
-                  <p className="font-mono text-slate-700 text-xs truncate" title={selectedLog.endpoint}>
-                    {selectedLog.endpoint}
-                  </p>
+
+                {/* Time & Status Card */}
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 text-slate-700 flex items-center justify-center shrink-0 shadow-2xs">
+                    <Clock className="w-5 h-5 text-ocean-600" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">အချိန် (Date & Time)</p>
+                    <p className="font-bold text-slate-800 text-xs sm:text-sm">
+                      {formatDateTime(selectedLog.createdAt)}
+                    </p>
+                    <div className="mt-1">
+                      <span
+                        className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold border ${
+                          selectedLog.status === "SUCCESS"
+                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                            : "bg-rose-50 text-rose-700 border-rose-200"
+                        }`}
+                      >
+                        {selectedLog.status === "SUCCESS" ? "✓ အောင်မြင်သည် (Success)" : "✕ မအောင်မြင်ပါ (Failed)"}
+                      </span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
               {/* Error Message if Failed */}
               {selectedLog.errorMessage && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 flex items-start gap-2">
+                <div className="p-3.5 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 flex items-start gap-2.5">
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div>
                     <p className="font-bold text-xs">Error Description:</p>
-                    <p className="text-xs">{selectedLog.errorMessage}</p>
+                    <p className="text-xs mt-0.5">{selectedLog.errorMessage}</p>
                   </div>
-                </div>
-              )}
-
-              {/* Request Payload */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-xs text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                    <FileCode className="w-4 h-4 text-ocean-600" />
-                    Request Payload (Sanitized)
-                  </h4>
-                  {selectedLog.requestBody && (
-                    <button
-                      onClick={() => handleCopyPayload(selectedLog.requestBody)}
-                      className="px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 inline-flex items-center gap-1 cursor-pointer transition-colors"
-                    >
-                      {copiedPayload ? (
-                        <>
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                          Copied!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="w-3.5 h-3.5" />
-                          Copy JSON
-                        </>
-                      )}
-                    </button>
-                  )}
-                </div>
-
-                <pre className="p-4 bg-slate-900 text-slate-100 rounded-2xl text-xs font-mono overflow-x-auto max-h-64 border border-slate-800 leading-relaxed">
-                  {selectedLog.requestBody
-                    ? JSON.stringify(selectedLog.requestBody, null, 2)
-                    : "// No request body (or empty payload)"}
-                </pre>
-              </div>
-
-              {/* Client User-Agent */}
-              {selectedLog.userAgent && (
-                <div className="p-3 bg-slate-50 border border-slate-100 rounded-xl text-[11px] text-slate-500 font-mono flex items-center gap-2">
-                  <Laptop className="w-4 h-4 text-slate-400 shrink-0" />
-                  <span className="truncate">{selectedLog.userAgent}</span>
                 </div>
               )}
             </div>

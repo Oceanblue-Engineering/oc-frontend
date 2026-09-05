@@ -13,6 +13,9 @@ import {
   Loader2,
   Search,
   Filter,
+  ArrowRightLeft,
+  Plus,
+  Trash2,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -24,6 +27,23 @@ import {
   UpdateStorefrontStockQuantityPayload,
 } from "../services/Storefront/updateStorefrontStockQuantity";
 import { fetchCategories } from "../services/Inventory/fetchCategories";
+import {
+  fetchStorefrontProfiles,
+  StorefrontProfile,
+} from "../services/Storefront/fetchStorefrontProfiles";
+import { fetchWarehouseProfiles } from "../services/Warehouse/fetchWarehouseProfiles";
+import {
+  createStorefrontTransfer,
+  TransferLineItem,
+} from "../services/Storefront/createStorefrontTransfer";
+
+interface TransferFormItem {
+  productCode: string;
+  productName: string;
+  quantity: number;
+  maxQuantity: number;
+  notes: string;
+}
 
 export const StorefrontDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -61,9 +81,32 @@ export const StorefrontDetail: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const itemsPerPage = 100;
 
+  // Transfer Modal State
+  const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [destinationType, setDestinationType] = useState<"storefront" | "warehouse">("storefront");
+  const [storefronts, setStorefronts] = useState<StorefrontProfile[]>([]);
+  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [selectedDestinationId, setSelectedDestinationId] = useState("");
+  const [transferItems, setTransferItems] = useState<TransferFormItem[]>([]);
+  const [transferDate, setTransferDate] = useState(
+    new Date().toISOString().split("T")[0],
+  );
+  const [transferNotes, setTransferNotes] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [transferQtyDrafts, setTransferQtyDrafts] = useState<
+    Record<number, string>
+  >({});
+
   useEffect(() => {
     loadStorefrontStock();
+    loadLocations();
   }, [id, currentPage, itemsPerPage, selectedCategory, searchTerm]);
+
+  useEffect(() => {
+    if (!isTransferModalOpen) {
+      setTransferQtyDrafts({});
+    }
+  }, [isTransferModalOpen]);
 
   useEffect(() => {
     loadCategories();
@@ -160,12 +203,245 @@ export const StorefrontDetail: React.FC = () => {
     (item) => item.isLowStock,
   ).length;
 
-  // Calculate total amount for each item and storefront total
-  const totalStorefrontAmount = stockItems.reduce((sum, item) => {
-    const sellingPrice = item.inventoryId.sellingPrice || 0;
-    const itemTotal = item.quantity * sellingPrice;
-    return sum + itemTotal;
-  }, 0);
+  const loadLocations = async () => {
+    try {
+      const [sfRes, whRes] = await Promise.all([
+        fetchStorefrontProfiles(),
+        fetchWarehouseProfiles(),
+      ]);
+      if (sfRes.success && sfRes.data) {
+        // Exclude current storefront
+        setStorefronts(
+          sfRes.data.filter((s: any) => s.status === "active" && s._id !== id)
+        );
+      }
+      if (whRes.success && whRes.data) {
+        setWarehouses(whRes.data.filter((w: any) => w.status === "active"));
+      }
+    } catch (error) {
+      console.error("Error loading locations:", error);
+    }
+  };
+
+  // Transfer Modal Functions
+  const getTransferMaxQuantity = (item: StorefrontStockItem) =>
+    Math.max(item.availableQuantity || 0, item.quantity || 0);
+
+  const getTransferQtyValue = (index: number, item: TransferFormItem) =>
+    transferQtyDrafts[index] ?? String(item.quantity || 1);
+
+  const commitTransferQuantity = (index: number) => {
+    const item = transferItems[index];
+    if (!item) return;
+
+    const raw = transferQtyDrafts[index] ?? String(item.quantity || 1);
+    const maxQuantity = item.maxQuantity || 0;
+    const qty =
+      maxQuantity > 0
+        ? Math.max(1, Math.min(parseInt(raw, 10) || 1, maxQuantity))
+        : 0;
+
+    setTransferItems((prev) =>
+      prev.map((row, i) => (i === index ? { ...row, quantity: qty } : row)),
+    );
+    setTransferQtyDrafts((prev) => {
+      const next = { ...prev };
+      delete next[index];
+      return next;
+    });
+  };
+
+  const openTransferModal = (item?: StorefrontStockItem) => {
+    if (item) {
+      const maxQuantity = getTransferMaxQuantity(item);
+      if (maxQuantity <= 0) {
+        toast.error("This product has no available stock to transfer");
+        return;
+      }
+
+      setTransferItems([
+        {
+          productCode: item.inventoryId.productCode,
+          productName: item.inventoryId.productName,
+          quantity: 1,
+          maxQuantity,
+          notes: "",
+        },
+      ]);
+    } else {
+      setTransferItems([]);
+    }
+    setSelectedDestinationId("");
+    setDestinationType("storefront");
+    setTransferDate(new Date().toISOString().split("T")[0]);
+    setTransferNotes("");
+    setIsTransferModalOpen(true);
+  };
+
+  const addTransferItem = () => {
+    const usedCodes = transferItems.map((i) => i.productCode);
+    const availableProducts = stockItems.filter(
+      (item) =>
+        !usedCodes.includes(item.inventoryId.productCode) &&
+        getTransferMaxQuantity(item) > 0,
+    );
+
+    if (availableProducts.length === 0) {
+      toast.error(
+        "No more products available to add. All products may have 0 quantity or are already selected.",
+      );
+      return;
+    }
+
+    const firstAvailable = availableProducts[0];
+    const maxQuantity = getTransferMaxQuantity(firstAvailable);
+
+    setTransferItems([
+      ...transferItems,
+      {
+        productCode: firstAvailable.inventoryId.productCode,
+        productName: firstAvailable.inventoryId.productName,
+        quantity: 1,
+        maxQuantity: maxQuantity,
+        notes: "",
+      },
+    ]);
+  };
+
+  const removeTransferItem = (index: number) => {
+    setTransferItems(transferItems.filter((_, i) => i !== index));
+  };
+
+  const updateTransferItem = (
+    index: number,
+    field: keyof TransferFormItem,
+    value: string | number,
+  ) => {
+    const updated = [...transferItems];
+
+    if (field === "productCode") {
+      const stockItem = stockItems.find(
+        (item) => item.inventoryId.productCode === value,
+      );
+      if (stockItem) {
+        const maxQuantity = getTransferMaxQuantity(stockItem);
+        updated[index] = {
+          ...updated[index],
+          productCode: value as string,
+          productName: stockItem.inventoryId.productName,
+          maxQuantity,
+          quantity:
+            maxQuantity > 0
+              ? Math.min(updated[index].quantity || 1, maxQuantity)
+              : 0,
+        };
+        setTransferQtyDrafts((prev) => {
+          const next = { ...prev };
+          delete next[index];
+          return next;
+        });
+      }
+    } else if (field === "quantity") {
+      const maxQuantity = updated[index].maxQuantity || 0;
+      const qty =
+        maxQuantity > 0
+          ? Math.max(1, Math.min(Number(value) || 1, maxQuantity))
+          : 0;
+      updated[index] = { ...updated[index], quantity: qty };
+    } else {
+      updated[index] = { ...updated[index], [field]: value };
+    }
+
+    setTransferItems(updated);
+  };
+
+  const handleSubmitTransfer = async () => {
+    if (!selectedDestinationId) {
+      toast.error(
+        destinationType === "storefront"
+          ? "Please select a destination storefront"
+          : "Please select a destination warehouse"
+      );
+      return;
+    }
+
+    if (transferItems.length === 0) {
+      toast.error("Please add at least one product to transfer");
+      return;
+    }
+
+    const itemsToSubmit = transferItems.map((item, index) => {
+      if (transferQtyDrafts[index] === undefined) {
+        return item;
+      }
+
+      const raw = transferQtyDrafts[index];
+      const maxQuantity = item.maxQuantity || 0;
+      const qty =
+        maxQuantity > 0
+          ? Math.max(1, Math.min(parseInt(raw, 10) || 1, maxQuantity))
+          : 0;
+
+      return { ...item, quantity: qty };
+    });
+
+    for (const item of itemsToSubmit) {
+      if (item.quantity <= 0) {
+        toast.error(`Quantity for ${item.productName} must be greater than 0`);
+        return;
+      }
+      if (item.quantity > item.maxQuantity) {
+        toast.error(
+          `Quantity for ${item.productName} exceeds available stock (${item.maxQuantity})`,
+        );
+        return;
+      }
+    }
+
+    setIsSubmitting(true);
+    try {
+      const lineItems: TransferLineItem[] = itemsToSubmit.map((item) => ({
+        productCode: item.productCode,
+        quantity: item.quantity,
+        ...(item.notes && { notes: item.notes }),
+      }));
+
+      const result = await createStorefrontTransfer({
+        sourceType: "Storefront",
+        sourceStorefrontId: id!,
+        ...(destinationType === "storefront"
+          ? { destinationStorefrontId: selectedDestinationId }
+          : { destinationWarehouseId: selectedDestinationId }),
+        lineItems,
+        transferDate,
+        ...(transferNotes && { notes: transferNotes }),
+      });
+
+      if (result.success) {
+        toast.success("Transfer created successfully!");
+        setTransferQtyDrafts({});
+        setIsTransferModalOpen(false);
+        loadStorefrontStock(); // Refresh stock
+      } else {
+        toast.error(result.message);
+      }
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create transfer");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const getAvailableProductsForItem = (currentCode: string) => {
+    const usedCodes = transferItems
+      .map((i) => i.productCode)
+      .filter((code) => code !== currentCode);
+    return stockItems.filter(
+      (item) =>
+        !usedCodes.includes(item.inventoryId.productCode) &&
+        getTransferMaxQuantity(item) > 0,
+    );
+  };
 
   // Stock Adjustment Modal State
   const [isAdjustmentModalOpen, setIsAdjustmentModalOpen] = useState(false);
@@ -272,14 +548,28 @@ export const StorefrontDetail: React.FC = () => {
             </p>
           </div>
         </div>
-        <button
-          onClick={loadStorefrontStock}
-          disabled={loading}
-          className="hidden sm:flex items-center gap-2 px-3 py-2 sm:px-4 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base"
-        >
-          <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
-          <span className="hidden sm:inline">Refresh</span>
-        </button>
+        <div className="flex flex-wrap gap-2 items-center">
+          {userRole === "owner" && (
+            <button
+              onClick={() => openTransferModal()}
+              disabled={stockItems.length === 0}
+              className="flex h-auto sm:h-10 items-center gap-2 px-3 py-2 sm:px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
+            >
+              <ArrowRightLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Transfer Stock</span>
+              <span className="sm:hidden">Transfer</span>
+            </button>
+          )}
+
+          <button
+            onClick={loadStorefrontStock}
+            disabled={loading}
+            className="hidden sm:flex items-center gap-2 px-3 py-2 sm:px-4 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors disabled:opacity-50 text-sm sm:text-base"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading ? "animate-spin" : ""}`} />
+            <span className="hidden sm:inline">Refresh</span>
+          </button>
+        </div>
       </div>
 
       {/* Search and Filter Section */}
@@ -593,6 +883,15 @@ export const StorefrontDetail: React.FC = () => {
                         {userRole === "owner" && (
                           <div className="flex items-center gap-1 sm:gap-2">
                             <button
+                              onClick={() => openTransferModal(item)}
+                              disabled={item.quantity === 0}
+                              className="text-xs bg-zinc-50 text-primary-600 px-2 py-1 sm:px-3 sm:py-1.5 rounded hover:bg-zinc-100 border border-zinc-200 font-medium transition-colors flex items-center gap-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                            >
+                              <ArrowRightLeft className="w-3 h-3" />{" "}
+                              <span className="hidden sm:inline">Transfer</span>
+                              <span className="sm:hidden">T</span>
+                            </button>
+                            <button
                               onClick={() =>
                                 openAdjustmentModal(item, "increase")
                               }
@@ -865,6 +1164,272 @@ export const StorefrontDetail: React.FC = () => {
                       {adjustmentType === "increase"
                         ? "Increase Stock"
                         : "Decrease Stock"}
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Transfer Stock Modal */}
+      {isTransferModalOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+            <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
+              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
+                <ArrowRightLeft className="w-5 h-5 text-primary" />
+                Stock Transfer
+              </h2>
+              <button
+                onClick={() => setIsTransferModalOpen(false)}
+                className="text-slate-400 hover:text-slate-600 p-1"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Source Storefront Info */}
+              <div className="bg-zinc-50 p-4 rounded-lg">
+                <p className="text-sm text-primary font-medium">
+                  Source Storefront
+                </p>
+                <p className="text-lg font-bold text-zinc-800">
+                  {storefrontName}{" "}
+                  <span className="text-sm font-normal">({storefrontCode})</span>
+                </p>
+              </div>
+
+              {/* Destination Type & Selection */}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  Destination Type <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-4 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestinationType("storefront");
+                      setSelectedDestinationId("");
+                    }}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-all ${
+                      destinationType === "storefront"
+                        ? "bg-zinc-800 text-white border-zinc-800 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    To Another Storefront
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestinationType("warehouse");
+                      setSelectedDestinationId("");
+                    }}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-all ${
+                      destinationType === "warehouse"
+                        ? "bg-zinc-800 text-white border-zinc-800 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    To Warehouse
+                  </button>
+                </div>
+
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  {destinationType === "storefront"
+                    ? "Destination Storefront"
+                    : "Destination Warehouse"}{" "}
+                  <span className="text-red-500">*</span>
+                </label>
+                <select
+                  className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
+                  value={selectedDestinationId}
+                  onChange={(e) => setSelectedDestinationId(e.target.value)}
+                >
+                  <option value="">
+                    {destinationType === "storefront"
+                      ? "Select Storefront..."
+                      : "Select Warehouse..."}
+                  </option>
+                  {destinationType === "storefront"
+                    ? storefronts.map((sf) => (
+                        <option key={sf._id} value={sf._id}>
+                          {sf.locationName} ({sf.locationCode})
+                        </option>
+                      ))
+                    : warehouses.map((wh) => (
+                        <option key={wh._id} value={wh._id}>
+                          {wh.locationName || wh.warehouseName} (
+                          {wh.locationCode || wh.warehouseCode})
+                        </option>
+                      ))}
+                </select>
+              </div>
+
+              {/* Transfer Items */}
+              <div>
+                <div className="flex justify-between items-center mb-3">
+                  <label className="text-sm font-medium text-slate-700">
+                    Products to Transfer <span className="text-red-500">*</span>
+                  </label>
+                  <button
+                    onClick={addTransferItem}
+                    className="text-sm text-primary-600 hover:text-primary-700 flex items-center gap-1"
+                  >
+                    <Plus className="w-4 h-4" /> Add Product
+                  </button>
+                </div>
+
+                {transferItems.length === 0 ? (
+                  <div className="border-2 border-dashed rounded-lg p-8 text-center text-slate-400">
+                    <p>No products added yet.</p>
+                    <button
+                      onClick={addTransferItem}
+                      className="mt-2 text-primary-600 hover:text-primary-700 font-medium"
+                    >
+                      + Add your first product
+                    </button>
+                  </div>
+                ) : (
+                  <div className="space-y-3">
+                    {transferItems.map((item, index) => (
+                      <div
+                        key={index}
+                        className="border rounded-lg p-4 bg-slate-50"
+                      >
+                        <div className="grid grid-cols-12 gap-3">
+                          <div className="col-span-5">
+                            <label className="block text-xs text-slate-500 mb-1">
+                              Product
+                            </label>
+                            <select
+                              className="w-full border rounded p-2 text-sm"
+                              value={item.productCode}
+                              onChange={(e) =>
+                                updateTransferItem(
+                                  index,
+                                  "productCode",
+                                  e.target.value,
+                                )
+                              }
+                            >
+                              {getAvailableProductsForItem(
+                                item.productCode,
+                              ).map((stockItem) => (
+                                <option
+                                  key={stockItem.inventoryId.productCode}
+                                  value={stockItem.inventoryId.productCode}
+                                >
+                                  {stockItem.inventoryId.productName} (
+                                  {stockItem.inventoryId.productCode})
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div className="col-span-2">
+                            <label className="block text-xs text-slate-500 mb-1">
+                              Qty (max: {item.maxQuantity || 0})
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              max={item.maxQuantity || 0}
+                              disabled={!item.maxQuantity}
+                              className="w-full border rounded p-2 text-sm disabled:bg-slate-100 disabled:cursor-not-allowed"
+                              value={getTransferQtyValue(index, item)}
+                              onChange={(e) => {
+                                setTransferQtyDrafts((prev) => ({
+                                  ...prev,
+                                  [index]: e.target.value,
+                                }));
+                              }}
+                              onBlur={() => commitTransferQuantity(index)}
+                            />
+                          </div>
+                          <div className="col-span-4">
+                            <label className="block text-xs text-slate-500 mb-1">
+                              Notes (optional)
+                            </label>
+                            <input
+                              type="text"
+                              className="w-full border rounded p-2 text-sm"
+                              placeholder="Item notes..."
+                              value={item.notes}
+                              onChange={(e) =>
+                                updateTransferItem(
+                                  index,
+                                  "notes",
+                                  e.target.value,
+                                )
+                              }
+                            />
+                          </div>
+                          <div className="col-span-1 flex items-end justify-center">
+                            <button
+                              onClick={() => removeTransferItem(index)}
+                              className="p-2 text-red-500 hover:bg-red-50 rounded"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Transfer Date & Notes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Transfer Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
+                    value={transferDate}
+                    onChange={(e) => setTransferDate(e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 mb-1">
+                    Notes (optional)
+                  </label>
+                  <input
+                    type="text"
+                    className="w-full border rounded-lg p-2 focus:ring-2 focus:ring-primary outline-none"
+                    placeholder="Transfer notes..."
+                    value={transferNotes}
+                    onChange={(e) => setTransferNotes(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-col sm:flex-row justify-end gap-3 pt-4 border-t">
+                <button
+                  type="button"
+                  onClick={() => setIsTransferModalOpen(false)}
+                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors order-2 sm:order-1"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleSubmitTransfer}
+                  disabled={isSubmitting || transferItems.length === 0}
+                  className="px-4 py-2 bg-zinc-600 text-white rounded-lg hover:bg-zinc-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2 order-1 sm:order-2"
+                >
+                  {isSubmitting ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Creating...
+                    </>
+                  ) : (
+                    <>
+                      <ArrowRightLeft className="w-4 h-4" /> Create Transfer
                     </>
                   )}
                 </button>

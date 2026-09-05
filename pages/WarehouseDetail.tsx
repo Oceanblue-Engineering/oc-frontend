@@ -28,6 +28,7 @@ import {
   fetchStorefrontProfiles,
   StorefrontProfile,
 } from "../services/Storefront/fetchStorefrontProfiles";
+import { fetchWarehouseProfiles } from "../services/Warehouse/fetchWarehouseProfiles";
 import {
   createWarehouseTransfer,
   TransferLineItem,
@@ -83,8 +84,10 @@ export const WarehouseDetail: React.FC = () => {
 
   // Transfer Modal State
   const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
+  const [destinationType, setDestinationType] = useState<"storefront" | "warehouse">("storefront");
   const [storefronts, setStorefronts] = useState<StorefrontProfile[]>([]);
-  const [selectedStorefrontId, setSelectedStorefrontId] = useState("");
+  const [warehouses, setWarehouses] = useState<any[]>([]);
+  const [selectedDestinationId, setSelectedDestinationId] = useState("");
   const [transferItems, setTransferItems] = useState<TransferFormItem[]>([]);
   const [transferDate, setTransferDate] = useState(
     new Date().toISOString().split("T")[0],
@@ -108,7 +111,7 @@ export const WarehouseDetail: React.FC = () => {
 
   useEffect(() => {
     loadWarehouseStock();
-    loadStorefronts();
+    loadLocations();
   }, [id, currentPage, itemsPerPage, selectedCategory, searchTerm]);
 
   useEffect(() => {
@@ -189,14 +192,23 @@ export const WarehouseDetail: React.FC = () => {
     }
   };
 
-  const loadStorefronts = async () => {
+  const loadLocations = async () => {
     try {
-      const response = await fetchStorefrontProfiles();
-      if (response.success && response.data) {
-        setStorefronts(response.data.filter((s) => s.status === "active"));
+      const [sfRes, whRes] = await Promise.all([
+        fetchStorefrontProfiles(),
+        fetchWarehouseProfiles(),
+      ]);
+      if (sfRes.success && sfRes.data) {
+        setStorefronts(sfRes.data.filter((s: any) => s.status === "active"));
+      }
+      if (whRes.success && whRes.data) {
+        // Exclude current warehouse
+        setWarehouses(
+          whRes.data.filter((w: any) => w.status === "active" && w._id !== id)
+        );
       }
     } catch (error) {
-      console.error("Error loading storefronts:", error);
+      console.error("Error loading locations:", error);
     }
   };
 
@@ -261,7 +273,8 @@ export const WarehouseDetail: React.FC = () => {
     } else {
       setTransferItems([]);
     }
-    setSelectedStorefrontId("");
+    setSelectedDestinationId("");
+    setDestinationType("storefront");
     setTransferDate(new Date().toISOString().split("T")[0]);
     setTransferNotes("");
     setIsTransferModalOpen(true);
@@ -352,8 +365,12 @@ export const WarehouseDetail: React.FC = () => {
   };
 
   const handleSubmitTransfer = async () => {
-    if (!selectedStorefrontId) {
-      toast.error("Please select a destination storefront");
+    if (!selectedDestinationId) {
+      toast.error(
+        destinationType === "storefront"
+          ? "Please select a destination storefront"
+          : "Please select a destination warehouse"
+      );
       return;
     }
 
@@ -402,7 +419,9 @@ export const WarehouseDetail: React.FC = () => {
       const result = await createWarehouseTransfer({
         sourceType: "Warehouse",
         sourceWarehouseId: id!,
-        destinationStorefrontId: selectedStorefrontId,
+        ...(destinationType === "storefront"
+          ? { destinationStorefrontId: selectedDestinationId }
+          : { destinationWarehouseId: selectedDestinationId }),
         lineItems,
         transferDate,
         ...(transferNotes && { notes: transferNotes }),
@@ -538,7 +557,7 @@ export const WarehouseDetail: React.FC = () => {
               className="flex h-auto sm:h-10 items-center gap-2 px-3 py-2 sm:px-4 bg-primary hover:bg-primary/90 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
             >
               <ArrowRightLeft className="w-4 h-4" />
-              <span className="hidden sm:inline">Transfer to Storefront</span>
+              <span className="hidden sm:inline">Transfer Stock</span>
               <span className="sm:hidden">Transfer</span>
             </button>
           )}
@@ -927,8 +946,8 @@ export const WarehouseDetail: React.FC = () => {
           <div className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[90vh] overflow-y-auto">
             <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <ArrowRightLeft className="w-5 h-5 text-primary-600" />
-                Transfer to Storefront
+                <ArrowRightLeft className="w-5 h-5 text-primary" />
+                Stock Transfer
               </h2>
               <button
                 onClick={() => setIsTransferModalOpen(false)}
@@ -950,22 +969,70 @@ export const WarehouseDetail: React.FC = () => {
                 </p>
               </div>
 
-              {/* Destination Storefront */}
+              {/* Destination Type & Selection */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">
-                  Destination Storefront <span className="text-red-500">*</span>
+                  Destination Type <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-4 mb-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestinationType("storefront");
+                      setSelectedDestinationId("");
+                    }}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-all ${
+                      destinationType === "storefront"
+                        ? "bg-zinc-800 text-white border-zinc-800 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    To Storefront
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDestinationType("warehouse");
+                      setSelectedDestinationId("");
+                    }}
+                    className={`flex-1 py-2 text-sm font-medium rounded-lg border transition-all ${
+                      destinationType === "warehouse"
+                        ? "bg-zinc-800 text-white border-zinc-800 shadow-sm"
+                        : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
+                    }`}
+                  >
+                    To Another Warehouse
+                  </button>
+                </div>
+
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                  {destinationType === "storefront"
+                    ? "Destination Storefront"
+                    : "Destination Warehouse"}{" "}
+                  <span className="text-red-500">*</span>
                 </label>
                 <select
                   className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
-                  value={selectedStorefrontId}
-                  onChange={(e) => setSelectedStorefrontId(e.target.value)}
+                  value={selectedDestinationId}
+                  onChange={(e) => setSelectedDestinationId(e.target.value)}
                 >
-                  <option value="">Select Storefront...</option>
-                  {storefronts.map((sf) => (
-                    <option key={sf._id} value={sf._id}>
-                      {sf.locationName} ({sf.locationCode})
-                    </option>
-                  ))}
+                  <option value="">
+                    {destinationType === "storefront"
+                      ? "Select Storefront..."
+                      : "Select Warehouse..."}
+                  </option>
+                  {destinationType === "storefront"
+                    ? storefronts.map((sf) => (
+                        <option key={sf._id} value={sf._id}>
+                          {sf.locationName} ({sf.locationCode})
+                        </option>
+                      ))
+                    : warehouses.map((wh) => (
+                        <option key={wh._id} value={wh._id}>
+                          {wh.locationName || wh.warehouseName} (
+                          {wh.locationCode || wh.warehouseCode})
+                        </option>
+                      ))}
                 </select>
               </div>
 

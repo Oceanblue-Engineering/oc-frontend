@@ -1,14 +1,9 @@
 import axios from "../axios";
+import { TransferLineItem } from "../Warehouse/createWarehouseTransfer";
 
-export interface TransferLineItem {
-  productCode: string;
-  quantity: number;
-  notes?: string;
-}
-
-export interface CreateWarehouseTransferPayload {
-  sourceType: "Warehouse";
-  sourceWarehouseId: string;
+export interface CreateStorefrontTransferPayload {
+  sourceType: "Storefront";
+  sourceStorefrontId: string;
   destinationStorefrontId?: string;
   destinationWarehouseId?: string;
   lineItems: TransferLineItem[];
@@ -16,15 +11,15 @@ export interface CreateWarehouseTransferPayload {
   notes?: string;
 }
 
-interface CreateWarehouseTransferResponse {
+interface CreateStorefrontTransferResponse {
   success: boolean;
   message: string;
   data?: any;
 }
 
-export const createWarehouseTransfer = async (
-  payload: CreateWarehouseTransferPayload
-): Promise<CreateWarehouseTransferResponse> => {
+export const createStorefrontTransfer = async (
+  payload: CreateStorefrontTransferPayload
+): Promise<CreateStorefrontTransferResponse> => {
   try {
     const response = await axios.post("/transfer", payload);
     return {
@@ -33,7 +28,7 @@ export const createWarehouseTransfer = async (
       data: response.data,
     };
   } catch (error: any) {
-    console.error("Error creating transfer:", error);
+    console.error("Error creating storefront transfer:", error);
     return {
       success: false,
       message:
@@ -41,4 +36,3 @@ export const createWarehouseTransfer = async (
     };
   }
 };
-

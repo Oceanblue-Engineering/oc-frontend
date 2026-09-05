@@ -860,32 +860,32 @@ export const InvoiceGenerator: React.FC = () => {
           {/* KPI Metrics */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatsCard
-              title="Total Documents"
+              label="Total Documents"
               value={stats.totalCount || invoices.length}
               icon={<Receipt className="w-5 h-5" />}
-              variant="default"
-              description="Generated invoices count"
+              variant="ocean"
+              subValue="Generated invoices count"
             />
             <StatsCard
-              title="Total Invoiced"
+              label="Total Invoiced"
               value={`${(stats.totalInvoicedAmount || 0).toLocaleString()} MMK`}
               icon={<DollarSign className="w-5 h-5" />}
-              variant="secondary"
-              description="Gross billing amount"
+              variant="navy"
+              subValue="Gross billing amount"
             />
             <StatsCard
-              title="Paid / Receipts"
+              label="Paid / Receipts"
               value={`${(stats.paidAmount || 0).toLocaleString()} MMK`}
               icon={<CheckCircle2 className="w-5 h-5" />}
-              variant="success"
-              description={`${stats.paidCount || 0} receipts ready`}
+              variant="emerald"
+              subValue={`${stats.paidCount || 0} receipts ready`}
             />
             <StatsCard
-              title="Issued / Pending"
+              label="Issued / Pending"
               value={stats.issuedCount || 0}
               icon={<Clock className="w-5 h-5" />}
-              variant="warning"
-              description="Awaiting payment"
+              variant="amber"
+              subValue="Awaiting payment"
             />
           </div>
 
@@ -984,6 +984,7 @@ export const InvoiceGenerator: React.FC = () => {
                 ) : invoices.length === 0 ? (
                   <TableEmpty
                     colSpan={9}
+                    icon={<FileText className="w-6 h-6 text-slate-300" />}
                     title="No documents found"
                     description="Create a new document to get started"
                     actionLabel="Create Document"

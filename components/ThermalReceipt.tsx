@@ -704,7 +704,7 @@ export const printThermalReceipt = async (
             <div>Method: ${receiptData.paymentMethod}</div>
             ${receiptData.paidAmount ? `<div>Paid: ${receiptData.paidAmount.toLocaleString()} ${branding.currency}</div>` : ""}
             ${receiptData.change && receiptData.change > 0 ? `<div>Change: ${receiptData.change.toLocaleString()} ${branding.currency}</div>` : ""}
-            ${receiptData.note ? `<div style="margin-top: 2mm; font-style: italic;">Note: ${receiptData.note}</div>` : ""}
+            ${receiptData.note && receiptData.paymentMethod?.toUpperCase() !== "FOC" ? `<div style="margin-top: 2mm; font-style: italic;">Note: ${receiptData.note}</div>` : ""}
           </div>
           <div class="totals">
             <div class="summary-row">

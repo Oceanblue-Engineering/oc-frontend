@@ -162,7 +162,7 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
         <div className="voucher-dashed-separator" />
 
         {/* Note */}
-        {receiptData.note && (
+        {receiptData.note && receiptData.paymentMethod?.toUpperCase() !== "FOC" && (
           <div className="voucher-thermal-note">
             <p className="italic">Note: {receiptData.note}</p>
           </div>
@@ -300,9 +300,9 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
         <div className="h-[2px] bg-[#1e4d58] w-full mt-4 mb-6" />
 
         {/* 2. Bill To & Invoice Info */}
-        <div className="grid grid-cols-2 gap-6 sm:gap-8 mb-6">
+        <div className="grid grid-cols-12 gap-4 sm:gap-6 mb-6">
           {/* Left: Bill To */}
-          <div>
+          <div className="col-span-5">
             <h2 className="text-base sm:text-lg font-black text-[#1c3d73] mb-3">
               Bill To
             </h2>
@@ -329,31 +329,31 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
           </div>
 
           {/* Right: Invoice Meta with Icons */}
-          <div className="pl-2 sm:pl-6 space-y-3 text-xs self-start">
-            <div className="flex items-center gap-3">
+          <div className="col-span-7 pl-2 sm:pl-4 space-y-2.5 text-xs self-start">
+            <div className="flex items-center gap-2 whitespace-nowrap">
               <FileText className="w-4 h-4 text-[#1c3d73] shrink-0" />
-              <span className="font-bold text-[#1c3d73] w-28 sm:w-32">
+              <span className="font-bold text-[#1c3d73] w-24 sm:w-28 shrink-0">
                 Invoice No
               </span>
-              <span className="font-bold text-slate-800">
+              <span className="font-bold text-slate-800 whitespace-nowrap">
                 : {receiptData.invoiceNumber}
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 whitespace-nowrap">
               <Calendar className="w-4 h-4 text-[#1c3d73] shrink-0" />
-              <span className="font-bold text-[#1c3d73] w-28 sm:w-32">
+              <span className="font-bold text-[#1c3d73] w-24 sm:w-28 shrink-0">
                 Invoice Date
               </span>
-              <span className="font-medium text-slate-800">
+              <span className="font-medium text-slate-800 whitespace-nowrap">
                 : {formatDate(receiptData.date)}
               </span>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 whitespace-nowrap">
               <CreditCard className="w-4 h-4 text-[#1c3d73] shrink-0" />
-              <span className="font-bold text-[#1c3d73] w-28 sm:w-32">
+              <span className="font-bold text-[#1c3d73] w-24 sm:w-28 shrink-0">
                 Payment Method
               </span>
-              <span className="font-medium text-slate-800 capitalize">
+              <span className="font-medium text-slate-800 capitalize whitespace-nowrap">
                 : {receiptData.paymentMethod || "Cash"}
               </span>
             </div>
@@ -457,7 +457,7 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
                 <span className="text-slate-600 font-bold">*</span>
                 <span>3 Years warranty for M&E accessories.</span>
               </li>
-              {receiptData.note && (
+              {receiptData.note && receiptData.paymentMethod?.toUpperCase() !== "FOC" && (
                 <li className="flex items-start gap-1 text-slate-700 italic">
                   <span className="text-slate-600 font-bold">*</span>
                   <span>Note: {receiptData.note}</span>

@@ -97,17 +97,48 @@ export const TableCell = React.forwardRef<
 ));
 TableCell.displayName = "TableCell";
 
+export interface TableEmptyProps {
+  colSpan: number;
+  message?: React.ReactNode;
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+  actionLabel?: string;
+  onAction?: () => void;
+}
+
 export function TableEmpty({
   colSpan,
   message = "No records found",
+  title,
+  description,
   icon,
   action,
-}: {
-  colSpan: number;
-  message?: React.ReactNode;
-  icon?: React.ReactNode;
-  action?: React.ReactNode;
-}) {
+  actionLabel,
+  onAction,
+}: TableEmptyProps) {
+  const content = (title || description) ? (
+    <div className="space-y-1">
+      {title && <p className="text-sm font-bold text-slate-700">{title}</p>}
+      {description && <p className="text-xs font-normal text-slate-500 max-w-sm">{description}</p>}
+    </div>
+  ) : (
+    <p className="text-sm font-semibold text-slate-500 max-w-sm">
+      {message}
+    </p>
+  );
+
+  const actionNode = action || (actionLabel && onAction ? (
+    <button
+      type="button"
+      onClick={onAction}
+      className="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-xs transition-colors cursor-pointer"
+    >
+      {actionLabel}
+    </button>
+  ) : null);
+
   return (
     <tr>
       <td colSpan={colSpan} className="text-center py-12 px-4">
@@ -117,12 +148,11 @@ export function TableEmpty({
               {icon}
             </div>
           )}
-          <p className="text-sm font-semibold text-slate-500 max-w-sm">
-            {message}
-          </p>
-          {action && <div className="pt-2">{action}</div>}
+          {content}
+          {actionNode && <div className="pt-2">{actionNode}</div>}
         </div>
       </td>
     </tr>
   );
 }
+

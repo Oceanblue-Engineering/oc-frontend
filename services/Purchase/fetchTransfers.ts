@@ -8,13 +8,21 @@ export interface TransferLineItem {
   _id: string;
 }
 
+export interface LocationSummary {
+  _id: string;
+  locationName: string;
+  locationCode: string;
+  type?: string;
+  grnNumber?: string;
+}
+
 export interface TransferData {
   _id: string;
   transferNumber: string;
-  sourceType: string;
-  sourceId: string;
-  destinationWarehouseId: string;
-  destinationStorefrontId: string | null;
+  sourceType: "GRN" | "Warehouse" | "Storefront" | string;
+  sourceId: string | LocationSummary | any;
+  destinationWarehouseId: string | LocationSummary | null;
+  destinationStorefrontId: string | LocationSummary | null;
   lineItems: TransferLineItem[];
   status: string;
   transferDate: string;
@@ -22,6 +30,11 @@ export interface TransferData {
   notes: string | null;
   isDeleted: boolean;
   deletedAt: string | null;
+  transferredBy?: {
+    _id: string;
+    name: string;
+    role: string;
+  };
   createdAt: string;
   updatedAt: string;
   __v?: number;

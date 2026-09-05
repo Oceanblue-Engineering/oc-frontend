@@ -47,12 +47,17 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
       if (res.success && res.data) {
         setTransfer(res.data);
 
-        // Fetch product details for each line item
-        const productPromises = res.data.lineItems.map(async (item) => {
-          if (item.inventoryId) {
-            const productRes = await fetchProductById(item.inventoryId);
-            if (productRes.success && productRes.data) {
-              return { [item.inventoryId]: productRes.data };
+        // Fetch product details for each line item only if string ID
+        const productPromises = res.data.lineItems.map(async (item: any) => {
+          const invId = typeof item.inventoryId === "string" ? item.inventoryId : item.inventoryId?._id;
+          if (invId && typeof item.inventoryId === "string") {
+            try {
+              const productRes = await fetchProductById(invId);
+              if (productRes.success && productRes.data) {
+                return { [invId]: productRes.data };
+              }
+            } catch (e) {
+              console.warn("Could not fetch product detail for", invId);
             }
           }
           return null;
@@ -348,8 +353,10 @@ export const TransferDetailModal: React.FC<TransferDetailModalProps> = ({
                   {transfer.lineItems.map((item, index) => (
                     <tr key={item._id} className="hover:bg-slate-50">
                       <td className="p-3 text-slate-500">{index + 1}</td>
-                      <td className="p-3 font-mono text-xs truncate max-w-xs">
-                        {productDetails[item.inventoryId]?.productName || "-"}
+                      <td className="p-3 text-slate-800 font-medium text-xs truncate max-w-xs">
+                        {typeof item.inventoryId === "object" && item.inventoryId !== null
+                          ? (item.inventoryId as any).productName || (item.inventoryId as any).productCode
+                          : productDetails[item.inventoryId]?.productName || item.productCode || "-"}
                       </td>
                       <td className="p-3 text-center">
                         <span className="bg-zinc-100 text-zinc-700 px-2 py-1 rounded font-medium">

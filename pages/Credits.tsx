@@ -295,7 +295,7 @@ export const Credits: React.FC = () => {
             label="Blacklisted Customer"
             value={`${blacklistedCount} ယောက်`}
             icon={<User className="w-5 h-5" />}
-            variant="destructive"
+            variant="rose"
           />
         </div>
       </div>

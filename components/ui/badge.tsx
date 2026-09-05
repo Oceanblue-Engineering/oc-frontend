@@ -1,4 +1,4 @@
-import React from "react";
+import * as React from "react";
 import { cn } from "./cn";
 
 export type BadgeVariant =
@@ -14,6 +14,8 @@ export type BadgeVariant =
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> {
   variant?: BadgeVariant;
   dot?: boolean;
+  className?: string;
+  children?: React.ReactNode;
 }
 
 export function Badge({
