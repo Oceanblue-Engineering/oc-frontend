@@ -15,6 +15,7 @@ import {
   FileText,
   Truck,
   MapPin,
+  StickyNote,
 } from "lucide-react";
 import { Order } from "../../services/Order/fetchOrders";
 import {
@@ -118,7 +119,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         : "Discount / Tax (%)",
       discountOrTaxAmount: ord.discount || 0,
       totalAmount: ord.finalAmount || 0,
-      remarks: [...DEFAULT_REMARKS],
+      remarks: ord.note && ord.note.trim() ? [...DEFAULT_REMARKS, `Note: ${ord.note.trim()}`] : [...DEFAULT_REMARKS],
       paymentAccounts: [...DEFAULT_PAYMENT_ACCOUNTS],
       preparedBy: `Prepared By: ${adminData.name || "Ocean Blue"}`,
       currency: "MMK",
@@ -358,6 +359,23 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     )}
                   </div>
                 )}
+
+              {/* Order Note */}
+              {Boolean(order.note && order.note.trim()) && (
+                <div className="p-4 bg-amber-50/70 rounded-2xl border border-amber-200/80 flex items-start gap-3.5">
+                  <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center border border-amber-200/80 shrink-0 mt-0.5">
+                    <StickyNote className="w-5 h-5" />
+                  </div>
+                  <div className="space-y-1 flex-1 min-w-0">
+                    <p className="text-xs font-bold text-amber-800 uppercase tracking-wider">
+                      {t("orders.note") || "Order Note / မှတ်ချက်"}
+                    </p>
+                    <p className="text-sm font-medium text-slate-800 whitespace-pre-wrap break-words leading-relaxed">
+                      {order.note}
+                    </p>
+                  </div>
+                </div>
+              )}
 
               {/* Items Table */}
               <div className="space-y-3">

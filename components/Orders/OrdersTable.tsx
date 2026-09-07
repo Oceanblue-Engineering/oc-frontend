@@ -157,7 +157,17 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
                   onClick={() => onViewOrder(order._id)}
                   className="px-4 py-4 font-bold text-[#27272a] hover:underline cursor-pointer text-xs sm:text-sm"
                 >
-                  {order.orderNumber}
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span>{order.orderNumber}</span>
+                    {Boolean(order.note && order.note.trim()) && (
+                      <span
+                        title={order.note}
+                        className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200/80 cursor-help"
+                      >
+                        Note
+                      </span>
+                    )}
+                  </div>
                 </td>
 
                 {/* Items */}

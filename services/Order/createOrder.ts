@@ -16,6 +16,8 @@ interface CreateOrderRequest {
   paymentType: "credit" | "paid";
   paymentMethod: string;
   creditPersonId?: string;
+  note?: string;
+  orderDate?: string;
   deliveryDetails?: {
     township?: string | null;
     townshipName?: string;

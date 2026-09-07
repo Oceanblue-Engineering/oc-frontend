@@ -299,11 +299,7 @@ const AppLayout: React.FC = () => {
           />
           <Route
             path="/activity-logs"
-            element={
-              <ProtectedRoute>
-                <ActivityLogs />
-              </ProtectedRoute>
-            }
+            element={<Navigate to="/settings?tab=activity" replace />}
           />
           <Route path="*" element={<Navigate to="/login" replace />} />
           <Route path="/mobile-print/:orderId" element={<MobilePrint />} />

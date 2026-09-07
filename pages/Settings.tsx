@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useSearchParams } from "react-router-dom";
 import { useApp } from "../context/AppContext";
 import { Role } from "../types";
 import {
@@ -13,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Store,
+  Activity,
 } from "lucide-react";
 import {
   fetchStockAuditLogs,
@@ -26,10 +28,12 @@ import { toast } from "sonner";
 import { TransferList } from "../components/Purchasing/TransferList";
 import { TransferDetailModal } from "../components/Purchasing/TransferDetailModal";
 import { ShopSettingsTab } from "../components/Settings/ShopSettingsTab";
+import { ActivityLogsTab } from "../components/Settings/ActivityLogsTab";
 import { useLanguage } from "../context/LanguageContext";
 
 export const Settings: React.FC = () => {
   const { t } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
   const { currentUser, setUserRole, logs } = useApp();
   const [stockAuditLogs, setStockAuditLogs] = useState<StockAuditLog[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,9 +47,22 @@ export const Settings: React.FC = () => {
   );
   const [isTransferDetailModalOpen, setIsTransferDetailModalOpen] =
     useState(false);
-  const [activeTab, setActiveTab] = useState<"audit" | "transfer" | "shop">(
-    "shop",
+  const initialTab = (searchParams.get("tab") as "audit" | "transfer" | "shop" | "activity") || "shop";
+  const [activeTab, setActiveTab] = useState<"audit" | "transfer" | "shop" | "activity">(
+    ["audit", "transfer", "shop", "activity"].includes(initialTab) ? initialTab : "shop",
   );
+
+  useEffect(() => {
+    const tabParam = searchParams.get("tab") as "audit" | "transfer" | "shop" | "activity";
+    if (tabParam && ["audit", "transfer", "shop", "activity"].includes(tabParam) && tabParam !== activeTab) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (tab: "audit" | "transfer" | "shop" | "activity") => {
+    setActiveTab(tab);
+    setSearchParams({ tab });
+  };
 
   const loadStockAuditLogs = async (page: number = 1) => {
     setLoading(true);
@@ -116,7 +133,7 @@ export const Settings: React.FC = () => {
         {/* Tabs */}
         <div className="flex gap-2 border-b border-gray-100 pb-1 overflow-x-auto flex-shrink-0">
           <button
-            onClick={() => setActiveTab("shop")}
+            onClick={() => handleTabChange("shop")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "shop"
                 ? "border-[#27272a] text-[#27272a]"
@@ -127,7 +144,7 @@ export const Settings: React.FC = () => {
             <span>{t("settings.shopSettingsTab")}</span>
           </button>
           <button
-            onClick={() => setActiveTab("audit")}
+            onClick={() => handleTabChange("audit")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "audit"
                 ? "border-[#27272a] text-[#27272a]"
@@ -138,7 +155,7 @@ export const Settings: React.FC = () => {
             <span>{t("settings.stockAuditLogsTab")}</span>
           </button>
           <button
-            onClick={() => setActiveTab("transfer")}
+            onClick={() => handleTabChange("transfer")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "transfer"
                 ? "border-[#27272a] text-[#27272a]"
@@ -147,6 +164,17 @@ export const Settings: React.FC = () => {
           >
             <Truck className="w-4 h-4" />
             <span>{t("settings.transferManagementTab")}</span>
+          </button>
+          <button
+            onClick={() => handleTabChange("activity")}
+            className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === "activity"
+                ? "border-[#27272a] text-[#27272a]"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <Activity className="w-4 h-4" />
+            <span>{t("settings.activityLogsTab") || "Activity Logs"}</span>
           </button>
         </div>
 
@@ -480,6 +508,9 @@ export const Settings: React.FC = () => {
           />
         </div>
       )}
+
+      {/* Activity Logs Tab */}
+      {activeTab === "activity" && <ActivityLogsTab />}
 
       {/* Transfer Detail Modal */}
       <TransferDetailModal

@@ -172,15 +172,6 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-ocean-50 text-ocean-700",
   },
   {
-    id: "daily-reports",
-    category: "purchasing_orders",
-    titleKey: "sidebar.dailyReports",
-    descKey: "home.desc.dailyReports",
-    icon: Bell,
-    path: "/daily-reports",
-    color: "bg-zinc-50 text-zinc-700",
-  },
-  {
     id: "accounts",
     category: "purchasing_orders",
     titleKey: "sidebar.accountManagement",
@@ -188,24 +179,6 @@ export const navigationItems: NavigationItem[] = [
     icon: Shield,
     path: "/accounts",
     color: "bg-slate-100 text-slate-700",
-  },
-  {
-    id: "settings",
-    category: "purchasing_orders",
-    titleKey: "sidebar.settings",
-    descKey: "home.desc.settings",
-    icon: Settings,
-    path: "/settings",
-    color: "bg-gray-100 text-gray-700",
-  },
-  {
-    id: "activity-logs",
-    category: "purchasing_orders",
-    titleKey: "sidebar.activityLogs",
-    descKey: "home.desc.activityLogs",
-    icon: Activity,
-    path: "/activity-logs",
-    color: "bg-sky-50 text-sky-700",
   },
 
   // Slide 2: Project Management (Client Leads, Projects, Invoice Generator, Site Workers, Support Tickets)
