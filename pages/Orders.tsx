@@ -104,9 +104,12 @@ export const Orders: React.FC = () => {
       }
 
       if (response.success && response.data) {
-        const sortedOrders = [...response.data].sort((a, b) => {
-          const dateA = new Date(a.date).getTime();
-          const dateB = new Date(b.date).getTime();
+        const ordersList = Array.isArray(response.data)
+          ? response.data
+          : (response.data as any)?.orders || [];
+        const sortedOrders = [...ordersList].sort((a: any, b: any) => {
+          const dateA = new Date(a.createdAt || a.date).getTime();
+          const dateB = new Date(b.createdAt || b.date).getTime();
           return dateB - dateA;
         });
         setOrders(sortedOrders);
@@ -178,44 +181,64 @@ export const Orders: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders.filter((order) => {
+  const filteredOrders = orders.filter((order: any) => {
     const query = search.toLowerCase().trim();
 
     if (query) {
-      const matchesVoucher = order.voucherNo.toLowerCase().includes(query);
-      const matchesCustomer =
-        order.customer && order.customer.toLowerCase().includes(query);
-      const matchesStorefront =
-        order.storefrontId?.name &&
-        order.storefrontId.name.toLowerCase().includes(query);
+      const orderNum = (order.orderNumber || order.voucherNo || "").toLowerCase();
+      const matchesVoucher = orderNum.includes(query);
+      const customerName = (
+        (typeof order.creditPersonId === "object" ? order.creditPersonId?.name : "") ||
+        order.customer ||
+        ""
+      ).toLowerCase();
+      const matchesCustomer = customerName.includes(query);
+      const storefrontName = (
+        order.storefrontId?.locationName ||
+        order.storefrontId?.storefrontName ||
+        order.storefrontId?.name ||
+        ""
+      ).toLowerCase();
+      const matchesStorefront = storefrontName.includes(query);
 
-      const matchesItems = order.items.some((item) => {
-        const nameMatches = item.productId.productName
-          .toLowerCase()
-          .includes(query);
-        const codeMatches = item.productId.productCode
-          .toLowerCase()
-          .includes(query);
-        const colorMatches = item.colorName
-          ? item.colorName.toLowerCase().includes(query)
-          : false;
-        return nameMatches || codeMatches || colorMatches;
+      const itemsList = order.ordersProducts || order.items || [];
+      const matchesItems = itemsList.some((item: any) => {
+        const pName = (
+          item.inventoryId?.productName ||
+          item.productId?.productName ||
+          item.productName ||
+          ""
+        ).toLowerCase();
+        const pCode = (
+          item.inventoryId?.productCode ||
+          item.productId?.productCode ||
+          item.productCode ||
+          ""
+        ).toLowerCase();
+        return pName.includes(query) || pCode.includes(query);
       });
 
-      const matchesDate = new Date(order.date)
-        .toLocaleDateString("en-US", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        })
-        .toLowerCase()
-        .includes(query);
+      const orderDateStr = order.createdAt || order.date;
+      const matchesDate = orderDateStr
+        ? new Date(orderDateStr)
+            .toLocaleDateString("en-US", {
+              year: "numeric",
+              month: "short",
+              day: "numeric",
+            })
+            .toLowerCase()
+            .includes(query)
+        : false;
 
+      const creditPersonObj =
+        typeof order.creditPersonId === "object" ? order.creditPersonId : null;
       const matchesCreditPerson =
-        order.creditPersonId &&
-        (order.creditPersonId.name.toLowerCase().includes(query) ||
-          order.creditPersonId.phone.toLowerCase().includes(query) ||
-          order.creditPersonId.creditCode?.toLowerCase().includes(query));
+        creditPersonObj &&
+        (creditPersonObj.name?.toLowerCase().includes(query) ||
+          creditPersonObj.phone?.toLowerCase().includes(query) ||
+          creditPersonObj.creditCode?.toLowerCase().includes(query));
+
+      const matchesNote = (order.note || "").toLowerCase().includes(query);
 
       if (
         !matchesVoucher &&
@@ -223,7 +246,8 @@ export const Orders: React.FC = () => {
         !matchesStorefront &&
         !matchesItems &&
         !matchesDate &&
-        !matchesCreditPerson
+        !matchesCreditPerson &&
+        !matchesNote
       ) {
         return false;
       }
@@ -241,11 +265,19 @@ export const Orders: React.FC = () => {
     }
 
     if (deliveryStatusFilter !== "all") {
-      const isDelivered = order.isDelivered || false;
+      const isDelivered =
+        order.isDelivered || order.deliveryStatus === "delivered";
       if (deliveryStatusFilter === "delivered" && !isDelivered) {
         return false;
       }
       if (deliveryStatusFilter === "not_delivered" && isDelivered) {
+        return false;
+      }
+      if (
+        deliveryStatusFilter !== "delivered" &&
+        deliveryStatusFilter !== "not_delivered" &&
+        order.deliveryStatus !== deliveryStatusFilter
+      ) {
         return false;
       }
     }
