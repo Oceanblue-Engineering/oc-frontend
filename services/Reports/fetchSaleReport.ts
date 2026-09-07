@@ -16,6 +16,11 @@ export interface SaleReportDateRange {
 export interface SaleReportData {
   finalAmount: number;
   paidAmount: number;
+  outstandingAmount?: number;
+  creditFinalAmount?: number;
+  creditPaidAmount?: number;
+  focAmount?: number;
+  focOrderCount?: number;
   subTotal: number;
   tax: number;
   discount: number;

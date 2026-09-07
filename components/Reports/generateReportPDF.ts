@@ -14,6 +14,11 @@ interface ReportPDFParams {
   displayReport: {
     finalAmount: number;
     paidAmount: number;
+    outstandingAmount?: number;
+    creditFinalAmount?: number;
+    creditPaidAmount?: number;
+    focAmount?: number;
+    focOrderCount?: number;
     subTotal: number;
     tax: number;
     discount: number;
@@ -95,8 +100,18 @@ const generateOverallPDF = (doc: jsPDF, params: ReportPDFParams) => {
       ["Total Sales", formatCurrency(displayReport.finalAmount)],
       ["Paid Amount", formatCurrency(displayReport.paidAmount)],
       [
-        "Credit Amount",
-        formatCurrency(displayReport.finalAmount - displayReport.paidAmount),
+        "Outstanding Credits",
+        formatCurrency(
+          displayReport.outstandingAmount !== undefined
+            ? displayReport.outstandingAmount
+            : displayReport.creditFinalAmount !== undefined
+              ? Math.max(
+                  0,
+                  displayReport.creditFinalAmount -
+                    (displayReport.creditPaidAmount || 0),
+                )
+              : Math.max(0, displayReport.finalAmount - displayReport.paidAmount),
+        ),
       ],
       ["Total Orders", String(displayReport.orderCount)],
       ["Paid Orders", String(displayReport.paidOrderCount)],

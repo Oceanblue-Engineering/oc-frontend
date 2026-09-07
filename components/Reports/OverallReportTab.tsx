@@ -7,6 +7,11 @@ interface OverallReportTabProps {
   displayReport: {
     finalAmount: number;
     paidAmount: number;
+    outstandingAmount?: number;
+    creditFinalAmount?: number;
+    creditPaidAmount?: number;
+    focAmount?: number;
+    focOrderCount?: number;
     subTotal: number;
     tax: number;
     discount: number;
@@ -27,6 +32,17 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
 }) => {
   const { t } = useLanguage();
   
+  const outstandingAmount =
+    displayReport.outstandingAmount !== undefined
+      ? displayReport.outstandingAmount
+      : displayReport.creditFinalAmount !== undefined
+        ? Math.max(
+            0,
+            displayReport.creditFinalAmount -
+              (displayReport.creditPaidAmount || 0),
+          )
+        : Math.max(0, displayReport.finalAmount - displayReport.paidAmount);
+
   // Determine which reports to show in the breakdown table
   const reportsToShow =
     selectedStorefront === "all"
@@ -82,7 +98,7 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
               {t("reports.outstandingCredits")}
             </p>
             <p className="text-lg font-black text-slate-800 mt-1">
-              {(displayReport.finalAmount - displayReport.paidAmount).toLocaleString()}{" "}
+              {outstandingAmount.toLocaleString()}{" "}
               <span className="text-xs font-semibold text-slate-400">MMK</span>
             </p>
           </div>

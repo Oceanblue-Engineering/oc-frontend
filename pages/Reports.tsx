@@ -645,6 +645,23 @@ export const Reports: React.FC = () => {
       if (report.success) {
         acc.finalAmount += report.data.report.finalAmount;
         acc.paidAmount += report.data.report.paidAmount;
+        acc.outstandingAmount =
+          (acc.outstandingAmount || 0) +
+          (report.data.report.outstandingAmount ??
+            (report.data.report.creditFinalAmount
+              ? report.data.report.creditFinalAmount -
+                (report.data.report.creditPaidAmount || 0)
+              : 0));
+        acc.creditFinalAmount =
+          (acc.creditFinalAmount || 0) +
+          (report.data.report.creditFinalAmount || 0);
+        acc.creditPaidAmount =
+          (acc.creditPaidAmount || 0) +
+          (report.data.report.creditPaidAmount || 0);
+        acc.focAmount =
+          (acc.focAmount || 0) + (report.data.report.focAmount || 0);
+        acc.focOrderCount =
+          (acc.focOrderCount || 0) + (report.data.report.focOrderCount || 0);
         acc.subTotal += report.data.report.subTotal;
         acc.tax += report.data.report.tax;
         acc.discount += report.data.report.discount;
@@ -658,6 +675,11 @@ export const Reports: React.FC = () => {
     {
       finalAmount: 0,
       paidAmount: 0,
+      outstandingAmount: 0,
+      creditFinalAmount: 0,
+      creditPaidAmount: 0,
+      focAmount: 0,
+      focOrderCount: 0,
       subTotal: 0,
       tax: 0,
       discount: 0,
