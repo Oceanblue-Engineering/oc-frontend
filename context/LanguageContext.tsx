@@ -15,9 +15,9 @@ import { translations } from "../translations";
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguageState] = useState<Language>(() => {
-    // Get language from localStorage or default to Myanmar
+    // Get language from localStorage or default to English
     const saved = localStorage.getItem("language") as Language;
-    return saved || "my";
+    return saved || "en";
   });
 
   useEffect(() => {

@@ -13,7 +13,6 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
-  Store,
   Activity,
 } from "lucide-react";
 import {
@@ -27,7 +26,6 @@ import {
 import { toast } from "sonner";
 import { TransferList } from "../components/Purchasing/TransferList";
 import { TransferDetailModal } from "../components/Purchasing/TransferDetailModal";
-import { ShopSettingsTab } from "../components/Settings/ShopSettingsTab";
 import { ActivityLogsTab } from "../components/Settings/ActivityLogsTab";
 import { useLanguage } from "../context/LanguageContext";
 
@@ -47,19 +45,19 @@ export const Settings: React.FC = () => {
   );
   const [isTransferDetailModalOpen, setIsTransferDetailModalOpen] =
     useState(false);
-  const initialTab = (searchParams.get("tab") as "audit" | "transfer" | "shop" | "activity") || "shop";
-  const [activeTab, setActiveTab] = useState<"audit" | "transfer" | "shop" | "activity">(
-    ["audit", "transfer", "shop", "activity"].includes(initialTab) ? initialTab : "shop",
+  const initialTab = (searchParams.get("tab") as "audit" | "transfer" | "activity") || "audit";
+  const [activeTab, setActiveTab] = useState<"audit" | "transfer" | "activity">(
+    ["audit", "transfer", "activity"].includes(initialTab) ? initialTab : "audit",
   );
 
   useEffect(() => {
-    const tabParam = searchParams.get("tab") as "audit" | "transfer" | "shop" | "activity";
-    if (tabParam && ["audit", "transfer", "shop", "activity"].includes(tabParam) && tabParam !== activeTab) {
+    const tabParam = searchParams.get("tab") as "audit" | "transfer" | "activity";
+    if (tabParam && ["audit", "transfer", "activity"].includes(tabParam) && tabParam !== activeTab) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
 
-  const handleTabChange = (tab: "audit" | "transfer" | "shop" | "activity") => {
+  const handleTabChange = (tab: "audit" | "transfer" | "activity") => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
@@ -133,17 +131,6 @@ export const Settings: React.FC = () => {
         {/* Tabs */}
         <div className="flex gap-2 border-b border-gray-100 pb-1 overflow-x-auto flex-shrink-0">
           <button
-            onClick={() => handleTabChange("shop")}
-            className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === "shop"
-                ? "border-[#27272a] text-[#27272a]"
-                : "border-transparent text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            <Store className="w-4 h-4" />
-            <span>{t("settings.shopSettingsTab")}</span>
-          </button>
-          <button
             onClick={() => handleTabChange("audit")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
               activeTab === "audit"
@@ -180,9 +167,6 @@ export const Settings: React.FC = () => {
 
         {/* Scrollable Content Container */}
         <div className="flex-1 overflow-y-auto pr-1 no-scrollbar min-h-0">
-          {/* Shop Settings Tab */}
-          {activeTab === "shop" && <ShopSettingsTab />}
-
       {/* Audit Logs Tab */}
       {activeTab === "audit" && (
         <div className="space-y-4">
