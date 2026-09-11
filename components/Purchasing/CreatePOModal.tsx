@@ -126,7 +126,8 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
       setPOSupplierId(supId || "");
 
       if (editingPO.products && Array.isArray(editingPO.products)) {
-        const items: PurchaseOrderItem[] = editingPO.products.map((p) => {
+        const itemMap = new Map<string, PurchaseOrderItem>();
+        editingPO.products.forEach((p) => {
           const prodId =
             typeof p.inventoryId === "object" && p.inventoryId !== null
               ? (p.inventoryId as any)._id || (p.inventoryId as any).id
@@ -139,19 +140,25 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
             matchedProd?.buyingPrice ??
             matchedProd?.costPrice ??
             0;
-          return {
-            productId: String(prodId),
-            name:
-              p.productName ||
-              matchedProd?.productName ||
-              matchedProd?.name ||
-              "Product",
-            qty: p.purchaseQuantity || 1,
-            costPrice: cost,
-            note: p.productCode || "",
-          };
+          const key = String(prodId);
+          const existing = itemMap.get(key);
+          if (existing) {
+            existing.qty += p.purchaseQuantity || 1;
+          } else {
+            itemMap.set(key, {
+              productId: key,
+              name:
+                p.productName ||
+                matchedProd?.productName ||
+                matchedProd?.name ||
+                "Product",
+              qty: p.purchaseQuantity || 1,
+              costPrice: cost,
+              note: p.productCode || "",
+            });
+          }
         });
-        setPOItems(items);
+        setPOItems(Array.from(itemMap.values()));
       } else {
         setPOItems([]);
       }
@@ -300,7 +307,37 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
       note: poItemNote,
     };
 
-    setPOItems((prev) => [...prev, newItem]);
+    setPOItems((prev) => {
+      const existingIndex = prev.findIndex((item) => {
+        if (productId && !productId.startsWith("new-")) {
+          return String(item.productId) === String(productId);
+        }
+        return (
+          item.name.trim().toLowerCase() === productName.trim().toLowerCase()
+        );
+      });
+
+      if (existingIndex > -1) {
+        return prev.map((item, index) => {
+          if (index === existingIndex) {
+            return {
+              ...item,
+              qty: item.qty + poQty,
+              costPrice: buyingPrice > 0 ? buyingPrice : item.costPrice,
+              note: poItemNote
+                ? item.note
+                  ? `${item.note}; ${poItemNote}`
+                  : poItemNote
+                : item.note,
+            };
+          }
+          return item;
+        });
+      }
+
+      return [...prev, newItem];
+    });
+
     setPOSelectedProduct("");
     setPONewProductName("");
     setProductSearchQuery("");
@@ -539,6 +576,12 @@ export const CreatePOModal: React.FC<CreatePOModalProps> = ({
                     placeholder="Qty"
                     value={poQty}
                     onChange={(e) => setPOQty(Number(e.target.value))}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        addPOItem();
+                      }
+                    }}
                     min="1"
                   />
                   <button
