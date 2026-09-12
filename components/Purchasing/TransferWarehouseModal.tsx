@@ -3,9 +3,10 @@ import { Modal } from "../Modal";
 import { GRNData } from "../../services/Purchase/fetchGRNs";
 import { fetchGRNById } from "../../services/Purchase/fetchGRNById";
 import { fetchWarehouseProfiles } from "../../services/Warehouse/fetchWarehouseProfiles";
+import { fetchStorefrontProfiles, StorefrontProfile } from "../../services/Storefront/fetchStorefrontProfiles";
 import { transferGRN } from "../../services/Purchase/transferGRN";
 import { toast } from "sonner";
-import { Warehouse, Package } from "lucide-react";
+import { Warehouse, Package, Store } from "lucide-react";
 
 interface WarehouseProfile {
   _id: string;
@@ -35,8 +36,11 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
   onSuccess,
 }) => {
   const [grn, setGrn] = useState<GRNData | null>(null);
+  const [destinationType, setDestinationType] = useState<"warehouse" | "storefront">("warehouse");
   const [warehouses, setWarehouses] = useState<WarehouseProfile[]>([]);
+  const [storefronts, setStorefronts] = useState<StorefrontProfile[]>([]);
   const [selectedWarehouseId, setSelectedWarehouseId] = useState("");
+  const [selectedStorefrontId, setSelectedStorefrontId] = useState("");
   const [transferItems, setTransferItems] = useState<TransferItem[]>([]);
   const [transferDate, setTransferDate] = useState(
     new Date().toISOString().split("T")[0]
@@ -55,9 +59,10 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
     if (!grnId) return;
     setLoading(true);
     try {
-      const [grnRes, warehouseRes] = await Promise.all([
+      const [grnRes, warehouseRes, storefrontRes] = await Promise.all([
         fetchGRNById(grnId),
         fetchWarehouseProfiles(),
+        fetchStorefrontProfiles(),
       ]);
 
       if (grnRes.success && grnRes.data) {
@@ -74,6 +79,14 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
 
       if (warehouseRes.success && warehouseRes.data) {
         setWarehouses(warehouseRes.data);
+      }
+
+      if (storefrontRes.success && storefrontRes.data) {
+        setStorefronts(
+          storefrontRes.data.filter(
+            (s) => s.status !== "inactive" && !s.isDeleted
+          )
+        );
       }
     } catch (error) {
       console.error("Failed to load data", error);
@@ -110,7 +123,9 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
 
   const resetForm = () => {
     setGrn(null);
+    setDestinationType("warehouse");
     setSelectedWarehouseId("");
+    setSelectedStorefrontId("");
     setTransferItems([]);
     setTransferDate(new Date().toISOString().split("T")[0]);
     setNotes("");
@@ -127,8 +142,13 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
       return;
     }
 
-    if (!selectedWarehouseId) {
+    if (destinationType === "warehouse" && !selectedWarehouseId) {
       toast.error("Please select a destination warehouse");
+      return;
+    }
+
+    if (destinationType === "storefront" && !selectedStorefrontId) {
+      toast.error("Please select a destination storefront");
       return;
     }
 
@@ -151,7 +171,10 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
       const payload = {
         sourceType: "GRN" as const,
         grnId,
-        destinationWarehouseId: selectedWarehouseId,
+        destinationWarehouseId:
+          destinationType === "warehouse" ? selectedWarehouseId : undefined,
+        destinationStorefrontId:
+          destinationType === "storefront" ? selectedStorefrontId : undefined,
         lineItems: itemsToProcess.map((item) => ({
           productCode: item.productCode,
           quantity: item.quantity,
@@ -163,7 +186,11 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
       const result = await transferGRN(payload);
 
       if (result.success) {
-        toast.success("Transfer completed successfully!");
+        toast.success(
+          `Transfer to ${
+            destinationType === "warehouse" ? "Warehouse" : "Storefront"
+          } completed successfully!`
+        );
         resetForm();
         onSuccess?.();
         onClose();
@@ -179,7 +206,11 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={handleClose} title="Transfer to Warehouse">
+    <Modal
+      isOpen={isOpen}
+      onClose={handleClose}
+      title="Transfer from GRN"
+    >
       {loading ? (
         <div className="flex items-center justify-center py-12">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600"></div>
@@ -216,25 +247,85 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
               </div>
             </div>
 
-            {/* Warehouse Selection */}
+            {/* Destination Type Selector */}
             <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
-                <Warehouse className="w-4 h-4" />
-                Destination Warehouse
+              <label className="block text-xs font-bold text-slate-700 mb-1.5">
+                Destination Type (လွှဲပြောင်းမည့် နေရာအမျိုးအစား)
               </label>
-              <select
-                className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                value={selectedWarehouseId}
-                onChange={(e) => setSelectedWarehouseId(e.target.value)}
-              >
-                <option value="">Select Warehouse...</option>
-                {warehouses.map((wh) => (
-                  <option key={wh._id} value={wh._id}>
-                    {wh.locationName} ({wh.locationCode})
-                  </option>
-                ))}
-              </select>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-lg">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDestinationType("warehouse");
+                    setSelectedStorefrontId("");
+                  }}
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                    destinationType === "warehouse"
+                      ? "bg-white text-zinc-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <Warehouse className="w-4 h-4" />
+                  <span>Warehouse</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setDestinationType("storefront");
+                    setSelectedWarehouseId("");
+                  }}
+                  className={`flex items-center justify-center gap-2 py-2 px-3 rounded-md text-xs font-semibold transition-all cursor-pointer ${
+                    destinationType === "storefront"
+                      ? "bg-white text-zinc-900 shadow-sm"
+                      : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  <Store className="w-4 h-4" />
+                  <span>Storefront (ဆိုင်ခွဲ)</span>
+                </button>
+              </div>
             </div>
+
+            {/* Destination Location Selection */}
+            {destinationType === "warehouse" ? (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                  <Warehouse className="w-4 h-4" />
+                  Destination Warehouse
+                </label>
+                <select
+                  className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                  value={selectedWarehouseId}
+                  onChange={(e) => setSelectedWarehouseId(e.target.value)}
+                >
+                  <option value="">Select Warehouse...</option>
+                  {warehouses.map((wh) => (
+                    <option key={wh._id} value={wh._id}>
+                      {wh.locationName} ({wh.locationCode})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                  <Store className="w-4 h-4" />
+                  Destination Storefront (ဆိုင်ခွဲ)
+                </label>
+                <select
+                  className="w-full border rounded-lg p-3 text-sm focus:ring-2 focus:ring-green-500 focus:border-green-500 bg-white"
+                  value={selectedStorefrontId}
+                  onChange={(e) => setSelectedStorefrontId(e.target.value)}
+                >
+                  <option value="">Select Storefront...</option>
+                  {storefronts.map((sf) => (
+                    <option key={sf._id} value={sf._id}>
+                      {sf.locationName || sf.storefrontName} ({sf.locationCode || sf.storefrontCode})
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             {/* Transfer Date */}
             <div>
@@ -393,20 +484,34 @@ export const TransferWarehouseModal: React.FC<TransferWarehouseModalProps> = ({
                 <button
                   onClick={() => handleSubmit(true)}
                   disabled={
-                    !selectedWarehouseId ||
+                    (destinationType === "warehouse"
+                      ? !selectedWarehouseId
+                      : !selectedStorefrontId) ||
                     transferItems.filter(
                       (item) => item.isSelected && item.quantity > 0
                     ).length === 0 ||
                     isSubmitting
                   }
-                  className="bg-zinc-600 text-white py-3 rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center justify-center gap-2"
+                  className="bg-zinc-600 text-white py-3 rounded-lg hover:bg-zinc-700 disabled:opacity-50 disabled:cursor-not-allowed font-medium transition-colors flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Warehouse className="w-5 h-5" />
-                  {isSubmitting ? "Transferring..." : "Transfer Selected"}
+                  {destinationType === "warehouse" ? (
+                    <Warehouse className="w-5 h-5" />
+                  ) : (
+                    <Store className="w-5 h-5" />
+                  )}
+                  {isSubmitting
+                    ? "Transferring..."
+                    : `Transfer to ${
+                        destinationType === "warehouse"
+                          ? "Warehouse"
+                          : "Storefront"
+                      }`}
                 </button>
               </div>
               <p className="text-xs text-slate-500 text-center">
-                Items will be transferred to the selected warehouse inventory.
+                Items will be transferred to the selected{" "}
+                {destinationType === "warehouse" ? "warehouse" : "storefront"}{" "}
+                inventory.
               </p>
             </div>
           </div>

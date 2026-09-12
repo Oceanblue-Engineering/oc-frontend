@@ -71,17 +71,29 @@ export const CreateGRNModal: React.FC<CreateGRNModalProps> = ({
 
     const grnItemsForPO: ExtendedGRNItem[] = po.products
       .filter((item) => item.productStatus === "pending")
-      .map((item) => ({
-        productId: item.inventoryId,
-        productCode: item.productCode || "",
-        name: item.productName,
-        qtyOrdered: item.purchaseQuantity,
-        qtyReceived: item.purchaseQuantity,
-        qtyGood: item.purchaseQuantity,
-        qtyBad: 0,
-        costPrice: item.buyingPrice,
-        isSelected: true,
-      }));
+      .map((item) => {
+        const remainingQty = Math.max(
+          0,
+          item.purchaseQuantity - (item.receivedQuantity || 0)
+        );
+        const defaultQty = remainingQty > 0 ? remainingQty : item.purchaseQuantity;
+        return {
+          productId: item.inventoryId,
+          productCode: item.productCode || "",
+          name: item.productName,
+          qtyOrdered: item.purchaseQuantity,
+          qtyReceived: defaultQty,
+          qtyGood: defaultQty,
+          qtyBad: 0,
+          costPrice: item.buyingPrice,
+          isSelected: true,
+        };
+      });
+
+    if (grnItemsForPO.length === 0) {
+      toast.info("All products in this PO have already been received.");
+      return;
+    }
 
     setGRNItems(grnItemsForPO);
   };
@@ -252,10 +264,16 @@ export const CreateGRNModal: React.FC<CreateGRNModalProps> = ({
                 </div>
               </div>
               <button
+                type="button"
                 onClick={loadPOItems}
-                className="mt-4 w-full bg-zinc-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-zinc-700 transition-colors"
+                disabled={grnItems.length > 0}
+                className={`mt-4 w-full px-4 py-2.5 rounded-lg text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                  grnItems.length > 0
+                    ? "bg-slate-200 text-slate-400 border border-slate-300/60 opacity-50 cursor-not-allowed"
+                    : "bg-green-600 hover:bg-green-700 active:scale-[0.99] text-white shadow-sm cursor-pointer opacity-100"
+                }`}
               >
-                Load PO Items
+                {grnItems.length > 0 ? "PO Items Loaded" : "Load PO Items"}
               </button>
             </div>
           )}
