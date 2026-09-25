@@ -14,6 +14,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Activity,
+  Printer,
 } from "lucide-react";
 import {
   fetchStockAuditLogs,
@@ -27,6 +28,7 @@ import { toast } from "sonner";
 import { TransferList } from "../components/Purchasing/TransferList";
 import { TransferDetailModal } from "../components/Purchasing/TransferDetailModal";
 import { ActivityLogsTab } from "../components/Settings/ActivityLogsTab";
+import { PrintPaperSizeSettingsCard } from "../components/Settings/PrintPaperSizeSettingsCard";
 import { useLanguage } from "../context/LanguageContext";
 
 export const Settings: React.FC = () => {
@@ -45,19 +47,21 @@ export const Settings: React.FC = () => {
   );
   const [isTransferDetailModalOpen, setIsTransferDetailModalOpen] =
     useState(false);
-  const initialTab = (searchParams.get("tab") as "audit" | "transfer" | "activity") || "audit";
-  const [activeTab, setActiveTab] = useState<"audit" | "transfer" | "activity">(
-    ["audit", "transfer", "activity"].includes(initialTab) ? initialTab : "audit",
+  type SettingTab = "audit" | "transfer" | "activity" | "voucher";
+  const validTabs: SettingTab[] = ["audit", "transfer", "activity", "voucher"];
+  const initialTab = (searchParams.get("tab") as SettingTab) || "audit";
+  const [activeTab, setActiveTab] = useState<SettingTab>(
+    validTabs.includes(initialTab) ? initialTab : "audit",
   );
 
   useEffect(() => {
-    const tabParam = searchParams.get("tab") as "audit" | "transfer" | "activity";
-    if (tabParam && ["audit", "transfer", "activity"].includes(tabParam) && tabParam !== activeTab) {
+    const tabParam = searchParams.get("tab") as SettingTab;
+    if (tabParam && validTabs.includes(tabParam) && tabParam !== activeTab) {
       setActiveTab(tabParam);
     }
   }, [searchParams]);
 
-  const handleTabChange = (tab: "audit" | "transfer" | "activity") => {
+  const handleTabChange = (tab: SettingTab) => {
     setActiveTab(tab);
     setSearchParams({ tab });
   };
@@ -162,6 +166,17 @@ export const Settings: React.FC = () => {
           >
             <Activity className="w-4 h-4" />
             <span>{t("settings.activityLogsTab") || "Activity Logs"}</span>
+          </button>
+          <button
+            onClick={() => handleTabChange("voucher")}
+            className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+              activeTab === "voucher"
+                ? "border-[#27272a] text-[#27272a]"
+                : "border-transparent text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <Printer className="w-4 h-4" />
+            <span>{t("settings.voucherSettingsTab") || "Voucher Settings"}</span>
           </button>
         </div>
 
@@ -495,6 +510,13 @@ export const Settings: React.FC = () => {
 
       {/* Activity Logs Tab */}
       {activeTab === "activity" && <ActivityLogsTab />}
+
+      {/* Voucher Settings Tab */}
+      {activeTab === "voucher" && (
+        <div className="space-y-6 max-w-2xl">
+          <PrintPaperSizeSettingsCard />
+        </div>
+      )}
 
       {/* Transfer Detail Modal */}
       <TransferDetailModal

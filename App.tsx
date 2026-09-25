@@ -41,6 +41,7 @@ import { ProjectAttendance } from "./pages/ProjectAttendance";
 import ProjectDetailAnalytics from "./pages/ProjectDetailAnalytics";
 import { InvoiceGenerator } from "./pages/InvoiceGenerator";
 import { ActivityLogs } from "./pages/ActivityLogs";
+import { OrderEditPOS } from "./pages/OrderEditPOS";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -142,6 +143,14 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <Orders />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/orders/edit/:id"
+            element={
+              <ProtectedRoute>
+                <OrderEditPOS />
               </ProtectedRoute>
             }
           />

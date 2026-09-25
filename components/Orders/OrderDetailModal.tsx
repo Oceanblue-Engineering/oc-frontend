@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   X,
   RefreshCw,
@@ -9,8 +10,7 @@ import {
   Package,
   UserCircle,
   User,
-  Plus,
-  Minus,
+  Edit,
   Printer,
   FileText,
   Truck,
@@ -27,10 +27,7 @@ import {
 } from "./orderUtils";
 import { useLanguage } from "../../context/LanguageContext";
 import { getSavedPrintPaperSize } from "../../utils/printPaperSize";
-import { detectDevice } from "../../utils/deviceDetect";
 import { useNavigate } from "react-router-dom";
-import { AddItemsToOrderModal } from "./AddItemsToOrderModal";
-import { RemoveItemsFromOrderModal } from "./RemoveItemsFromOrderModal";
 import { InvoiceModal } from "../Invoice/InvoiceModal";
 import {
   InvoiceData,
@@ -60,22 +57,34 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   const navigate = useNavigate();
   const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
   const userRole = adminData.role;
-  const [showAddItemsModal, setShowAddItemsModal] = useState(false);
-  const [showRemoveItemsModal, setShowRemoveItemsModal] = useState(false);
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   const getInvoiceDataFromOrder = (ord: Order): InvoiceData => {
-    const rawDate = ord.createdAt || ord.date || new Date().toISOString();
+    const rawDate = ord.createdAt || (ord as any).date || new Date().toISOString();
     const formattedDate = new Date(rawDate).toISOString().split("T")[0];
 
     const customerName =
       (typeof ord.creditPersonId === "object" ? ord.creditPersonId?.name : "") ||
-      ord.customer ||
-      "Customer";
+      ord.deliveryDetails?.recipientName ||
+      (ord as any).customer ||
+      "Walk-in Customer";
     const customerPhone =
       (typeof ord.creditPersonId === "object"
         ? ord.creditPersonId?.phone
-        : "") || "";
+        : "") ||
+      ord.deliveryDetails?.recipientPhone ||
+      "";
     const customerAddress =
       (typeof ord.creditPersonId === "object"
         ? ord.creditPersonId?.address
@@ -93,7 +102,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
             unitPrice: item.unitPrice || 0,
             amount: (item.quantity || 1) * (item.unitPrice || 0),
           }))
-        : (ord.items || []).map((item, idx) => ({
+        : ((ord as any).items || []).map((item: any, idx: number) => ({
             no: idx + 1,
             description:
               item.productId?.productName || "Product Item",
@@ -103,14 +112,14 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           }));
 
     return {
-      invoiceNo: ord.orderNumber || ord.voucherNo || "INV-001",
+      invoiceNo: ord.orderNumber || (ord as any).voucherNo || "INV-001",
       invoiceDate: formattedDate,
       paymentTerms: `${getPaymentTypeLabel(ord.paymentType)} • ${getPaymentMethodLabel(ord.paymentMethod)}`,
       billTo: {
         name: customerName,
         phone: customerPhone,
         address: customerAddress,
-        company: ord.storefrontId?.name || "",
+        company: (ord.storefrontId as any)?.name || ord.storefrontId?.locationName || "",
       },
       items,
       subTotal: ord.subTotal || ord.finalAmount || 0,
@@ -118,6 +127,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         ? `Discount (${ord.discount.toLocaleString()} MMK)`
         : "Discount / Tax (%)",
       discountOrTaxAmount: ord.discount || 0,
+      deliveryFee: ord.deliveryDetails?.deliveryFee || 0,
       totalAmount: ord.finalAmount || 0,
       remarks: ord.note && ord.note.trim() ? [...DEFAULT_REMARKS, `Note: ${ord.note.trim()}`] : [...DEFAULT_REMARKS],
       paymentAccounts: [...DEFAULT_PAYMENT_ACCOUNTS],
@@ -145,6 +155,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
       discountPercent: order.discount
         ? (order.discount / (order.subTotal || 1)) * 100
         : 0,
+      deliveryFee: order.deliveryDetails?.deliveryFee || 0,
       total: order.finalAmount || 0,
       paymentMethod: getPaymentMethodLabel(order.paymentMethod),
       paidAmount: order.paidAmount,
@@ -159,17 +170,24 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         JSON.parse(localStorage.getItem("adminData") || "{}").name ||
         "Cashier",
       customerName:
-        typeof order.creditPersonId === "object"
+        (typeof order.creditPersonId === "object"
           ? order.creditPersonId?.name
-          : "",
+          : "") ||
+        order.deliveryDetails?.recipientName ||
+        (order as any).customer ||
+        "",
       customerPhone:
-        typeof order.creditPersonId === "object"
+        (typeof order.creditPersonId === "object"
           ? order.creditPersonId?.phone
-          : "",
+          : "") ||
+        order.deliveryDetails?.recipientPhone ||
+        "",
       customerAddress:
-        typeof order.creditPersonId === "object"
+        (typeof order.creditPersonId === "object"
           ? order.creditPersonId?.address || ""
-          : "",
+          : "") ||
+        order.deliveryDetails?.deliveryAddress ||
+        "",
     };
 
     // Save receipt data to localStorage for A4 printing
@@ -184,8 +202,15 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in zoom-in-95 duration-200">
         {/* Modal Header */}
         <div className="flex flex-wrap items-center justify-between gap-3 p-4 sm:p-5 border-b bg-slate-50/80 shrink-0">
@@ -215,25 +240,20 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                 </Button>
               </>
             )}
-            {order && userRole === "owner" && (
-              <>
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => setShowRemoveItemsModal(true)}
-                  leftIcon={<Minus className="w-3.5 h-3.5" />}
-                >
-                  {t("orders.removeItems") || "Remove"}
-                </Button>
-                <Button
-                  variant="subtle"
-                  size="sm"
-                  onClick={() => setShowAddItemsModal(true)}
-                  leftIcon={<Plus className="w-3.5 h-3.5" />}
-                >
-                  {t("orders.addItems") || "Add"}
-                </Button>
-              </>
+            {order && (userRole === "owner" || userRole === "admin" || userRole === "cashier") && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  onClose();
+                  navigate(`/orders/edit/${order._id}`);
+                }}
+                className="bg-amber-600 hover:bg-amber-700 text-white border-amber-600 hover:border-amber-700 cursor-pointer"
+                leftIcon={<Edit className="w-3.5 h-3.5" />}
+                title={t("orders.editOrder") || "Edit Order"}
+              >
+                {t("common.edit") || "Edit"}
+              </Button>
             )}
             <button
               onClick={onClose}
@@ -495,28 +515,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
           invoiceData={getInvoiceDataFromOrder(order)}
         />
       )}
-
-      {/* Add Items Modal */}
-      <AddItemsToOrderModal
-        isOpen={showAddItemsModal}
-        order={order}
-        onClose={() => setShowAddItemsModal(false)}
-        onSuccess={() => {
-          setShowAddItemsModal(false);
-          (onOrderUpdate || onRefresh)?.();
-        }}
-      />
-
-      {/* Remove Items Modal */}
-      <RemoveItemsFromOrderModal
-        isOpen={showRemoveItemsModal}
-        order={order}
-        onClose={() => setShowRemoveItemsModal(false)}
-        onSuccess={() => {
-          setShowRemoveItemsModal(false);
-          (onOrderUpdate || onRefresh)?.();
-        }}
-      />
-    </div>
+    </div>,
+    document.body
   );
 };

@@ -435,6 +435,7 @@ export const en = {
     stockAuditLogsTab: "Stock Audit Logs",
     transferManagementTab: "Transfer Management",
     activityLogsTab: "Activity Logs",
+    voucherSettingsTab: "Voucher Settings",
     edit: "Edit",
     refresh: "Refresh",
     address: "Address",
@@ -645,6 +646,7 @@ export const en = {
     no: "No",
   },
   orders: {
+    editOrder: "Edit Order",
     title: "Customer Orders",
     subtitle: "Inspect customer orders and generate vouchers",
     allDelivery: "All Delivery Status",

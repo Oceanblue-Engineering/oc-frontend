@@ -25,6 +25,7 @@ export interface InvoiceData {
   projectId?: string;
   discountOrTaxLabel?: string;
   discountOrTaxAmount?: number;
+  deliveryFee?: number;
   totalAmount: number;
   remarks?: string[];
   paymentAccounts?: {
@@ -100,6 +101,18 @@ export const InvoiceDocument = React.forwardRef<
     if (!val && val !== 0) return "";
     return val.toLocaleString();
   };
+
+  const effectiveDeliveryFee =
+    data.deliveryFee != null && data.deliveryFee > 0
+      ? data.deliveryFee
+      : Math.max(
+          0,
+          Math.round(
+            data.totalAmount -
+              (data.subTotal -
+                (data.discountOrTaxAmount || 0))
+          )
+        );
 
   return (
     <div
@@ -325,6 +338,18 @@ export const InvoiceDocument = React.forwardRef<
                   : "-"}
               </span>
             </div>
+
+            {/* Delivery Fee Row (if any) */}
+            {effectiveDeliveryFee > 0 && (
+              <div className="grid grid-cols-2 border-b border-slate-300 h-10 items-center">
+                <span className="text-center font-bold text-slate-700 border-r border-slate-300 h-full flex items-center justify-center">
+                  Delivery Fee
+                </span>
+                <span className="text-right pr-4 font-bold text-slate-900 h-full flex items-center justify-end">
+                  +{formatMoney(effectiveDeliveryFee)} {currency}
+                </span>
+              </div>
+            )}
 
             {/* Total Amount Row */}
             <div className="grid grid-cols-2 h-10 items-center">

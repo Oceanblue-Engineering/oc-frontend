@@ -9,15 +9,24 @@ export interface PrintShopBranding {
   currency: string;
 }
 
+export const DEFAULT_SHOP_BRANDING: PrintShopBranding = {
+  shopName: "OceanBlue",
+  logo: "/logo.png",
+  phone: "+959420190123",
+  address: "10(A), Aung Mingala Street, Mingaladon, Yangon",
+  website: "www.oceanblue.com.mm",
+  currency: "MMK",
+};
+
 export const getPrintShopBranding = (
-  settings: ShopSettings | null,
+  settings?: ShopSettings | null,
 ): PrintShopBranding => ({
-  shopName: settings?.shopName || "OceanBlue",
-  logo: settings?.logo || "/logo.png",
-  phone: settings?.phoneNumber,
-  address: settings?.address,
-  website: settings?.socialMedia?.website,
-  currency: settings?.currency || "MMK",
+  shopName: settings?.shopName || DEFAULT_SHOP_BRANDING.shopName,
+  logo: settings?.logo || DEFAULT_SHOP_BRANDING.logo,
+  phone: settings?.phoneNumber || DEFAULT_SHOP_BRANDING.phone,
+  address: settings?.address || DEFAULT_SHOP_BRANDING.address,
+  website: settings?.socialMedia?.website || DEFAULT_SHOP_BRANDING.website,
+  currency: settings?.currency || DEFAULT_SHOP_BRANDING.currency,
 });
 
 export const preloadImage = (src: string): Promise<void> =>

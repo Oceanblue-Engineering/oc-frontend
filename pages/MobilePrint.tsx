@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { toast } from "sonner";
-import { fetchShopSettings } from "../services/ShopSettings/fetchShopSettings";
 import {
-  getPrintShopBranding,
-  preloadImage,
+  DEFAULT_SHOP_BRANDING,
   PrintShopBranding,
 } from "../utils/printShopBranding";
 import {
@@ -49,15 +46,18 @@ const MobilePrint: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
   const [receiptData, setReceiptData] = useState<VoucherReceiptData | null>(
-    null,
+    () => loadReceiptData(orderId)
   );
-  const [shopBranding, setShopBranding] = useState<PrintShopBranding | null>(
-    null,
+  const [shopBranding] = useState<PrintShopBranding>(DEFAULT_SHOP_BRANDING);
+  const [loadingMessage] = useState("Preparing print...");
+  const [isReady, setIsReady] = useState(() => Boolean(loadReceiptData(orderId)));
+  const [loadError, setLoadError] = useState<string | null>(() =>
+    loadReceiptData(orderId) ? null : "Receipt not found"
   );
-  const [loadingMessage, setLoadingMessage] = useState("Loading receipt...");
-  const [isReady, setIsReady] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
-  const [paperSize, setPaperSize] = useState<PrintPaperSize>("thermal-72mm");
+  const [paperSize, setPaperSize] = useState<PrintPaperSize>(() => {
+    const urlSize = new URLSearchParams(window.location.search).get("size");
+    return parsePrintPaperSize(urlSize) || getSavedPrintPaperSize();
+  });
 
   const handleBack = useCallback(() => {
     navigate(-1);
@@ -69,57 +69,22 @@ const MobilePrint: React.FC = () => {
   };
 
   useEffect(() => {
-    let cancelled = false;
+    const urlSize = new URLSearchParams(window.location.search).get("size");
+    const parsedSize = parsePrintPaperSize(urlSize);
+    const selectedSize = parsedSize || getSavedPrintPaperSize();
+    setPaperSize(selectedSize);
 
-    const preparePrint = async () => {
-      setLoadingMessage("Loading receipt...");
+    const receipt = loadReceiptData(orderId);
+    if (!receipt) {
+      setReceiptData(null);
+      setLoadError("Receipt not found");
       setIsReady(false);
-      setLoadError(null);
+      return;
+    }
 
-      // Read paper size from URL param or localStorage
-      const urlSize = new URLSearchParams(window.location.search).get("size");
-      const parsedSize = parsePrintPaperSize(urlSize);
-      const selectedSize = parsedSize || getSavedPrintPaperSize();
-      if (!cancelled) setPaperSize(selectedSize);
-
-      const receipt = loadReceiptData(orderId);
-      if (!receipt) {
-        if (!cancelled) {
-          setReceiptData(null);
-          setLoadError("Receipt not found");
-        }
-        return;
-      }
-
-      if (!cancelled) setReceiptData(receipt);
-
-      setLoadingMessage("Loading shop settings...");
-      const shopResponse = await fetchShopSettings();
-      const branding = getPrintShopBranding(shopResponse.data ?? null);
-
-      if (!cancelled) setShopBranding(branding);
-
-      if (branding.logo) {
-        setLoadingMessage("Loading shop logo...");
-        await preloadImage(branding.logo);
-      }
-
-      if (!cancelled) {
-        setLoadingMessage("Preparing print...");
-        setIsReady(true);
-      }
-    };
-
-    preparePrint().catch(() => {
-      if (!cancelled) {
-        toast.error("Failed to prepare receipt for printing");
-        setLoadError("Failed to load print data");
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
+    setReceiptData(receipt);
+    setLoadError(null);
+    setIsReady(true);
   }, [orderId]);
 
   const formatDate = (dateString: string) => {

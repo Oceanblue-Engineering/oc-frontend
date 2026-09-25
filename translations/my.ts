@@ -436,6 +436,7 @@ export const my = {
     stockAuditLogsTab: "စတော့လှုပ်ရှားမှု မှတ်တမ်း",
     transferManagementTab: "ပစ္စည်းလွှဲပြောင်းမှု စီမံခန့်ခွဲရေး",
     activityLogsTab: "လုပ်ဆောင်ချက် မှတ်တမ်းများ",
+    voucherSettingsTab: "ဘောင်ချာ ဆက်တင်များ",
     edit: "ပြင်ဆင်မည်",
     refresh: "ပြန်စင်",
     address: "လိပ်စာ",
@@ -653,6 +654,7 @@ export const my = {
     no: "No",
   },
   orders: {
+    editOrder: "အော်ဒါ ပြင်ဆင်ရန်",
     title: "Customer အော်ဒါများ",
     subtitle: "Customer တွေရဲ့ Order တွေကိုစစ်မယ် , ဘောက်ချာထုတ်မယ်",
     allDelivery: "ပို့ဆောင်မှုအားလုံး",

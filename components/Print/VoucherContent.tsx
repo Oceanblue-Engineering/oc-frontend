@@ -2,8 +2,7 @@ import React from "react";
 import { PrintShopBranding } from "../../utils/printShopBranding";
 import { PrintPaperSize } from "../../utils/printPaperSize";
 import { FileText, Calendar, CreditCard, Phone, Mail, MapPin } from "lucide-react";
-import logo from "../../public/mmah.png";
-import address from "../../public/address.jpg";
+
 
 export interface VoucherReceiptItem {
   name: string;
@@ -26,6 +25,7 @@ export interface VoucherReceiptData {
   note?: string;
   serviceCharge?: number;
   tax?: number;
+  deliveryFee?: number;
   receiptSequenceNumber?: number;
   cashierName?: string;
   customerName?: string;
@@ -53,8 +53,8 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
       <div className="voucher-container" data-paper={paperSize}>
         {/* Header */}
         <div className="text-center mb-2">
-          <img src={logo} alt="MMAH" className="mx-auto" />
-          <img src={address} alt="Address" className="mx-auto" />
+          <img src={shopBranding.logoUrl} alt="MMAH" className="mx-auto" />
+          <img src={shopBranding.addressUrl} alt="Address" className="mx-auto" />
           {shopBranding.address && (
             <p className="voucher-address text-slate-600 mt-1 whitespace-pre-line">
               {shopBranding.address}
@@ -137,14 +137,43 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
               </span>
             </div>
           )}
-          <div className="voucher-summary-row">
-            <span>Service charge</span>
-            <span>{(receiptData.serviceCharge || 0).toLocaleString()}</span>
-          </div>
-          <div className="voucher-summary-row">
-            <span>Tax</span>
-            <span>{(receiptData.tax || 0).toLocaleString()}</span>
-          </div>
+          {receiptData.serviceCharge != null && receiptData.serviceCharge > 0 && (
+            <div className="voucher-summary-row">
+              <span>Service charge</span>
+              <span>{receiptData.serviceCharge.toLocaleString()}</span>
+            </div>
+          )}
+          {receiptData.tax != null && receiptData.tax > 0 && (
+            <div className="voucher-summary-row">
+              <span>Tax</span>
+              <span>{receiptData.tax.toLocaleString()}</span>
+            </div>
+          )}
+          {(() => {
+            const disc =
+              receiptData.discountPercent > 0
+                ? (receiptData.subtotal * receiptData.discountPercent) / 100
+                : 0;
+            const fee =
+              receiptData.deliveryFee != null && receiptData.deliveryFee > 0
+                ? receiptData.deliveryFee
+                : Math.max(
+                    0,
+                    Math.round(
+                      receiptData.total -
+                        (receiptData.subtotal -
+                          disc +
+                          (receiptData.tax || 0) +
+                          (receiptData.serviceCharge || 0))
+                    )
+                  );
+            return fee > 0 ? (
+              <div className="voucher-summary-row">
+                <span>Delivery fee</span>
+                <span>+{fee.toLocaleString()}</span>
+              </div>
+            ) : null;
+          })()}
         </div>
 
         {/* Dashed separator */}
@@ -222,6 +251,20 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
     receiptData.discountPercent > 0
       ? (receiptData.subtotal * receiptData.discountPercent) / 100
       : 0;
+
+  const effectiveDeliveryFee =
+    receiptData.deliveryFee != null && receiptData.deliveryFee > 0
+      ? receiptData.deliveryFee
+      : Math.max(
+          0,
+          Math.round(
+            receiptData.total -
+              (receiptData.subtotal -
+                discountAmount +
+                (receiptData.tax || 0) +
+                (receiptData.serviceCharge || 0))
+          )
+        );
 
   return (
     <div
@@ -527,6 +570,18 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
                 </span>
                 <span className="text-right pr-4 font-bold text-slate-900 h-full flex items-center justify-end">
                   {formatMoney(receiptData.serviceCharge)} {currency}
+                </span>
+              </div>
+            )}
+
+            {/* Delivery Fee Row (if any) */}
+            {effectiveDeliveryFee > 0 && (
+              <div className="grid grid-cols-2 border-b border-slate-300 h-10 items-center">
+                <span className="text-center font-bold text-slate-700 border-r border-slate-300 h-full flex items-center justify-center">
+                  Delivery Fee
+                </span>
+                <span className="text-right pr-4 font-bold text-slate-900 h-full flex items-center justify-end">
+                  +{formatMoney(effectiveDeliveryFee)} {currency}
                 </span>
               </div>
             )}

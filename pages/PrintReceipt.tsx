@@ -1,10 +1,7 @@
 import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
-import { toast } from "sonner";
-import { fetchShopSettings } from "../services/ShopSettings/fetchShopSettings";
 import {
-  getPrintShopBranding,
-  preloadImage,
+  DEFAULT_SHOP_BRANDING,
   PrintShopBranding,
 } from "../utils/printShopBranding";
 import {
@@ -52,18 +49,18 @@ const PrintReceipt: React.FC = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const [receiptData, setReceiptData] = useState<VoucherReceiptData | null>(
-    null,
+    () => loadReceiptData(orderId)
   );
-  const [shopBranding, setShopBranding] = useState<PrintShopBranding | null>(
-    null,
-  );
+  const [shopBranding] = useState<PrintShopBranding>(DEFAULT_SHOP_BRANDING);
   const [paperSize, setPaperSize] = useState<PrintPaperSize>(() => {
     const fromUrl = parsePrintPaperSize(searchParams.get("size"));
     return fromUrl ?? getSavedPrintPaperSize();
   });
-  const [loadingMessage, setLoadingMessage] = useState("Loading receipt...");
-  const [isReady, setIsReady] = useState(false);
-  const [loadError, setLoadError] = useState<string | null>(null);
+  const [loadingMessage] = useState("Ready to print");
+  const [isReady, setIsReady] = useState(() => Boolean(loadReceiptData(orderId)));
+  const [loadError, setLoadError] = useState<string | null>(() =>
+    loadReceiptData(orderId) ? null : "Receipt not found"
+  );
   const hasTriggeredPrint = useRef(false);
   const shouldAutoPrint = searchParams.get("autoprint") === "1";
 
@@ -82,69 +79,29 @@ const PrintReceipt: React.FC = () => {
   };
 
   useEffect(() => {
-    let cancelled = false;
-
-    const preparePrint = async () => {
-      setLoadingMessage("Loading receipt...");
-      setIsReady(false);
-      setLoadError(null);
-
+    if (!receiptData) {
       const receipt = loadReceiptData(orderId);
       if (!receipt) {
-        if (!cancelled) {
-          setReceiptData(null);
-          setLoadError("Receipt not found");
-        }
+        setReceiptData(null);
+        setLoadError("Receipt not found");
+        setIsReady(false);
         return;
       }
 
-      if (!cancelled) setReceiptData(receipt);
-
-      setLoadingMessage("Loading shop settings...");
-      const shopResponse = await fetchShopSettings();
-      // console.log(shopResponse);
-      const branding = getPrintShopBranding(shopResponse.data ?? null);
-
-      if (!cancelled) setShopBranding(branding);
-
-      // console.log(branding);
-
-      if (branding.logo) {
-        setLoadingMessage("Loading shop logo...");
-        await preloadImage(branding.logo);
-      }
-
-      if (!cancelled) {
-        setLoadingMessage(
-          searchParams.get("autoprint") === "1"
-            ? "Preparing print..."
-            : "Ready to print",
-        );
-        setIsReady(true);
-      }
-    };
-
-    preparePrint().catch(() => {
-      if (!cancelled) {
-        toast.error("Failed to prepare voucher for printing");
-        setLoadError("Failed to load print data");
-      }
-    });
-
-    return () => {
-      cancelled = true;
-    };
-  }, [orderId]);
+      setReceiptData(receipt);
+      setLoadError(null);
+      setIsReady(true);
+    }
+  }, [orderId, receiptData]);
 
   useEffect(() => {
-    if (!shouldAutoPrint || !isReady || !receiptData || !shopBranding) return;
+    if (!shouldAutoPrint || !isReady || !receiptData) return;
     if (hasTriggeredPrint.current) return;
 
-    hasTriggeredPrint.current = true;
-
     const printTimer = window.setTimeout(() => {
+      hasTriggeredPrint.current = true;
       window.print();
-    }, 350);
+    }, 300);
 
     const handleAfterPrint = () => {
       handleBack();
@@ -156,7 +113,7 @@ const PrintReceipt: React.FC = () => {
       window.clearTimeout(printTimer);
       window.removeEventListener("afterprint", handleAfterPrint);
     };
-  }, [shouldAutoPrint, isReady, receiptData, shopBranding, handleBack]);
+  }, [shouldAutoPrint, isReady, receiptData, handleBack]);
 
   const formatDate = (dateString: string) => {
     if (!dateString) return "";

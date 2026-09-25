@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, UserPlus, User } from "lucide-react";
 import { Order } from "../../services/Order/fetchOrders";
 import { CreditPersona } from "../../services/Credit/fetchCreditPersonas";
@@ -20,10 +21,28 @@ export const CreditPersonModal: React.FC<CreditPersonModalProps> = ({
   onClose,
   onAssign,
 }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isOpen]);
+
   if (!isOpen || !order) return null;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
       <div className="bg-white rounded-xl shadow-2xl max-w-md w-full mx-4 overflow-hidden">
         {/* Modal Header */}
         <div className="flex justify-between items-center p-4 border-b bg-orange-50">
@@ -99,7 +118,8 @@ export const CreditPersonModal: React.FC<CreditPersonModalProps> = ({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 };
 

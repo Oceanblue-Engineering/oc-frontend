@@ -560,6 +560,7 @@ export const POS: React.FC = () => {
           (sf) => sf._id === selectedStorefrontId,
         );
 
+        const receiptDeliveryFee = isDelivery ? Number(deliveryFee) || 0 : 0;
         const receiptData = {
           date: new Date().toISOString(),
           invoiceNumber: result.data?.orderNumber || `INV-${Date.now()}`,
@@ -572,6 +573,7 @@ export const POS: React.FC = () => {
           })),
           subtotal,
           discountPercent: discount,
+          deliveryFee: receiptDeliveryFee,
           total,
           paidAmount: finalPaidAmount,
           change: finalPaidAmount - total,
@@ -587,13 +589,19 @@ export const POS: React.FC = () => {
             "Cashier",
           customerName:
             creditPersonas.find((cp) => cp._id === selectedCreditPersonId)
-              ?.name || "",
+              ?.name ||
+            (isDelivery ? recipientName : "") ||
+            "",
           customerPhone:
             creditPersonas.find((cp) => cp._id === selectedCreditPersonId)
-              ?.phone || "",
+              ?.phone ||
+            (isDelivery ? recipientPhone : "") ||
+            "",
           customerAddress:
             creditPersonas.find((cp) => cp._id === selectedCreditPersonId)
-              ?.address || "",
+              ?.address ||
+            (isDelivery ? deliveryAddress : "") ||
+            "",
         };
         // Save receipt data and redirect to receipt page
         const receiptId = `receipt_${receiptData.invoiceNumber}`;

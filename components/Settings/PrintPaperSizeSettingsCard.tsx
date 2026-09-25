@@ -12,12 +12,19 @@ import { useLanguage } from "../../context/LanguageContext";
 
 export const PrintPaperSizeSettingsCard: React.FC = () => {
   const { t } = useLanguage();
-  const [paperSize, setPaperSize] = useState<PrintPaperSize>(() =>
-    getSavedPrintPaperSize(),
-  );
+  const [paperSize, setPaperSize] = useState<PrintPaperSize>(() => {
+    const saved = getSavedPrintPaperSize();
+    return saved === "thermal-72mm" || saved === "thermal-58mm" ? "A4" : saved;
+  });
 
   useEffect(() => {
-    setPaperSize(getSavedPrintPaperSize());
+    const saved = getSavedPrintPaperSize();
+    if (saved === "thermal-72mm" || saved === "thermal-58mm") {
+      setPaperSize("A4");
+      savePrintPaperSize("A4");
+    } else {
+      setPaperSize(saved);
+    }
   }, []);
 
   const handleChange = (size: PrintPaperSize) => {
@@ -40,7 +47,11 @@ export const PrintPaperSizeSettingsCard: React.FC = () => {
         {t("settings.voucherPrintSizeDesc")}
       </p>
 
-      <PrintPaperSizeSelector value={paperSize} onChange={handleChange} />
+      <PrintPaperSizeSelector
+        value={paperSize}
+        onChange={handleChange}
+        hideThermal={true}
+      />
 
       {selectedOption && (
         <p className="mt-3 text-xs text-slate-500 flex items-center gap-1.5">
