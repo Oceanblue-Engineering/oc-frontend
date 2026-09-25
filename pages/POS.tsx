@@ -115,7 +115,7 @@ export const POS: React.FC = () => {
   const [activeWholesalePopoverId, setActiveWholesalePopoverId] = useState<
     string | null
   >(null);
-  const [discountAmount, setDiscountAmount] = useState("");
+  const [discountPercentInput, setDiscountPercentInput] = useState("");
   const [createdAt, setCreatedAt] = useState<string>(
     new Date().toISOString().split("T")[0],
   );
@@ -460,14 +460,15 @@ export const POS: React.FC = () => {
     return sum + getItemPrice(item.stockItem, qty || 1) * qty;
   }, 0);
 
-  const totalAfterDiscount = Math.round(
-    subtotal * (1 - (Number(discount) || 0) / 100),
-  );
+  const discountAmount = Math.min(Math.max(0, Number(discount) || 0), subtotal);
+  const totalAfterDiscount = Math.max(0, subtotal - discountAmount);
 
   // Delivery fee is added on top of the discounted line total
   const total =
     totalAfterDiscount + (isDelivery ? Number(deliveryFee) || 0 : 0);
-  const combinedDiscountAmount = Math.round(subtotal - totalAfterDiscount);
+  const combinedDiscountAmount = discountAmount;
+  const equivalentDiscountPercent =
+    subtotal > 0 ? (discountAmount / subtotal) * 100 : 0;
 
   // Auto-update paid amount when discount or subtotal changes in checkout modal
   useEffect(() => {
@@ -572,7 +573,7 @@ export const POS: React.FC = () => {
             price: getItemPrice(i.stockItem, i.qty),
           })),
           subtotal,
-          discountPercent: discount,
+          discountPercent: Math.round(equivalentDiscountPercent),
           deliveryFee: receiptDeliveryFee,
           total,
           paidAmount: finalPaidAmount,
@@ -1308,8 +1309,7 @@ export const POS: React.FC = () => {
             <div className="p-5 border-b border-slate-100 bg-[#27272a]/5">
               <div className="flex justify-between items-center">
                 <h3 className="font-bold text-lg text-slate-800">
-                  {/* {t("pos.checkout")} */}
-                  {devices.isMobile ? "Mobile" : "Desktop"}
+                  {t("pos.checkout") || "Checkout"}
                 </h3>
                 <button
                   onClick={() => setShowCheckoutModal(false)}
@@ -1546,25 +1546,45 @@ export const POS: React.FC = () => {
                 </div>
               )}
 
-              {/* Discount */}
+              {/* Discount (Flat MMK) */}
               <div>
-                <label className="block text-sm font-semibold text-slate-500 mb-1.5 flex items-center">
-                  {t("pos.discount")} (%)
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-semibold text-slate-500 flex items-center gap-1.5">
+                    {t("pos.discount")} (MMK)
+                    {discountAmount > 0 && (
+                      <span className="text-xs font-bold text-ocean-700 bg-ocean-50 border border-ocean-200/60 px-2 py-0.5 rounded-full">
+                        ≈ {equivalentDiscountPercent.toFixed(1)}%
+                      </span>
+                    )}
+                  </label>
                   <button
-                    onClick={() => setShowDiscountCalculator(true)}
-                    className="ml-2 text-[#27272a] hover:text-[#27272a]/80 transition-colors"
-                    title="Calculate discount percentage"
+                    type="button"
+                    onClick={() => {
+                      setDiscountPercentInput(
+                        equivalentDiscountPercent > 0
+                          ? String(Math.round(equivalentDiscountPercent * 10) / 10)
+                          : ""
+                      );
+                      setShowDiscountCalculator(true);
+                    }}
+                    className="flex items-center gap-1 text-xs font-semibold text-ocean-700 hover:text-ocean-800 bg-ocean-50 hover:bg-ocean-100 border border-ocean-200/80 px-2.5 py-1 rounded-lg transition-colors cursor-pointer"
+                    title="Calculate from percentage (%)"
                   >
-                    <Calculator className="w-4 h-4" />
+                    <Calculator className="w-3.5 h-3.5" />
+                    <span>% Calculator</span>
                   </button>
-                </label>
+                </div>
                 <input
                   type="number"
                   min="0"
-                  max="100"
+                  max={subtotal}
+                  placeholder="0"
                   className="discount-input w-full border border-slate-200 rounded-xl p-2.5 text-sm focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
-                  value={discount}
-                  onChange={(e) => setDiscount(Number(e.target.value))}
+                  value={discount === 0 ? "" : discount}
+                  onChange={(e) => {
+                    const val = e.target.value === "" ? 0 : Number(e.target.value);
+                    setDiscount(Math.min(Math.max(0, val), subtotal));
+                  }}
                 />
               </div>
 
@@ -1622,12 +1642,12 @@ export const POS: React.FC = () => {
                   <span>{t("common.subtotal")}</span>
                   <span>{subtotal.toLocaleString()} MMK</span>
                 </div>
-                {discount > 0 && (
+                {discountAmount > 0 && (
                   <div className="flex justify-between text-sm text-green-600 font-semibold">
                     <span>
-                      {t("common.discount")} ({discount}%)
+                      {t("common.discount")} ({equivalentDiscountPercent.toFixed(1)}%)
                     </span>
-                    <span>-{combinedDiscountAmount.toLocaleString()} MMK</span>
+                    <span>-{discountAmount.toLocaleString()} MMK</span>
                   </div>
                 )}
                 <div className="flex justify-between text-base font-bold text-slate-800 pt-2.5 border-t border-slate-150">
@@ -1682,105 +1702,147 @@ export const POS: React.FC = () => {
         </div>
       )}
 
-      {/* Discount Calculator Modal */}
+      {/* Percentage Discount Calculator Modal */}
       {showDiscountCalculator && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-            <div className="p-6 border-b flex justify-between items-center">
-              <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                <Calculator className="w-5 h-5 text-primary" />
-                Discount Calculator
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+          <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
+            <div className="p-5 border-b border-slate-100 bg-[#27272a]/5 flex justify-between items-center">
+              <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
+                <Calculator className="w-5 h-5 text-ocean-600" />
+                Percentage Discount Calculator (%)
               </h2>
               <button
                 onClick={() => {
                   setShowDiscountCalculator(false);
-                  setDiscountAmount("");
+                  setDiscountPercentInput("");
                 }}
-                className="text-slate-400 hover:text-slate-600 p-1"
+                className="p-1.5 hover:bg-slate-200/50 rounded-full transition-all cursor-pointer"
               >
-                <X className="w-6 h-6" />
+                <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
 
             <div className="p-6 space-y-4">
               {/* Current Subtotal */}
-              <div className="bg-slate-50 p-4 rounded-lg">
-                <p className="text-sm text-slate-500 mb-1">Current Subtotal</p>
-                <p className="text-2xl font-bold text-slate-800">
+              <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200/60">
+                <p className="text-xs font-semibold text-slate-500 mb-1">Current Subtotal</p>
+                <p className="text-2xl font-black text-slate-800">
                   {subtotal.toLocaleString()} MMK
                 </p>
               </div>
 
-              {/* Discount Amount Input */}
+              {/* Percentage Input */}
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Discount Amount (MMK)
+                <label className="block text-sm font-semibold text-slate-600 mb-1.5">
+                  Discount Percentage (%)
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  max={subtotal}
-                  className="w-full border rounded-lg p-3 focus:ring-2 focus:ring-primary outline-none"
-                  placeholder="Enter discount amount..."
-                  value={discountAmount}
-                  onChange={(e) => setDiscountAmount(e.target.value)}
-                />
+                <div className="relative">
+                  <input
+                    type="number"
+                    min="0"
+                    max="100"
+                    step="0.5"
+                    className="w-full border border-slate-200 rounded-xl p-3 pr-10 text-base font-bold text-slate-800 focus:ring-2 focus:ring-[#27272a] focus:border-transparent outline-none transition-all"
+                    placeholder="Enter percentage (e.g. 10)"
+                    value={discountPercentInput}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      if (val === "" || (Number(val) >= 0 && Number(val) <= 100)) {
+                        setDiscountPercentInput(val);
+                      }
+                    }}
+                  />
+                  <span className="absolute right-3.5 top-3.5 font-bold text-slate-400 text-sm">
+                    %
+                  </span>
+                </div>
               </div>
 
-              {/* Calculated Percentage */}
-              {discountAmount && Number(discountAmount) > 0 && (
-                <div className="bg-green-50 border border-green-200 p-4 rounded-lg">
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-slate-600">
-                      Discount Amount:
-                    </span>
-                    <span className="font-bold text-green-700">
-                      {Number(discountAmount).toLocaleString()} MMK
+              {/* Quick Preset Buttons */}
+              <div className="flex flex-wrap gap-2">
+                {[5, 10, 15, 20, 25, 30].map((pct) => (
+                  <button
+                    key={pct}
+                    type="button"
+                    onClick={() => setDiscountPercentInput(String(pct))}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                      Number(discountPercentInput) === pct
+                        ? "bg-[#27272a] text-white border-[#27272a]"
+                        : "bg-slate-50 hover:bg-slate-100 text-slate-700 border-slate-200"
+                    }`}
+                  >
+                    {pct}%
+                  </button>
+                ))}
+              </div>
+
+              {/* Calculated Summary Card */}
+              {discountPercentInput && Number(discountPercentInput) > 0 && (
+                <div className="bg-emerald-50 border border-emerald-200/80 p-4 rounded-2xl space-y-2">
+                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-700">
+                    <span>Discount Percentage:</span>
+                    <span className="font-bold text-emerald-700">
+                      {Number(discountPercentInput)}%
                     </span>
                   </div>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-sm text-slate-600">Percentage:</span>
-                    <span className="font-bold text-green-700">
-                      {((Number(discountAmount) / subtotal) * 100).toFixed(2)}%
+                  <div className="flex justify-between items-center text-xs sm:text-sm font-semibold text-slate-700">
+                    <span>Calculated Discount:</span>
+                    <span className="font-bold text-emerald-700">
+                      -
+                      {Math.round(
+                        (subtotal * Number(discountPercentInput)) / 100
+                      ).toLocaleString()}{" "}
+                      MMK
                     </span>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-slate-600">Final Total:</span>
-                    <span className="font-bold text-slate-800">
-                      {(subtotal - Number(discountAmount)).toLocaleString()} MMK
+                  <div className="flex justify-between items-center text-sm sm:text-base font-black text-slate-900 pt-2 border-t border-emerald-200">
+                    <span>New Total:</span>
+                    <span className="text-emerald-800">
+                      {Math.max(
+                        0,
+                        Math.round(
+                          subtotal -
+                            (subtotal * Number(discountPercentInput)) / 100
+                        )
+                      ).toLocaleString()}{" "}
+                      MMK
                     </span>
                   </div>
                 </div>
               )}
 
               {/* Actions */}
-              <div className="flex justify-end gap-3 pt-4 border-t">
+              <div className="flex justify-end gap-2.5 pt-4 border-t border-slate-100">
                 <button
+                  type="button"
                   onClick={() => {
                     setShowDiscountCalculator(false);
-                    setDiscountAmount("");
+                    setDiscountPercentInput("");
                   }}
-                  className="px-4 py-2 text-slate-700 hover:bg-slate-100 rounded-lg transition-colors"
+                  className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-xl transition-colors font-medium text-sm cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={() => {
-                    if (discountAmount && Number(discountAmount) > 0) {
-                      const calculatedPercentage =
-                        (Number(discountAmount) / subtotal) * 100;
-                      setDiscount(Number(calculatedPercentage)); // Use number for consistency
+                    const pct = Number(discountPercentInput) || 0;
+                    if (pct > 0 && pct <= 100) {
+                      const calculatedMMK = Math.round((subtotal * pct) / 100);
+                      setDiscount(calculatedMMK);
                       setShowDiscountCalculator(false);
-                      setDiscountAmount("");
-                      toast.success(`Discount set to ${calculatedPercentage}%`);
+                      setDiscountPercentInput("");
+                      toast.success(
+                        `Applied ${pct}% discount (-${calculatedMMK.toLocaleString()} MMK)`
+                      );
                     }
                   }}
                   disabled={
-                    !discountAmount ||
-                    Number(discountAmount) <= 0 ||
-                    Number(discountAmount) > subtotal
+                    !discountPercentInput ||
+                    Number(discountPercentInput) <= 0 ||
+                    Number(discountPercentInput) > 100
                   }
-                  className="px-4 py-2 bg-primary hover:bg-primary-hover text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-5 py-2.5 bg-[#27272a] hover:bg-[#27272a]/90 text-white rounded-xl transition-all font-bold text-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer shadow-sm"
                 >
                   Apply Discount
                 </button>
