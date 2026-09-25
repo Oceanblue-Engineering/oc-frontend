@@ -19,6 +19,7 @@ import {
   ShoppingBag,
   ChevronDown,
   Gift,
+  Wallet,
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { removeAuthToken } from "../services/axios";
@@ -77,6 +78,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { path: "/credits", label: t("sidebar.creditSales"), icon: Users },
     { path: "/suppliers", label: t("sidebar.suppliers"), icon: Truck },
     { path: "/expenses", label: t("sidebar.expenses"), icon: PieChart },
+    {
+      path: "/personal-expenses",
+      label: t("sidebar.personalExpenses") || "Personal Expenses",
+      icon: Wallet,
+    },
     { path: "/reports", label: t("sidebar.reports"), icon: LayoutDashboard },
     { path: "/accounts", label: t("sidebar.accountManagement"), icon: Shield },
     { path: "/workers", label: t("sidebar.workerManagement"), icon: Users },
@@ -90,7 +96,12 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const userRole = adminData?.role || currentUser?.role;
 
   const hasPermission = (path: string) => {
-    if (path === "/accounts" && userRole !== "owner") return false;
+    if (
+      (path === "/accounts" || path === "/personal-expenses") &&
+      userRole !== "owner"
+    ) {
+      return false;
+    }
     if (
       ["/purchasing", "/inventory", "/warehouse", "/suppliers"].includes(
         path,

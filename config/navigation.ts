@@ -18,6 +18,7 @@ import {
   Briefcase,
   Ticket,
   Activity,
+  Wallet,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -154,6 +155,15 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-orange-50 text-orange-700",
   },
   {
+    id: "personal-expenses",
+    category: "purchasing_orders",
+    titleKey: "sidebar.personalExpenses",
+    descKey: "home.desc.personalExpenses",
+    icon: Wallet,
+    path: "/personal-expenses",
+    color: "bg-emerald-50 text-emerald-700",
+  },
+  {
     id: "delivery",
     category: "purchasing_orders",
     titleKey: "sidebar.delivery",
@@ -234,7 +244,12 @@ export const navigationItems: NavigationItem[] = [
  * Accepts a role string as used in the app ("owner" | "admin" | "cashier" | undefined).
  */
 export const hasPermission = (path: string, role?: string): boolean => {
-  if (path === "/accounts" && role !== "owner") return false;
+  if (
+    (path === "/accounts" || path === "/personal-expenses") &&
+    role !== "owner"
+  ) {
+    return false;
+  }
   if (path === "/activity-logs" && role !== "owner" && role !== "admin") return false;
   if (
     ["/purchasing", "/inventory", "/warehouse", "/suppliers"].includes(path) &&

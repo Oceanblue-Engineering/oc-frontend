@@ -7,6 +7,7 @@ export const DATE_RANGE_STORAGE_KEYS = {
   orders: "orders-date-range",
   creditOrders: "credit-orders-date-range",
   expenses: "expenses-date-range",
+  personalExpenses: "personal-expenses-date-range",
   reports: "reports-date-range",
 } as const;
 
