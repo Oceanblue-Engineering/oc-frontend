@@ -20,6 +20,7 @@ import {
   ChevronDown,
   Gift,
   Wallet,
+  Wrench,
 } from "lucide-react";
 import { useApp } from "../context/AppContext";
 import { removeAuthToken } from "../services/axios";
@@ -83,6 +84,11 @@ export const Sidebar: React.FC<SidebarProps> = ({
       label: t("sidebar.personalExpenses") || "Personal Expenses",
       icon: Wallet,
     },
+    {
+      path: "/tool-inventory",
+      label: t("sidebar.toolInventory") || "Tool Inventory",
+      icon: Wrench,
+    },
     { path: "/reports", label: t("sidebar.reports"), icon: LayoutDashboard },
     { path: "/accounts", label: t("sidebar.accountManagement"), icon: Shield },
     { path: "/workers", label: t("sidebar.workerManagement"), icon: Users },
@@ -103,7 +109,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       return false;
     }
     if (
-      ["/purchasing", "/inventory", "/warehouse", "/suppliers"].includes(
+      ["/purchasing", "/inventory", "/warehouse", "/suppliers", "/tool-inventory"].includes(
         path,
       ) &&
       userRole !== "admin" &&

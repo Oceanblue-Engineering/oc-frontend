@@ -18,6 +18,7 @@ import {
   CheckCircle2,
   Printer,
   ExternalLink,
+  Wrench,
 } from "lucide-react";
 import { toast } from "sonner";
 import { useLanguage } from "../context/LanguageContext";
@@ -36,6 +37,7 @@ import PayrollSummaryTable from "../components/ProjectAnalytics/PayrollSummaryTa
 import { ProjectExpensesTable } from "../components/ProjectAnalytics/ProjectExpensesTable";
 import { ProjectExpenseModal } from "../components/ProjectAnalytics/ProjectExpenseModal";
 import { ProjectModal } from "../components/Project/ProjectModal";
+import ProjectToolsTab from "../components/ProjectAnalytics/ProjectToolsTab";
 import { fetchProjectById, Project } from "../services/Project/project.service";
 import { fetchInvoices, InvoiceRecord } from "../services/Invoice/invoice.service";
 import { InvoiceModal, DocumentType } from "../components/Invoice/InvoiceModal";
@@ -79,7 +81,7 @@ const ProjectDetailAnalytics: React.FC = () => {
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<
-    "overview" | "expenses" | "payroll" | "invoices" | "timeline"
+    "overview" | "expenses" | "payroll" | "invoices" | "timeline" | "tools"
   >("overview");
 
   const loadData = async (showFullPageLoader = false) => {
@@ -214,6 +216,11 @@ const ProjectDetailAnalytics: React.FC = () => {
       id: "timeline",
       label: t("projects.tabTimeline") || "Timeline & Details",
       icon: Calendar,
+    },
+    {
+      id: "tools",
+      label: t("projects.tabTools") || "Tools",
+      icon: Wrench,
     },
   ] as const;
 
@@ -870,6 +877,11 @@ const ProjectDetailAnalytics: React.FC = () => {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* TAB 6: TOOLS */}
+      {activeTab === "tools" && id && (
+        <ProjectToolsTab projectId={id} />
       )}
 
       {/* Edit Project Modal */}

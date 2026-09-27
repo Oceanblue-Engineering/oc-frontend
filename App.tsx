@@ -43,6 +43,7 @@ import { InvoiceGenerator } from "./pages/InvoiceGenerator";
 import { ActivityLogs } from "./pages/ActivityLogs";
 import { OrderEditPOS } from "./pages/OrderEditPOS";
 import { PersonalExpenses } from "./pages/PersonalExpenses";
+import ToolInventory from "./pages/ToolInventory";
 
 const AppLayout: React.FC = () => {
   const location = useLocation();
@@ -192,6 +193,14 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <PersonalExpenses />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/tool-inventory"
+            element={
+              <ProtectedRoute>
+                <ToolInventory />
               </ProtectedRoute>
             }
           />

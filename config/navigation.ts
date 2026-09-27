@@ -19,6 +19,7 @@ import {
   Ticket,
   Activity,
   Wallet,
+  Wrench,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -164,6 +165,15 @@ export const navigationItems: NavigationItem[] = [
     color: "bg-emerald-50 text-emerald-700",
   },
   {
+    id: "tool-inventory",
+    category: "project_management",
+    titleKey: "sidebar.toolInventory",
+    descKey: "home.desc.toolInventory",
+    icon: Wrench,
+    path: "/tool-inventory",
+    color: "bg-orange-50 text-orange-700",
+  },
+  {
     id: "delivery",
     category: "purchasing_orders",
     titleKey: "sidebar.delivery",
@@ -252,7 +262,7 @@ export const hasPermission = (path: string, role?: string): boolean => {
   }
   if (path === "/activity-logs" && role !== "owner" && role !== "admin") return false;
   if (
-    ["/purchasing", "/inventory", "/warehouse", "/suppliers"].includes(path) &&
+    ["/purchasing", "/inventory", "/warehouse", "/suppliers", "/tool-inventory"].includes(path) &&
     role !== "admin" &&
     role !== "owner"
   ) {
