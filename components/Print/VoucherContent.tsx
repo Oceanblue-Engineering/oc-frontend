@@ -612,9 +612,8 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
           {/* Payment Badges */}
           <div className="flex items-center gap-2.5 flex-wrap">
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5">
-              <div className="w-7 h-7 rounded-lg bg-[#004b87] text-white flex flex-col items-center justify-center text-[7px] font-black leading-none shrink-0">
-                <span>KBZ</span>
-                <span>Pay</span>
+              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-white border border-slate-200 flex items-center justify-center">
+                <img src="/kpay.webp" alt="KBZ Pay" className="w-full h-full object-contain" />
               </div>
               <div className="text-[10px] leading-tight">
                 <p className="font-extrabold text-slate-800">KBZ PAY</p>
@@ -624,9 +623,19 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
             </div>
 
             <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5">
-              <div className="w-7 h-7 rounded-lg bg-[#a61c1c] text-white flex flex-col items-center justify-center text-[6px] font-black leading-none shrink-0">
-                <span>AYA</span>
-                <span>PAY</span>
+              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-white border border-slate-200 flex items-center justify-center">
+                <img src="/cbpay.jpg" alt="CB Pay" className="w-full h-full object-contain" />
+              </div>
+              <div className="text-[10px] leading-tight">
+                <p className="font-extrabold text-slate-800">CB PAY</p>
+                <p className="font-bold text-slate-700">09448799120</p>
+                <p className="text-slate-500 font-medium text-[9px]">Phyo Maung</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5">
+              <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-white border border-slate-200 flex items-center justify-center">
+                <img src="/ayapay.png" alt="AYA Pay" className="w-full h-full object-contain" />
               </div>
               <div className="text-[10px] leading-tight">
                 <p className="font-extrabold text-slate-800">AYA PAY</p>

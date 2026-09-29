@@ -56,7 +56,7 @@ export const DEFAULT_PAYMENT_ACCOUNTS = [
   },
   {
     type: "rainbow" as const,
-    title: "KBZ PAY",
+    title: "CB PAY",
     phone: "09448799120",
     name: "Phyo Maung",
   },
@@ -106,21 +106,20 @@ export const InvoiceDocument = React.forwardRef<
     data.deliveryFee != null && data.deliveryFee > 0
       ? data.deliveryFee
       : Math.max(
-          0,
-          Math.round(
-            data.totalAmount -
-              (data.subTotal -
-                (data.discountOrTaxAmount || 0))
-          )
-        );
+        0,
+        Math.round(
+          data.totalAmount -
+          (data.subTotal -
+            (data.discountOrTaxAmount || 0))
+        )
+      );
 
   return (
     <div
       ref={ref}
       id="invoice-document-root"
-      className={`bg-white text-slate-900 font-sans p-10 w-[794px] min-h-[1123px] max-w-[794px] mx-auto shadow-lg print:shadow-none print:p-8 select-text flex flex-col justify-between ${
-        className || ""
-      }`}
+      className={`bg-white text-slate-900 font-sans p-10 w-[794px] min-h-[1123px] max-w-[794px] mx-auto shadow-lg print:shadow-none print:p-8 select-text flex flex-col justify-between ${className || ""
+        }`}
       style={{
         width: "794px",
         minHeight: "1123px",
@@ -382,24 +381,22 @@ export const InvoiceDocument = React.forwardRef<
                 className="flex items-center gap-2 bg-slate-50 border border-slate-200/80 rounded-xl px-2.5 py-1.5"
               >
                 {acc.type === "kbz" && (
-                  <div className="w-7 h-7 rounded-lg bg-[#004b87] text-white flex flex-col items-center justify-center text-[7px] font-black leading-none shrink-0">
-                    <span>KBZ</span>
-                    <span>Pay</span>
+                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-white border border-slate-200 flex items-center justify-center">
+                    <img src="/kpay.webp" alt="KBZ Pay" className="w-full h-full object-contain" />
                   </div>
                 )}
                 {acc.type === "rainbow" && (
-                  <div className="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 via-emerald-400 to-amber-400 text-white flex items-center justify-center text-[8px] font-black shrink-0">
-                    🌈
+                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-white border border-slate-200 flex items-center justify-center">
+                    <img src="/cbpay.jpg" alt="CB Pay" className="w-full h-full object-contain" />
                   </div>
                 )}
                 {acc.type === "aya" && (
-                  <div className="w-7 h-7 rounded-lg bg-[#a61c1c] text-white flex flex-col items-center justify-center text-[6px] font-black leading-none shrink-0">
-                    <span>AYA</span>
-                    <span>PAY</span>
+                  <div className="w-8 h-8 rounded-lg overflow-hidden shrink-0 bg-white border border-slate-200 flex items-center justify-center">
+                    <img src="/ayapay.png" alt="AYA Pay" className="w-full h-full object-contain" />
                   </div>
                 )}
                 {acc.type === "custom" && (
-                  <div className="w-7 h-7 rounded-lg bg-ocean-600 text-white flex items-center justify-center text-xs font-black shrink-0">
+                  <div className="w-8 h-8 rounded-lg bg-ocean-600 text-white flex items-center justify-center text-xs font-black shrink-0">
                     💳
                   </div>
                 )}

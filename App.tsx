@@ -32,6 +32,7 @@ import { DailyReports } from "./pages/DailyReports";
 import MobilePrint from "./pages/MobilePrint";
 import { LuckyDraw } from "./pages/LuckyDraw";
 import { ClientLeads } from "./pages/ClientLeads";
+import { StageDetail } from "./pages/StageDetail";
 import { ClientProjects } from "./pages/ClientProjects";
 import { DeliveryManagement } from "./pages/DeliveryManagement";
 import { ScrollToTop } from "./components/ScrollToTop";
@@ -265,6 +266,14 @@ const AppLayout: React.FC = () => {
             element={
               <ProtectedRoute>
                 <ClientLeads />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/clients/stage/:stageName"
+            element={
+              <ProtectedRoute>
+                <StageDetail />
               </ProtectedRoute>
             }
           />

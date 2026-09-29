@@ -1841,39 +1841,7 @@ export const InvoiceGenerator: React.FC = () => {
                 })}
               </div>
 
-              {/* Remarks Editor */}
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 pb-3">
-                  <CardTitle className="text-sm">Warranty & Remarks</CardTitle>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={handleAddRemark}
-                    leftIcon={<Plus className="w-3 h-3" />}
-                  >
-                    Add Note
-                  </Button>
-                </CardHeader>
-                <CardContent className="pt-4 space-y-2">
-                  {(invoiceData.remarks || []).map((remark, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <Input
-                        value={remark}
-                        onChange={(e) =>
-                          handleRemarkChange(idx, e.target.value)
-                        }
-                        className="text-xs bg-white"
-                      />
-                      <button
-                        onClick={() => handleRemoveRemark(idx)}
-                        className="p-2 text-slate-400 hover:text-red-600 cursor-pointer"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  ))}
-                </CardContent>
-              </Card>
+
             </div>
 
             {/* Right Live Document Preview (7 cols) */}

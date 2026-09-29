@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Plus, Target, Search } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { Plus, Target, Search, ExternalLink } from "lucide-react";
 import { fetchLeads, Lead } from "../services/Lead/lead.service";
 import { LeadModal } from "../components/Lead/LeadModal";
 import { useLanguage } from "../context/LanguageContext";
@@ -11,6 +12,7 @@ import { PIPELINES, TABS, LeadType } from "../config/clientPipelines";
  */
 export const ClientLeads: React.FC = () => {
   const { t } = useLanguage();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<LeadType>("sales");
   const [clients, setClients] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
@@ -114,35 +116,48 @@ export const ClientLeads: React.FC = () => {
               return (
                 <div
                   key={stage}
-                  className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm"
+                  className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm flex flex-col h-[385px]"
                 >
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="font-semibold text-ocean-800 text-sm">{stage}</h3>
-                    <span className="text-xs font-semibold text-ocean-600 bg-ocean-50 px-2 py-0.5 rounded-full">
+                  <div className="flex items-center justify-between mb-3 shrink-0">
+                    <button
+                      onClick={() => navigate(`/clients/stage/${encodeURIComponent(stage)}?type=${activeTab}`)}
+                      className="group/title flex items-center gap-1.5 text-left font-semibold text-ocean-800 hover:text-ocean-600 text-sm cursor-pointer transition-colors"
+                      title={`View all leads in ${stage}`}
+                    >
+                      <span>{stage}</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-0 group-hover/title:opacity-100 text-ocean-500 transition-opacity" />
+                    </button>
+                    <button
+                      onClick={() => navigate(`/clients/stage/${encodeURIComponent(stage)}?type=${activeTab}`)}
+                      className="text-xs font-semibold text-ocean-600 bg-ocean-50 hover:bg-ocean-100 px-2 py-0.5 rounded-full cursor-pointer transition-colors"
+                      title={`View all ${stageClients.length} leads`}
+                    >
                       {stageClients.length}
-                    </span>
+                    </button>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-2 flex-1 overflow-y-auto max-h-[308px] pr-1.5">
                     {stageClients.length === 0 && (
-                      <p className="text-xs text-slate-400 py-4 text-center">
-                        {t("clients.noLeads")}
-                      </p>
+                      <div className="h-full flex items-center justify-center py-12">
+                        <p className="text-xs text-slate-400 text-center">
+                          {t("clients.noLeads")}
+                        </p>
+                      </div>
                     )}
                     {stageClients.map((c) => (
                       <button
                         key={c._id}
                         onClick={() => handleEdit(c)}
-                        className="w-full text-left bg-ocean-50/40 hover:bg-ocean-50 border border-ocean-100 rounded-xl p-3 transition-all hover:border-ocean-300 cursor-pointer"
+                        className="w-full text-left bg-ocean-50/40 hover:bg-ocean-50 border border-ocean-100 rounded-xl p-3 transition-all hover:border-ocean-300 cursor-pointer h-24 flex flex-col justify-between shrink-0"
                       >
-                        <div className="flex items-center justify-between">
-                          <span className="font-semibold text-slate-800 text-sm truncate">
+                        <div>
+                          <span className="font-semibold text-slate-800 text-sm truncate block">
                             {c.name}
                           </span>
+                          <p className="text-xs text-slate-500 truncate mt-0.5 h-4 leading-4">
+                            {c.companyName || "—"}
+                          </p>
                         </div>
-                        {c.companyName && (
-                          <p className="text-xs text-slate-500 mt-1 truncate">{c.companyName}</p>
-                        )}
-                        <p className="text-xs text-slate-400 mt-1">
+                        <p className="text-xs text-slate-400 truncate">
                           {c.phone || c.email || "—"}
                         </p>
                       </button>
