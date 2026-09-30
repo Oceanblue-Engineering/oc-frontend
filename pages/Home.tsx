@@ -31,13 +31,20 @@ export const Home: React.FC = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const [adminData, setAdminData] = useState<any>(null);
 
-  // Initialize active slide from URL query or default to 'purchasing_orders'
-  const initialSlide = (searchParams.get("slide") as SlideTabType) || "purchasing_orders";
-  const [activeSlide, setActiveSlide] = useState<SlideTabType>(
-    initialSlide === "project_management" || initialSlide === "all"
-      ? initialSlide
-      : "purchasing_orders"
-  );
+  // Initialize active slide from URL query, localStorage, or default to 'purchasing_orders'
+  const getInitialSlide = (): SlideTabType => {
+    const urlSlide = searchParams.get("slide") as SlideTabType;
+    if (urlSlide === "project_management" || urlSlide === "purchasing_orders" || urlSlide === "all") {
+      return urlSlide;
+    }
+    const savedSlide = localStorage.getItem("activeMenuSlide") as SlideTabType;
+    if (savedSlide === "project_management" || savedSlide === "purchasing_orders" || savedSlide === "all") {
+      return savedSlide;
+    }
+    return "purchasing_orders";
+  };
+
+  const [activeSlide, setActiveSlide] = useState<SlideTabType>(getInitialSlide);
   const [slideDirection, setSlideDirection] = useState<"left" | "right">("right");
 
   useEffect(() => {
@@ -50,6 +57,13 @@ export const Home: React.FC = () => {
       }
     }
   }, []);
+
+  // Save active slide state to localStorage
+  useEffect(() => {
+    if (activeSlide) {
+      localStorage.setItem("activeMenuSlide", activeSlide);
+    }
+  }, [activeSlide]);
 
   const userRole = adminData?.role || currentUser?.role;
 
@@ -80,6 +94,7 @@ export const Home: React.FC = () => {
     const dir = direction || (newSlide === "project_management" ? "right" : "left");
     setSlideDirection(dir);
     setActiveSlide(newSlide);
+    localStorage.setItem("activeMenuSlide", newSlide);
     setSearchParams((prev) => {
       const next = new URLSearchParams(prev);
       if (newSlide === "purchasing_orders") {
@@ -315,6 +330,11 @@ export const Home: React.FC = () => {
               <Link
                 key={item.id}
                 to={item.path}
+                onClick={() => {
+                  if (item.category) {
+                    localStorage.setItem("activeMenuSlide", item.category);
+                  }
+                }}
                 className="group relative bg-white rounded-2xl border border-zinc-200/80 p-5 shadow-sm hover:shadow-xl hover:shadow-ocean-500/10 hover:-translate-y-1.5 transition-all duration-300 hover:border-ocean-300/80 cursor-pointer flex flex-col justify-between overflow-hidden"
               >
                 {/* Subtle top gradient line on hover */}
