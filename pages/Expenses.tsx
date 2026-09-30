@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   PieChart,
   RefreshCw,
@@ -9,6 +9,7 @@ import {
   Receipt,
   Building2,
   Calendar,
+  ChevronDown,
 } from "lucide-react";
 import { toast } from "sonner";
 import { fetchExpenses, Expense } from "../services/Expense/fetchExpenses";
@@ -46,8 +47,50 @@ import {
   TableEmpty,
 } from "../components/ui";
 
+const CATEGORY_PRESETS = [
+  { value: "Electricity", labelEn: "Electricity", labelMy: "မီးဖိုး" },
+  { value: "Water", labelEn: "Water", labelMy: "ရေဖိုး" },
+  { value: "Utilities", labelEn: "Utilities", labelMy: "အထွေထွေ အသုံးစရိတ်" },
+  { value: "Salary", labelEn: "Salary", labelMy: "လစာ" },
+  { value: "Maintenance", labelEn: "Maintenance", labelMy: "ပြုပြင်ထိန်းသိမ်းစရိတ်" },
+  { value: "Rent", labelEn: "Rent", labelMy: "အငှားခ" },
+  { value: "Materials", labelEn: "Materials", labelMy: "ပစ္စည်းဝယ်ယူစရိတ်" },
+  { value: "Labor / Wages", labelEn: "Labor / Wages", labelMy: "လုပ်အားခ / နေ့စားခ" },
+  { value: "Transportation", labelEn: "Transportation", labelMy: "သယ်ယူပို့ဆောင်ခ" },
+  { value: "Equipment & Tools", labelEn: "Equipment & Tools", labelMy: "စက်ကိရိယာ / တန်ဆာပလာ" },
+  { value: "Subcontractor", labelEn: "Subcontractor", labelMy: "ကန်ထရိုက်တာခွဲ" },
+  { value: "Site Preparation", labelEn: "Site Preparation", labelMy: "လုပ်ငန်းခွင် ပြင်ဆင်စရိတ်" },
+  { value: "Chemicals", labelEn: "Chemicals", labelMy: "ဓာတုဆေးဝါးစရိတ်" },
+  { value: "Other", labelEn: "Other", labelMy: "အခြား" },
+];
+
+const STORAGE_KEY = "custom_expense_categories";
+
+const getStoredCustomCategories = (): string[] => {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+};
+
+const saveCustomCategoryToStorage = (categoryName: string) => {
+  const trimmed = categoryName.trim();
+  if (!trimmed) return;
+  try {
+    const current = getStoredCustomCategories();
+    if (!current.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
+      const updated = [trimmed, ...current];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+    }
+  } catch (err) {
+    console.error("Failed to save custom category", err);
+  }
+};
+
 export const Expenses: React.FC = () => {
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loading, setLoading] = useState(true);
   const [locations, setLocations] = useState<LocationProfile[]>([]);
@@ -64,14 +107,101 @@ export const Expenses: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Category Combobox states
+  const [categoryInput, setCategoryInput] = useState("");
+  const [categoryShowDropdown, setCategoryShowDropdown] = useState(false);
+  const [customCategories, setCustomCategories] = useState<string[]>([]);
+
   const [formData, setFormData] = useState({
-    category: "electricity",
+    category: "Electricity",
     amount: 0,
     date: new Date().toISOString().split("T")[0], // Format: YYYY-MM-DD
     notes: "",
     locationId: "",
     projectId: "",
   });
+
+  useEffect(() => {
+    if (isModalOpen) {
+      setCustomCategories(getStoredCustomCategories());
+      setCategoryInput("");
+      setCategoryShowDropdown(false);
+    }
+  }, [isModalOpen]);
+
+  // Build unique category list from presets, existing expenses, and stored custom categories
+  const allCategories = useMemo(() => {
+    const map = new Map<
+      string,
+      { value: string; labelMy?: string; isCustom?: boolean }
+    >();
+
+    // 1. Presets
+    CATEGORY_PRESETS.forEach((preset) => {
+      map.set(preset.value.toLowerCase(), {
+        value: preset.value,
+        labelMy: preset.labelMy,
+        isCustom: false,
+      });
+    });
+
+    // 2. Existing categories from loaded expenses
+    expenses.forEach((exp) => {
+      const trimmed = exp.category?.trim();
+      if (trimmed && !map.has(trimmed.toLowerCase())) {
+        map.set(trimmed.toLowerCase(), {
+          value: trimmed,
+          isCustom: true,
+        });
+      }
+    });
+
+    // 3. User's saved custom categories from localStorage
+    customCategories.forEach((cat) => {
+      const trimmed = cat.trim();
+      if (trimmed && !map.has(trimmed.toLowerCase())) {
+        map.set(trimmed.toLowerCase(), {
+          value: trimmed,
+          isCustom: true,
+        });
+      }
+    });
+
+    return Array.from(map.values());
+  }, [expenses, customCategories]);
+
+  const filteredCategories = useMemo(() => {
+    const q = (categoryInput || formData.category || "").toLowerCase().trim();
+    if (!q) return allCategories;
+    return allCategories.filter(
+      (c) =>
+        c.value.toLowerCase().includes(q) ||
+        (c.labelMy && c.labelMy.toLowerCase().includes(q))
+    );
+  }, [allCategories, categoryInput, formData.category]);
+
+  const isExactCategoryMatch = useMemo(() => {
+    const q = (categoryInput || formData.category || "").toLowerCase().trim();
+    if (!q) return true;
+    return allCategories.some((c) => c.value.toLowerCase() === q);
+  }, [allCategories, categoryInput, formData.category]);
+
+  const handleSelectCategory = (val: string) => {
+    setFormData((prev) => ({ ...prev, category: val }));
+    setCategoryInput("");
+    setCategoryShowDropdown(false);
+  };
+
+  const handleAddCustomCategory = (val: string) => {
+    const trimmed = val.trim();
+    if (!trimmed) return;
+    saveCustomCategoryToStorage(trimmed);
+    setCustomCategories(getStoredCustomCategories());
+    setFormData((prev) => ({ ...prev, category: trimmed }));
+    setCategoryInput("");
+    setCategoryShowDropdown(false);
+  };
 
   // Delete Confirmation Modal State
   const [expenseToDelete, setExpenseToDelete] = useState<Expense | null>(null);
@@ -141,14 +271,18 @@ export const Expenses: React.FC = () => {
       locationId: expense.locationId ? expense.locationId._id : "",
       projectId: expense.projectId ? expense.projectId._id : "",
     });
+    setCategoryInput("");
+    setCategoryShowDropdown(false);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingId(null);
+    setCategoryInput("");
+    setCategoryShowDropdown(false);
     setFormData({
-      category: "electricity",
+      category: "Electricity",
       amount: 0,
       date: new Date().toISOString().split("T")[0],
       notes: "",
@@ -160,7 +294,8 @@ export const Expenses: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.category || !formData.amount || !formData.date) {
+    const selectedCategory = (formData.category || "").trim();
+    if (!selectedCategory || !formData.amount || !formData.date) {
       toast.error(t("expenses.fillRequired"));
       return;
     }
@@ -172,6 +307,7 @@ export const Expenses: React.FC = () => {
 
     try {
       setIsSubmitting(true);
+      saveCustomCategoryToStorage(selectedCategory);
       if (editingId) {
         const response = await updateExpense(editingId, {
           category: formData.category,
@@ -492,25 +628,129 @@ export const Expenses: React.FC = () => {
         size="default"
       >
         <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Category Combobox */}
           <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">
-              {t("expenses.category")} <span className="text-red-500">*</span>
-            </label>
-            <Select
-              required
-              value={formData.category}
-              onChange={(e) =>
-                setFormData({ ...formData, category: e.target.value })
-              }
-            >
-              <option value="electricity">{t("expenses.electricity")}</option>
-              <option value="water">{t("expenses.water")}</option>
-              <option value="utilities">{t("expenses.utilities")}</option>
-              <option value="salary">{t("expenses.salary")}</option>
-              <option value="maintenance">{t("expenses.maintenance")}</option>
-              <option value="rent">{t("expenses.rent")}</option>
-              <option value="other">{t("expenses.other")}</option>
-            </Select>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold text-slate-700">
+                {t("expenses.category")} <span className="text-red-500">*</span>
+              </label>
+              <span className="text-[11px] text-slate-400 font-normal">
+                {language === "my"
+                  ? "စိတ်ကြိုက် ရိုက်ထည့်နိုင်ပါသည်"
+                  : "Type custom or select"}
+              </span>
+            </div>
+
+            <div className="relative">
+              <div className="relative flex items-center">
+                <input
+                  type="text"
+                  required
+                  className="w-full px-3.5 py-2.5 pr-10 text-sm bg-white border border-slate-200 rounded-xl hover:border-slate-300 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 transition-all outline-none"
+                  placeholder="Type or select a category..."
+                  value={categoryInput !== "" ? categoryInput : formData.category}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    setCategoryInput(val);
+                    setFormData((prev) => ({ ...prev, category: val }));
+                    setCategoryShowDropdown(true);
+                  }}
+                  onFocus={() => setCategoryShowDropdown(true)}
+                  onBlur={() => {
+                    setTimeout(() => setCategoryShowDropdown(false), 220);
+                  }}
+                />
+                <button
+                  type="button"
+                  tabIndex={-1}
+                  className="absolute right-2.5 p-1 text-slate-400 hover:text-slate-600 transition-colors"
+                  onClick={() => setCategoryShowDropdown((prev) => !prev)}
+                >
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-200 ${
+                      categoryShowDropdown ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+              </div>
+
+              {categoryShowDropdown && (
+                <div className="absolute z-50 left-0 right-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-xl max-h-56 overflow-y-auto p-1.5 space-y-1">
+                  {/* Create custom category option */}
+                  {(categoryInput || formData.category).trim() &&
+                    !isExactCategoryMatch && (
+                      <div
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          handleAddCustomCategory(
+                            categoryInput || formData.category
+                          );
+                        }}
+                        className="px-3 py-2 bg-emerald-50 hover:bg-emerald-100 rounded-lg text-emerald-800 text-xs font-semibold flex items-center justify-between cursor-pointer transition-colors"
+                      >
+                        <span className="flex items-center gap-1.5 truncate">
+                          <Plus className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                          <span>
+                            Add custom category:{" "}
+                            <strong className="underline">
+                              "{(categoryInput || formData.category).trim()}"
+                            </strong>
+                          </span>
+                        </span>
+                        <span className="text-[10px] bg-emerald-200 text-emerald-900 px-2 py-0.5 rounded font-bold uppercase shrink-0">
+                          + Add
+                        </span>
+                      </div>
+                    )}
+
+                  {/* Suggestions list */}
+                  {filteredCategories.length > 0 ? (
+                    filteredCategories.map((cat) => {
+                      const currentVal =
+                        categoryInput !== ""
+                          ? categoryInput
+                          : formData.category;
+                      const isSelected =
+                        currentVal.toLowerCase().trim() ===
+                        cat.value.toLowerCase().trim();
+
+                      return (
+                        <div
+                          key={cat.value}
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            handleSelectCategory(cat.value);
+                          }}
+                          className={`px-3 py-2 rounded-lg text-xs font-medium cursor-pointer transition-colors flex items-center justify-between ${
+                            isSelected
+                              ? "bg-ocean-50 text-ocean-700 font-bold"
+                              : "hover:bg-slate-100 text-slate-700"
+                          }`}
+                        >
+                          <span className="truncate">
+                            {cat.value}
+                            {cat.labelMy && (
+                              <span className="text-slate-400 font-normal ml-1.5">
+                                ({cat.labelMy})
+                              </span>
+                            )}
+                          </span>
+                          {cat.isCustom && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 border border-amber-200/60 font-medium">
+                              Custom
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })
+                  ) : (
+                    <div className="px-3 py-2 text-xs text-slate-400 text-center">
+                      No matching category
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
           </div>
 
           {userRole !== "cashier" && (
@@ -534,29 +774,6 @@ export const Expenses: React.FC = () => {
               </Select>
             </div>
           )}
-
-          {/* Optional Project Link */}
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700">
-              Link to Project{" "}
-              <span className="text-slate-400 text-xs font-normal">
-                (Optional)
-              </span>
-            </label>
-            <Select
-              value={formData.projectId}
-              onChange={(e) =>
-                setFormData({ ...formData, projectId: e.target.value })
-              }
-            >
-              <option value="">— No Project —</option>
-              {projects.map((project: any) => (
-                <option key={project._id} value={project._id}>
-                  {project.siteName}
-                </option>
-              ))}
-            </Select>
-          </div>
 
           <div className="space-y-1">
             <label className="text-xs font-bold text-slate-700">

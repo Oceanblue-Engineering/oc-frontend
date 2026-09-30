@@ -44,7 +44,8 @@ export const WorkerManagement: React.FC = () => {
     return (
       w.name.toLowerCase().includes(term) ||
       (w.position && w.position.toLowerCase().includes(term)) ||
-      (w.phone && w.phone.includes(term))
+      (w.phone && w.phone.includes(term)) ||
+      (w.remark && w.remark.toLowerCase().includes(term))
     );
   });
 
@@ -139,6 +140,7 @@ export const WorkerManagement: React.FC = () => {
                       <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Position</th>
                       <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Daily Rate</th>
                       <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Telegram ID</th>
+                      <th className="px-6 py-3 text-left text-xs font-bold text-slate-500 uppercase tracking-wider">Remark</th>
                       <th className="px-6 py-3 text-right text-xs font-bold text-slate-500 uppercase tracking-wider">Actions</th>
                     </tr>
                   </thead>
@@ -154,6 +156,7 @@ export const WorkerManagement: React.FC = () => {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-800 font-bold">{w.dailyRate.toLocaleString()} Ks</td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-mono text-slate-500">{w.telegramId || "-"}</td>
+                        <td className="px-6 py-4 text-sm text-slate-500 max-w-xs truncate">{w.remark || "-"}</td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                           <button
                             onClick={() => {
@@ -179,6 +182,11 @@ export const WorkerManagement: React.FC = () => {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         worker={selectedWorker}
+        existingPositions={
+          Array.from(
+            new Set(workers.map((w) => w.position).filter(Boolean))
+          ) as string[]
+        }
         onSaved={loadWorkers}
       />
     </div>

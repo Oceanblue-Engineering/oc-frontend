@@ -91,10 +91,16 @@ export interface ProjectFinancialSummary {
     totalPayroll: number;
     totalCost: number;
     estimatedRevenue: number;
+    revenue?: number;
     estimatedProfit: number;
+    netProfit?: number;
     profitMargin: number;
     expenseCount: number;
     attendanceCount: number;
+    totalInvoiced?: number;
+    totalPaid?: number;
+    hasInvoices?: boolean;
+    invoiceCount?: number;
   };
   timeline: {
     daysElapsed: number;

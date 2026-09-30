@@ -7,6 +7,7 @@ export interface Worker {
   position?: string;
   dailyRate: number;
   telegramId?: string;
+  remark?: string;
   createdAt?: string;
   updatedAt?: string;
 }

@@ -447,18 +447,15 @@ export const printThermalReceipt = async (
 ) => {
   const shopResponse = await fetchShopSettings();
   const branding = getPrintShopBranding(shopResponse.data ?? null);
-  if (branding.logo) {
-    await preloadImage(branding.logo);
-  }
+  const logoUrl = branding.logo || "/logo.png";
+  await preloadImage(logoUrl);
 
   const contactParts = [
     branding.phone && `Tel: ${branding.phone}`,
     branding.website,
   ].filter(Boolean);
 
-  const logoHeader = branding.logo
-    ? `<img src="${branding.logo}" alt="${branding.shopName}" style="width: 18mm; height: 18mm; object-fit: contain; margin: 0 auto 2mm; display: block;" />`
-    : "";
+  const logoHeader = `<img src="${logoUrl}" alt="${branding.shopName || "OceanBlue"}" style="width: 18mm; height: 18mm; object-fit: contain; margin: 0 auto 2mm; display: block;" />`;
 
   // Create a hidden iframe for printing
   const iframe = document.createElement("iframe");

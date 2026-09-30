@@ -1,142 +1,164 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { toast } from "sonner";
-import { ChevronDown, Plus } from "lucide-react";
-import { createExpense } from "../../services/Expense/createExpense";
-import {
-  fetchLocationProfiles,
-  LocationProfile,
-} from "../../services/Location/fetchLocationProfiles";
+import { ChevronDown, Plus, CheckSquare } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import { Modal, Button, Input } from "../ui";
+import {
+  ProjectTask,
+  createProjectTask,
+  updateProjectTask,
+} from "../../services/ProjectTask/projectTask.service";
 
-interface ProjectExpenseModalProps {
+interface ProjectTaskModalProps {
   isOpen: boolean;
   onClose: () => void;
   projectId: string;
   projectName?: string;
   existingCategories?: string[];
-  onExpenseCreated: () => void;
+  taskToEdit?: ProjectTask | null;
+  onTaskSaved: () => void;
 }
 
-const CATEGORY_PRESETS = [
-  { value: "Materials", labelEn: "Materials", labelMy: "ပစ္စည်းဝယ်ယူစရိတ်" },
-  { value: "Labor / Wages", labelEn: "Labor / Wages", labelMy: "လုပ်အားခ / နေ့စားခ" },
+const TASK_CATEGORY_PRESETS = [
   {
-    value: "Transportation",
-    labelEn: "Transportation",
-    labelMy: "သယ်ယူပို့ဆောင်ခ",
+    value: "Structure & Concrete",
+    labelEn: "Structure & Concrete",
+    labelMy: "ကွန်ကရစ်နှင့် ဖွဲ့စည်းတည်ဆောက်မှု",
   },
   {
-    value: "Equipment & Tools",
-    labelEn: "Equipment & Tools",
-    labelMy: "စက်ကိရိယာ / တန်ဆာပလာ",
+    value: "Excavation & Earthwork",
+    labelEn: "Excavation & Earthwork",
+    labelMy: "မြေတူးခြင်းနှင့် အောက်ခြေလုပ်ငန်း",
   },
   {
-    value: "Subcontractor",
-    labelEn: "Subcontractor",
-    labelMy: "ကန်ထရိုက်တာခွဲ",
+    value: "Waterproofing",
+    labelEn: "Waterproofing",
+    labelMy: "ရေလုံ ရေကာလုပ်ငန်း",
   },
   {
-    value: "Site Preparation",
-    labelEn: "Site Preparation",
-    labelMy: "လုပ်ငန်းခွင် ပြင်ဆင်စရိတ်",
+    value: "Piping & Plumbing",
+    labelEn: "Piping & Plumbing",
+    labelMy: "ပိုက်လိုင်းနှင့် ရေပိုက်စနစ်",
   },
-  { value: "Electricity", labelEn: "Electricity", labelMy: "မီးဖိုး" },
-  { value: "Water", labelEn: "Water", labelMy: "ရေဖိုး" },
   {
-    value: "Utilities",
-    labelEn: "Utilities",
-    labelMy: "အထွေထွေ အသုံးစရိတ်",
+    value: "Tiling & Finishing",
+    labelEn: "Tiling & Finishing",
+    labelMy: "ကြွေပြားကပ်ခြင်းနှင့် အချောသတ်လုပ်ငန်း",
   },
-  { value: "Salary", labelEn: "Salary", labelMy: "လစာ" },
   {
-    value: "Maintenance",
-    labelEn: "Maintenance",
-    labelMy: "ပြုပြင်ထိန်းသိမ်းစရိတ်",
+    value: "Electrical & Lighting",
+    labelEn: "Electrical & Lighting",
+    labelMy: "လျှပ်စစ်နှင့် မီးအလှဆင်လုပ်ငန်း",
   },
-  { value: "Rent", labelEn: "Rent", labelMy: "အငှားခ" },
-  { value: "Chemicals", labelEn: "Chemicals", labelMy: "ဓာတုဆေးဝါးစရိတ်" },
-  { value: "Other", labelEn: "Other", labelMy: "အခြား" },
+  {
+    value: "Filtration & Pump System",
+    labelEn: "Filtration & Pump System",
+    labelMy: "ရေစစ်စနစ်နှင့် မော်တာတပ်ဆင်ခြင်း",
+  },
+  {
+    value: "Chemical Treatment",
+    labelEn: "Chemical Treatment",
+    labelMy: "ရေကူးကန် ဆေးခတ်ခြင်း/စစ်ဆေးခြင်း",
+  },
+  {
+    value: "Testing & Inspection",
+    labelEn: "Testing & Inspection",
+    labelMy: "စမ်းသပ်စစ်ဆေးခြင်း",
+  },
+  {
+    value: "Cleaning & Handover",
+    labelEn: "Cleaning & Handover",
+    labelMy: "သန့်ရှင်းရေးနှင့် လုပ်ငန်းအပ်နှံခြင်း",
+  },
+  {
+    value: "General Maintenance",
+    labelEn: "General Maintenance",
+    labelMy: "အထွေထွေ ပြုပြင်ထိန်းသိမ်းမှု",
+  },
+  {
+    value: "Other",
+    labelEn: "Other",
+    labelMy: "အခြား",
+  },
 ];
 
-const STORAGE_KEY = "custom_expense_categories";
+const TASK_STORAGE_KEY = "custom_project_task_categories";
 
-const getStoredCustomCategories = (): string[] => {
+const getStoredTaskCategories = (): string[] => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(TASK_STORAGE_KEY);
     return raw ? JSON.parse(raw) : [];
   } catch {
     return [];
   }
 };
 
-const saveCustomCategoryToStorage = (categoryName: string) => {
+const saveTaskCategoryToStorage = (categoryName: string) => {
   const trimmed = categoryName.trim();
   if (!trimmed) return;
   try {
-    const current = getStoredCustomCategories();
+    const current = getStoredTaskCategories();
     if (!current.some((c) => c.toLowerCase() === trimmed.toLowerCase())) {
       const updated = [trimmed, ...current];
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      localStorage.setItem(TASK_STORAGE_KEY, JSON.stringify(updated));
     }
   } catch (err) {
-    console.error("Failed to save custom category", err);
+    console.error("Failed to save custom task category", err);
   }
 };
 
-export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
+export const ProjectTaskModal: React.FC<ProjectTaskModalProps> = ({
   isOpen,
   onClose,
   projectId,
   projectName,
   existingCategories = [],
-  onExpenseCreated,
+  taskToEdit,
+  onTaskSaved,
 }) => {
-  const { t, language } = useLanguage();
-  const [locations, setLocations] = useState<LocationProfile[]>([]);
+  const { language } = useLanguage();
+  const isMy = language === "my";
+
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Combobox category states
+  // Combobox states
   const [categoryInput, setCategoryInput] = useState("");
   const [categoryShowDropdown, setCategoryShowDropdown] = useState(false);
   const [customCategories, setCustomCategories] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
-    category: "Materials",
-    amount: 0,
+    taskName: "",
     date: new Date().toISOString().split("T")[0],
-    notes: "",
-    locationId: "",
+    category: "Structure & Concrete",
+    remark: "",
   });
 
   useEffect(() => {
     if (isOpen) {
-      loadLocations();
-      setCustomCategories(getStoredCustomCategories());
+      setCustomCategories(getStoredTaskCategories());
+      if (taskToEdit) {
+        setFormData({
+          taskName: taskToEdit.taskName || "",
+          date: taskToEdit.date
+            ? new Date(taskToEdit.date).toISOString().split("T")[0]
+            : new Date().toISOString().split("T")[0],
+          category: taskToEdit.category || "Structure & Concrete",
+          remark: taskToEdit.remark || "",
+        });
+      } else {
+        setFormData({
+          taskName: "",
+          date: new Date().toISOString().split("T")[0],
+          category: "Structure & Concrete",
+          remark: "",
+        });
+      }
       setCategoryInput("");
       setCategoryShowDropdown(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]);
+  }, [isOpen, taskToEdit]);
 
-  const loadLocations = async () => {
-    try {
-      const response = await fetchLocationProfiles();
-      if (response.success && response.data) {
-        setLocations(response.data);
-        if (response.data.length > 0 && !formData.locationId) {
-          setFormData((prev) => ({
-            ...prev,
-            locationId: response.data[0]._id,
-          }));
-        }
-      }
-    } catch (error) {
-      console.error("Error loading locations:", error);
-    }
-  };
-
-  // Build unique category list from presets, existing project categories, and stored custom categories
+  // Build unique category list
   const allCategories = useMemo(() => {
     const map = new Map<
       string,
@@ -144,7 +166,7 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
     >();
 
     // 1. Presets
-    CATEGORY_PRESETS.forEach((preset) => {
+    TASK_CATEGORY_PRESETS.forEach((preset) => {
       map.set(preset.value.toLowerCase(), {
         value: preset.value,
         labelMy: preset.labelMy,
@@ -152,7 +174,7 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
       });
     });
 
-    // 2. Existing categories from this project
+    // 2. Existing categories from project tasks
     if (existingCategories) {
       existingCategories.forEach((cat) => {
         const trimmed = cat.trim();
@@ -165,7 +187,7 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
       });
     }
 
-    // 3. User's saved custom categories from localStorage
+    // 3. User's saved custom categories
     customCategories.forEach((cat) => {
       const trimmed = cat.trim();
       if (trimmed && !map.has(trimmed.toLowerCase())) {
@@ -179,7 +201,6 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
     return Array.from(map.values());
   }, [existingCategories, customCategories]);
 
-  // Filtered categories based on user input
   const filteredCategories = useMemo(() => {
     const q = (categoryInput || formData.category || "").toLowerCase().trim();
     if (!q) return allCategories;
@@ -190,7 +211,6 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
     );
   }, [allCategories, categoryInput, formData.category]);
 
-  // Check if current input matches any existing category exactly
   const isExactCategoryMatch = useMemo(() => {
     const q = (categoryInput || formData.category || "").toLowerCase().trim();
     if (!q) return true;
@@ -206,8 +226,8 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
   const handleAddCustomCategory = (val: string) => {
     const trimmed = val.trim();
     if (!trimmed) return;
-    saveCustomCategoryToStorage(trimmed);
-    setCustomCategories(getStoredCustomCategories());
+    saveTaskCategoryToStorage(trimmed);
+    setCustomCategories(getStoredTaskCategories());
     setFormData((prev) => ({ ...prev, category: trimmed }));
     setCategoryInput("");
     setCategoryShowDropdown(false);
@@ -215,11 +235,10 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
 
   const resetForm = () => {
     setFormData({
-      category: "Materials",
-      amount: 0,
+      taskName: "",
       date: new Date().toISOString().split("T")[0],
-      notes: "",
-      locationId: locations[0]?._id || "",
+      category: "Structure & Concrete",
+      remark: "",
     });
     setCategoryInput("");
     setCategoryShowDropdown(false);
@@ -234,54 +253,52 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
     e.preventDefault();
 
     const selectedCategory = (formData.category || "").trim();
-    if (!selectedCategory || formData.amount <= 0 || !formData.date) {
+    if (!formData.taskName.trim() || !selectedCategory || !formData.date) {
       toast.error(
-        t("expenses.fillRequiredFields") ||
-          "Please fill in all required fields"
+        isMy
+          ? "လုပ်ငန်းအမည်၊ နေ့စွဲ နှင့် အမျိုးအစားတို့ကို ဖြည့်စွက်ပါ"
+          : "Please fill in all required fields"
       );
       return;
     }
 
     setIsSubmitting(true);
     try {
-      // Save custom category to localStorage for future suggestions
-      saveCustomCategoryToStorage(selectedCategory);
+      saveTaskCategoryToStorage(selectedCategory);
 
-      const payload: any = {
-        category: selectedCategory,
-        amount: Number(formData.amount),
-        date: formData.date,
-        projectId: projectId,
-        notes: formData.notes ? formData.notes.trim() : undefined,
-      };
-
-      if (formData.locationId || locations[0]?._id) {
-        payload.locationId = formData.locationId || locations[0]?._id;
-      }
-
-      const res = await createExpense(payload);
-
-      if (res.success) {
+      if (taskToEdit) {
+        await updateProjectTask(taskToEdit._id, {
+          taskName: formData.taskName.trim(),
+          date: formData.date,
+          category: selectedCategory,
+          remark: formData.remark.trim(),
+          status: "completed",
+        });
         toast.success(
-          t("projects.expenseAddedSuccess") ||
-            "Project expense recorded successfully"
+          isMy
+            ? "ပြီးစီးသွားသော လုပ်ငန်းမှတ်တမ်း ပြင်ဆင်ပြီးပါပြီ"
+            : "Finished task updated successfully"
         );
-        handleClose();
-        onExpenseCreated();
       } else {
-        toast.error(
-          res.message ||
-            t("expenses.failedToCreate") ||
-            "Failed to record expense"
+        await createProjectTask(projectId, {
+          taskName: formData.taskName.trim(),
+          date: formData.date,
+          category: selectedCategory,
+          remark: formData.remark.trim(),
+          status: "completed",
+        });
+        toast.success(
+          isMy
+            ? "ပြီးစီးသွားသော လုပ်ငန်းအသစ် ထည့်သွင်းပြီးပါပြီ"
+            : "Finished task recorded successfully"
         );
       }
+
+      handleClose();
+      onTaskSaved();
     } catch (error: any) {
-      console.error("Error creating project expense:", error);
-      toast.error(
-        error.message ||
-          t("expenses.failedToCreate") ||
-          "Failed to record expense"
-      );
+      console.error("Error saving task:", error);
+      toast.error(error.message || "Failed to save task");
     } finally {
       setIsSubmitting(false);
     }
@@ -291,24 +308,69 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
     <Modal
       isOpen={isOpen}
       onClose={handleClose}
-      title={t("projects.addExpense") || "Add Project Expense"}
+      title={
+        taskToEdit
+          ? isMy
+            ? "ပြီးစီးသွားသော လုပ်ငန်းမှတ်တမ်း ပြင်ဆင်မည်"
+            : "Edit Finished Task"
+          : isMy
+          ? "ပြီးစီးသွားသော လုပ်ငန်းသစ် မှတ်တမ်းတင်မည်"
+          : "Record Finished Task"
+      }
       description={
-        projectName ? `Recording expense for: ${projectName}` : undefined
+        projectName
+          ? `${isMy ? "လုပ်ငန်းခွင်" : "Project"}: ${projectName}`
+          : undefined
       }
       size="default"
     >
       <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Task Name */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-700">
+            {isMy ? "လုပ်ငန်းအမည်" : "Task Name"}{" "}
+            <span className="text-red-500">*</span>
+          </label>
+          <Input
+            type="text"
+            required
+            placeholder={
+              isMy
+                ? "ဥပမာ - ရေကန်အောက်ခြေ ဖောင်ဒေးရှင်း လောင်းခြင်း"
+                : "e.g. Foundation concrete pouring..."
+            }
+            value={formData.taskName}
+            onChange={(e) =>
+              setFormData({ ...formData, taskName: e.target.value })
+            }
+          />
+        </div>
+
+        {/* Date */}
+        <div className="space-y-1">
+          <label className="text-xs font-bold text-slate-700">
+            {isMy ? "ပြီးစီးသည့် နေ့စွဲ" : "Completion Date"}{" "}
+            <span className="text-red-500">*</span>
+          </label>
+          <Input
+            type="date"
+            required
+            value={formData.date}
+            onChange={(e) =>
+              setFormData({ ...formData, date: e.target.value })
+            }
+          />
+        </div>
+
         {/* Category Combobox */}
         <div className="space-y-1">
           <div className="flex items-center justify-between">
             <label className="text-xs font-bold text-slate-700">
-              {t("expenses.category") || "Category"}{" "}
+              {isMy ? "လုပ်ငန်းအမျိုးအစား" : "Task Category"}{" "}
               <span className="text-red-500">*</span>
             </label>
             <span className="text-[11px] text-slate-400 font-normal">
-              {language === "my"
-                ? "စိတ်ကြိုက် ရိုက်ထည့်နိုင်ပါသည်"
-                : "Type custom or select"}
+              {isMy ? "စိတ်ကြိုက် ရိုက်ထည့်နိုင်ပါသည်" : "Type custom or select"}
             </span>
           </div>
 
@@ -319,9 +381,9 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
                 required
                 className="w-full px-3.5 py-2.5 pr-10 text-sm bg-white border border-slate-200 rounded-xl hover:border-slate-300 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 transition-all outline-none"
                 placeholder={
-                  language === "my"
+                  isMy
                     ? "အမျိုးအစား ရွေးချယ်ပါ သို့မဟုတ် ရိုက်ထည့်ပါ..."
-                    : "Type or select a category..."
+                    : "Type or select category..."
                 }
                 value={categoryInput !== "" ? categoryInput : formData.category}
                 onChange={(e) => {
@@ -366,7 +428,7 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
                       <span className="flex items-center gap-1.5 truncate">
                         <Plus className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
                         <span>
-                          {language === "my"
+                          {isMy
                             ? "အမျိုးအစားအသစ် ထည့်မည်:"
                             : "Add custom category:"}{" "}
                           <strong className="underline">
@@ -406,7 +468,7 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
                       >
                         <span className="truncate">
                           {cat.value}
-                          {cat.labelMy && language === "my" && (
+                          {cat.labelMy && isMy && (
                             <span className="text-slate-400 font-normal ml-1.5">
                               ({cat.labelMy})
                             </span>
@@ -422,7 +484,7 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
                   })
                 ) : (
                   <div className="px-3 py-2 text-xs text-slate-400 text-center">
-                    {language === "my"
+                    {isMy
                       ? "ကိုက်ညီသော အမျိုးအစား မရှိပါ"
                       : "No matching category"}
                   </div>
@@ -432,69 +494,31 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
           </div>
         </div>
 
-        {/* Amount */}
+        {/* Remark */}
         <div className="space-y-1">
           <label className="text-xs font-bold text-slate-700">
-            {t("expenses.amount") || "Amount"} (MMK){" "}
-            <span className="text-red-500">*</span>
-          </label>
-          <Input
-            type="number"
-            required
-            min="1"
-            step="any"
-            placeholder="0"
-            rightIcon={
-              <span className="text-xs font-bold text-slate-400">MMK</span>
-            }
-            value={formData.amount || ""}
-            onChange={(e) =>
-              setFormData({
-                ...formData,
-                amount: Number(e.target.value),
-              })
-            }
-          />
-        </div>
-
-        {/* Date */}
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-700">
-            {t("expenses.date") || "Date"}{" "}
-            <span className="text-red-500">*</span>
-          </label>
-          <Input
-            type="date"
-            required
-            value={formData.date}
-            onChange={(e) =>
-              setFormData({ ...formData, date: e.target.value })
-            }
-          />
-        </div>
-
-        {/* Notes */}
-        <div className="space-y-1">
-          <label className="text-xs font-bold text-slate-700">
-            {t("expenses.notes") || "Notes"}{" "}
-            <span className="text-slate-400 font-normal">(Optional)</span>
+            {isMy ? "မှတ်ချက် / အသေးစိတ်" : "Remark / Details"}{" "}
+            <span className="text-slate-400 font-normal">
+              ({isMy ? "မဖြစ်မနေ မလိုပါ" : "Optional"})
+            </span>
           </label>
           <textarea
             rows={3}
-            maxLength={500}
+            maxLength={1000}
             className="w-full px-3.5 py-2.5 text-sm bg-white border border-slate-200 rounded-xl hover:border-slate-300 focus:border-ocean-500 focus:ring-4 focus:ring-ocean-500/10 transition-all outline-none"
             placeholder={
-              t("expenses.notesPlaceholder") ||
-              "e.g. 50 bags of cement, transportation invoice..."
+              isMy
+                ? "လုပ်ငန်းဆောင်ရွက်ခဲ့မှု အသေးစိတ်မှတ်ချက် ရေးသွင်းပါ..."
+                : "Enter any notes or progress remarks..."
             }
-            value={formData.notes}
+            value={formData.remark}
             onChange={(e) =>
-              setFormData({ ...formData, notes: e.target.value })
+              setFormData({ ...formData, remark: e.target.value })
             }
           />
         </div>
 
-        {/* Footer Actions */}
+        {/* Actions */}
         <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-slate-100">
           <Button
             type="button"
@@ -502,15 +526,22 @@ export const ProjectExpenseModal: React.FC<ProjectExpenseModalProps> = ({
             size="default"
             onClick={handleClose}
           >
-            {t("common.cancel") || "Cancel"}
+            {isMy ? "ပယ်ဖျက်မည်" : "Cancel"}
           </Button>
           <Button
             type="submit"
             variant="default"
             size="default"
             isLoading={isSubmitting}
+            leftIcon={<CheckSquare className="w-4 h-4" />}
           >
-            {t("projects.addExpense") || "Record Expense"}
+            {taskToEdit
+              ? isMy
+                ? "သိမ်းဆည်းမည်"
+                : "Save Changes"
+              : isMy
+              ? "မှတ်တမ်းတင်မည်"
+              : "Record Task"}
           </Button>
         </div>
       </form>

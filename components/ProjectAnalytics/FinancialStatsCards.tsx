@@ -16,8 +16,13 @@ export interface FinancialStats {
   totalPayroll: number;
   totalCost: number;
   estimatedRevenue: number;
-  estimatedProfit: number;
-  profitMargin: number;
+  revenue?: number;
+  netProfit?: number;
+  estimatedProfit?: number;
+  profitMargin?: number;
+  hasInvoices?: boolean;
+  totalInvoiced?: number;
+  totalPaid?: number;
 }
 
 export interface TimelineStats {
@@ -52,6 +57,10 @@ const FinancialStatsCards: React.FC<FinancialStatsCardsProps> = ({
 }) => {
   const { t } = useLanguage();
 
+  const netProfit =
+    financials.netProfit ??
+    ((financials.revenue ?? financials.estimatedRevenue) - financials.totalCost);
+
   const getTrendIndicator = (current: number, previous?: number) => {
     if (!previous || previous === 0) return null;
     const change = ((current - previous) / previous) * 100;
@@ -76,8 +85,8 @@ const FinancialStatsCards: React.FC<FinancialStatsCardsProps> = ({
 
   if (isLoading) {
     return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {[...Array(6)].map((_, i) => (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+        {[...Array(5)].map((_, i) => (
           <div key={i} className="bg-slate-50 p-4 rounded-xl border border-slate-100 animate-pulse">
             <div className="flex items-center gap-2 mb-2">
               <div className="w-8 h-8 rounded-lg bg-slate-200" />
@@ -141,37 +150,43 @@ const FinancialStatsCards: React.FC<FinancialStatsCardsProps> = ({
                 <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center">
                   <TrendingUp className="w-4 h-4 text-zinc-600" />
                 </div>
-                <span className="text-xs font-semibold text-slate-500">{t("projects.estimatedRevenue")}</span>
+                <span className="text-xs font-semibold text-slate-500">
+                  {financials.hasInvoices
+                    ? t("projects.revenue")
+                    : t("projects.estimatedRevenue")}
+                </span>
               </div>
               {getTrendIndicator(financials.estimatedRevenue)}
             </div>
             <p className="text-lg font-bold text-slate-800">{formatCurrency(financials.estimatedRevenue)}</p>
+            {financials.hasInvoices && (
+              <p className="text-[10px] text-ocean-600 font-medium mt-0.5">
+                {t("projects.fromInvoices")}
+              </p>
+            )}
           </div>
 
+          {/* Net Profit Card */}
           <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center">
-                  <TrendingUp className="w-4 h-4 text-zinc-600" />
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                  netProfit >= 0 ? "bg-emerald-50 text-emerald-600" : "bg-rose-50 text-rose-600"
+                }`}>
+                  <TrendingUp className="w-4 h-4" />
                 </div>
-                <span className="text-xs font-semibold text-slate-500">{t("projects.estimatedProfit")}</span>
+                <span className="text-xs font-semibold text-slate-500">{t("projects.netProfit")}</span>
               </div>
-              {getTrendIndicator(financials.estimatedProfit)}
+              {getTrendIndicator(netProfit)}
             </div>
-            <p className="text-lg font-bold text-slate-800">{formatCurrency(financials.estimatedProfit)}</p>
-          </div>
-
-          <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-zinc-100 flex items-center justify-center">
-                  <PieChart className="w-4 h-4 text-zinc-600" />
-                </div>
-                <span className="text-xs font-semibold text-slate-500">{t("projects.profitMargin")}</span>
-              </div>
-              {getTrendIndicator(financials.profitMargin)}
-            </div>
-            <p className="text-lg font-bold text-slate-800">{formatPercentage(financials.profitMargin)}</p>
+            <p className={`text-lg font-bold ${
+              netProfit >= 0 ? "text-emerald-700" : "text-rose-600"
+            }`}>
+              {formatCurrency(netProfit)}
+            </p>
+            <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+              Revenue - Total Cost
+            </p>
           </div>
         </div>
       </div>
@@ -256,96 +271,6 @@ const FinancialStatsCards: React.FC<FinancialStatsCardsProps> = ({
                 <span className="text-xs text-slate-500">{t("projects.avgDailyRate")}</span>
               </div>
               <p className="text-lg font-bold text-slate-800">{formatCurrency(projectStats.avgDailyRate)}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Financial health indicators */}
-      <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-        <h3 className="font-semibold text-ocean-800 text-sm mb-4">{t("projects.financialHealth")}</h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className={`p-3 rounded-lg border ${
-            financials.profitMargin > 20
-              ? 'bg-emerald-50 border-emerald-100'
-              : financials.profitMargin > 10
-                ? 'bg-amber-50 border-amber-100'
-                : 'bg-rose-50 border-rose-100'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold">{t("projects.profitMargin")}</span>
-              <span className={`text-xs font-bold ${
-                financials.profitMargin > 20
-                  ? 'text-emerald-600'
-                  : financials.profitMargin > 10
-                    ? 'text-amber-600'
-                    : 'text-rose-600'
-              }`}>
-                {formatPercentage(financials.profitMargin)}
-              </span>
-            </div>
-            <div className="text-[10px] text-slate-500 mt-1">
-              {financials.profitMargin > 20
-                ? t("projects.marginExcellent")
-                : financials.profitMargin > 10
-                  ? t("projects.marginGood")
-                  : t("projects.marginWarning")}
-            </div>
-          </div>
-
-          <div className={`p-3 rounded-lg border ${
-            financials.estimatedProfit > financials.totalCost * 0.15
-              ? 'bg-emerald-50 border-emerald-100'
-              : financials.estimatedProfit > financials.totalCost * 0.05
-                ? 'bg-amber-50 border-amber-100'
-                : 'bg-rose-50 border-rose-100'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold">{t("projects.roiRatio")}</span>
-              <span className={`text-xs font-bold ${
-                financials.estimatedProfit > financials.totalCost * 0.15
-                  ? 'text-emerald-600'
-                  : financials.estimatedProfit > financials.totalCost * 0.05
-                    ? 'text-amber-600'
-                    : 'text-rose-600'
-              }`}>
-                {Math.round((financials.estimatedProfit / financials.totalCost) * 100) || 0}%
-              </span>
-            </div>
-            <div className="text-[10px] text-slate-500 mt-1">
-              {financials.estimatedProfit > financials.totalCost * 0.15
-                ? t("projects.roiHigh")
-                : financials.estimatedProfit > financials.totalCost * 0.05
-                  ? t("projects.roiGood")
-                  : t("projects.roiLow")}
-            </div>
-          </div>
-
-          <div className={`p-3 rounded-lg border ${
-            timeline.percentComplete > 75 && timeline.daysRemaining < timeline.daysElapsed * 0.25
-              ? 'bg-emerald-50 border-emerald-100'
-              : timeline.percentComplete > 50 && timeline.daysRemaining < timeline.daysElapsed * 0.5
-                ? 'bg-amber-50 border-amber-100'
-                : 'bg-rose-50 border-rose-100'
-          }`}>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold">{t("projects.timelineHealth")}</span>
-              <span className={`text-xs font-bold ${
-                timeline.percentComplete > 75 && timeline.daysRemaining < timeline.daysElapsed * 0.25
-                  ? 'text-emerald-600'
-                  : timeline.percentComplete > 50 && timeline.daysRemaining < timeline.daysElapsed * 0.5
-                    ? 'text-amber-600'
-                    : 'text-rose-600'
-              }`}>
-                {timeline.percentComplete > timeline.daysElapsed / (timeline.daysElapsed + timeline.daysRemaining) * 100
-                  ? t("projects.ahead")
-                  : t("projects.onTrack")}
-              </span>
-            </div>
-            <div className="text-[10px] text-slate-500 mt-1">
-              {timeline.percentComplete > timeline.daysElapsed / (timeline.daysElapsed + timeline.daysRemaining) * 100
-                ? t("projects.aheadDesc")
-                : t("projects.onTrackDesc")}
             </div>
           </div>
         </div>

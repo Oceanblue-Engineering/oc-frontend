@@ -58,33 +58,11 @@ export const ReceiptDocument = React.forwardRef<
         <div className="flex items-start justify-between">
           {/* Brand Logo & Name */}
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 flex items-center justify-center shrink-0">
-              <svg
-                viewBox="0 0 100 100"
-                className="w-12 h-12 text-[#0077b6]"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <circle
-                  cx="50"
-                  cy="50"
-                  r="42"
-                  stroke="#0077b6"
-                  strokeWidth="10"
-                  strokeLinecap="round"
-                  strokeDasharray="210 60"
-                  transform="rotate(-135 50 50)"
-                />
-                <rect
-                  x="45"
-                  y="15"
-                  width="10"
-                  height="40"
-                  rx="5"
-                  fill="#0077b6"
-                />
-              </svg>
-            </div>
+            <img
+              src="/logo.png"
+              alt="OceanBlue Logo"
+              className="w-12 h-12 object-contain shrink-0"
+            />
             <div>
               <div className="flex items-center gap-1.5 text-3xl font-black tracking-tight leading-none">
                 <span className="text-[#0f2a4a]">OCEAN</span>
@@ -162,31 +140,11 @@ export const ReceiptDocument = React.forwardRef<
         <div className="relative">
           {/* Central Watermark Logo (Soft opacity) */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-[0.05]">
-            <svg
-              viewBox="0 0 100 100"
-              className="w-72 h-72 text-slate-800"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <circle
-                cx="50"
-                cy="50"
-                r="42"
-                stroke="currentColor"
-                strokeWidth="10"
-                strokeLinecap="round"
-                strokeDasharray="210 60"
-                transform="rotate(-135 50 50)"
-              />
-              <rect
-                x="45"
-                y="15"
-                width="10"
-                height="40"
-                rx="5"
-                fill="currentColor"
-              />
-            </svg>
+            <img
+              src="/logo.png"
+              alt="OceanBlue Watermark"
+              className="w-72 h-72 object-contain"
+            />
           </div>
 
           {/* Table */}

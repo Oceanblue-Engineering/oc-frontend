@@ -36,9 +36,14 @@ import MonthlyTrendsChart from "../components/ProjectAnalytics/MonthlyTrendsChar
 import PayrollSummaryTable from "../components/ProjectAnalytics/PayrollSummaryTable";
 import { ProjectExpensesTable } from "../components/ProjectAnalytics/ProjectExpensesTable";
 import { ProjectExpenseModal } from "../components/ProjectAnalytics/ProjectExpenseModal";
+import { ProjectFinishedTasksTable } from "../components/ProjectAnalytics/ProjectFinishedTasksTable";
 import { ProjectModal } from "../components/Project/ProjectModal";
 import ProjectToolsTab from "../components/ProjectAnalytics/ProjectToolsTab";
 import { fetchProjectById, Project } from "../services/Project/project.service";
+import {
+  fetchProjectTasks,
+  ProjectTask,
+} from "../services/ProjectTask/projectTask.service";
 import {
   fetchInvoices,
   updateInvoice,
@@ -85,6 +90,8 @@ const ProjectDetailAnalytics: React.FC = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editProject, setEditProject] = useState<Project | null>(null);
   const [expenseModalOpen, setExpenseModalOpen] = useState(false);
+  const [tasks, setTasks] = useState<ProjectTask[]>([]);
+  const [tasksLoading, setTasksLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<
     "overview" | "expenses" | "payroll" | "invoices" | "timeline" | "tools"
   >("overview");
@@ -127,17 +134,34 @@ const ProjectDetailAnalytics: React.FC = () => {
     }
   };
 
+  const loadTasks = async () => {
+    if (!id) return;
+    try {
+      setTasksLoading(true);
+      const res = await fetchProjectTasks(id);
+      if (res.success && res.data) {
+        setTasks(res.data.tasks || []);
+      }
+    } catch (err) {
+      console.error("Error loading project tasks:", err);
+    } finally {
+      setTasksLoading(false);
+    }
+  };
+
   const loadData = async (showFullPageLoader = false) => {
     if (!id) return;
     if (showFullPageLoader) setLoading(true);
 
     try {
-      const [financialRes, expensesRes, payrollRes, invoicesRes] = await Promise.all([
-        fetchProjectFinancialSummary(id),
-        fetchProjectExpenses(id),
-        fetchProjectPayrollSummary(id),
-        fetchInvoices({ projectId: id }),
-      ]);
+      const [financialRes, expensesRes, payrollRes, invoicesRes, tasksRes] =
+        await Promise.all([
+          fetchProjectFinancialSummary(id),
+          fetchProjectExpenses(id),
+          fetchProjectPayrollSummary(id),
+          fetchInvoices({ projectId: id }),
+          fetchProjectTasks(id),
+        ]);
 
       if (financialRes.success && financialRes.data) {
         setFinancialSummary(financialRes.data);
@@ -166,6 +190,10 @@ const ProjectDetailAnalytics: React.FC = () => {
       if (invoicesRes && invoicesRes.success) {
         setProjectInvoices(invoicesRes.data || []);
         setInvoiceStats(invoicesRes.stats || null);
+      }
+
+      if (tasksRes && tasksRes.success && tasksRes.data) {
+        setTasks(tasksRes.data.tasks || []);
       }
     } catch (error: any) {
       console.error("Error loading project analytics:", error);
@@ -280,6 +308,7 @@ const ProjectDetailAnalytics: React.FC = () => {
       id: "timeline",
       label: t("projects.tabTimeline") || "Timeline & Details",
       icon: Calendar,
+      badge: tasks.length > 0 ? tasks.length : undefined,
     },
     {
       id: "tools",
@@ -388,8 +417,13 @@ const ProjectDetailAnalytics: React.FC = () => {
                     totalPayroll: financials.totalPayroll,
                     totalCost: financials.totalCost,
                     estimatedRevenue: financials.estimatedRevenue,
+                    revenue: financials.revenue,
+                    netProfit: financials.netProfit ?? (financials.estimatedRevenue - financials.totalCost),
                     estimatedProfit: financials.estimatedProfit,
                     profitMargin: financials.profitMargin,
+                    hasInvoices: financials.hasInvoices,
+                    totalInvoiced: financials.totalInvoiced,
+                    totalPaid: financials.totalPaid,
                   }}
                   timeline={{
                     daysElapsed: timeline.daysElapsed,
@@ -946,7 +980,7 @@ const ProjectDetailAnalytics: React.FC = () => {
       )}
 
       {/* TAB 5: TIMELINE & DETAILS */}
-      {activeTab === "timeline" && (
+      {activeTab === "timeline" && id && (
         <div className="space-y-6">
           <Card>
             <CardHeader className="border-b border-slate-100">
@@ -1001,6 +1035,15 @@ const ProjectDetailAnalytics: React.FC = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Finished Tasks List */}
+          <ProjectFinishedTasksTable
+            projectId={id}
+            projectName={project?.siteName}
+            tasks={tasks}
+            isLoading={tasksLoading}
+            onTasksChanged={loadTasks}
+          />
         </div>
       )}
 
@@ -1032,6 +1075,17 @@ const ProjectDetailAnalytics: React.FC = () => {
           isOpen={expenseModalOpen}
           projectId={id}
           projectName={project.siteName}
+          existingCategories={
+            expensesData?.expenses
+              ? (Array.from(
+                  new Set(
+                    expensesData.expenses
+                      .map((e: any) => e.category || e.expenseType)
+                      .filter(Boolean)
+                  )
+                ) as string[])
+              : []
+          }
           onClose={() => setExpenseModalOpen(false)}
           onExpenseCreated={() => loadData(false)}
         />
