@@ -23,6 +23,7 @@ export interface InvoiceData {
   items: InvoiceItem[];
   subTotal: number;
   projectId?: string;
+  documentType?: "quotation" | "invoice" | "receipt";
   discountOrTaxLabel?: string;
   discountOrTaxAmount?: number;
   deliveryFee?: number;

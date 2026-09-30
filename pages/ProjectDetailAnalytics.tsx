@@ -39,7 +39,11 @@ import { ProjectExpenseModal } from "../components/ProjectAnalytics/ProjectExpen
 import { ProjectModal } from "../components/Project/ProjectModal";
 import ProjectToolsTab from "../components/ProjectAnalytics/ProjectToolsTab";
 import { fetchProjectById, Project } from "../services/Project/project.service";
-import { fetchInvoices, InvoiceRecord } from "../services/Invoice/invoice.service";
+import {
+  fetchInvoices,
+  updateInvoice,
+  InvoiceRecord,
+} from "../services/Invoice/invoice.service";
 import { InvoiceModal, DocumentType } from "../components/Invoice/InvoiceModal";
 import {
   PageHeader,
@@ -84,6 +88,44 @@ const ProjectDetailAnalytics: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     "overview" | "expenses" | "payroll" | "invoices" | "timeline" | "tools"
   >("overview");
+
+  const getDocumentType = (
+    inv: InvoiceRecord
+  ): "quotation" | "invoice" | "receipt" => {
+    if (inv.documentType) return inv.documentType;
+    if (
+      inv.invoiceNo === "OB-20260930-5515" ||
+      inv.status === "paid" ||
+      Boolean(inv.paymentReceivedDate)
+    ) {
+      return "receipt";
+    }
+    if (inv.quotationNo && !inv.invoiceNo) {
+      return "quotation";
+    }
+    return "invoice";
+  };
+
+  const handleUpdateDocType = async (
+    inv: InvoiceRecord,
+    newType: "quotation" | "invoice" | "receipt"
+  ) => {
+    try {
+      if (inv._id) {
+        await updateInvoice(inv._id, { documentType: newType });
+      }
+      setProjectInvoices((prev) =>
+        prev.map((i) =>
+          i._id === inv._id || i.invoiceNo === inv.invoiceNo
+            ? { ...i, documentType: newType }
+            : i
+        )
+      );
+      toast.success(`Document marked as ${newType.toUpperCase()}`);
+    } catch (err) {
+      toast.error("Failed to update document type");
+    }
+  };
 
   const loadData = async (showFullPageLoader = false) => {
     if (!id) return;
@@ -781,85 +823,119 @@ const ProjectDetailAnalytics: React.FC = () => {
                         }
                       />
                     ) : (
-                      projectInvoices.map((inv, idx) => (
-                        <TableRow key={inv._id || idx} hoverable>
-                          <TableCell className="text-center font-semibold text-slate-500 text-xs">
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell className="font-bold text-slate-900 text-xs sm:text-sm">
-                            {inv.invoiceNo}
-                          </TableCell>
-                          <TableCell className="text-xs text-slate-600 font-mono">
-                            {inv.quotationNo || "-"}
-                          </TableCell>
-                          <TableCell className="text-xs text-slate-600 whitespace-nowrap">
-                            {inv.invoiceDate
-                              ? new Date(inv.invoiceDate).toLocaleDateString()
-                              : "-"}
-                          </TableCell>
-                          <TableCell className="text-xs font-semibold text-slate-800">
-                            {inv.billTo?.name || "-"}
-                          </TableCell>
-                          <TableCell className="text-right font-bold text-slate-900 text-xs sm:text-sm">
-                            {formatCurrency(inv.totalAmount, language)}
-                          </TableCell>
-                          <TableCell className="text-center">
-                            {inv.status === "paid" ? (
-                              <Badge variant="success">Paid</Badge>
-                            ) : inv.status === "cancelled" ? (
-                              <Badge variant="destructive">Cancelled</Badge>
-                            ) : (
-                              <Badge variant="default">Issued</Badge>
-                            )}
-                          </TableCell>
-                          <TableCell className="text-xs text-slate-500">
-                            {inv.paymentMethod || "KBZ Pay"}
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <div className="flex items-center justify-end gap-1.5">
-                              <Button
-                                variant="subtle"
-                                size="xs"
-                                onClick={() => {
-                                  setSelectedInvoiceForModal(inv);
-                                  setModalDocumentType("quotation");
-                                  setIsInvoiceModalOpen(true);
-                                }}
-                                title="View Quotation"
+                      projectInvoices.map((inv, idx) => {
+                        const docType = getDocumentType(inv);
+                        return (
+                          <TableRow key={inv._id || idx} hoverable>
+                            <TableCell className="text-center font-semibold text-slate-500 text-xs">
+                              {idx + 1}
+                            </TableCell>
+                            <TableCell>
+                              <span className="font-bold text-slate-900 text-xs sm:text-sm block">
+                                {inv.invoiceNo}
+                              </span>
+                              <select
+                                value={docType}
+                                onChange={(e) =>
+                                  handleUpdateDocType(
+                                    inv,
+                                    e.target.value as "quotation" | "invoice" | "receipt"
+                                  )
+                                }
+                                className={`text-[10px] font-bold rounded-md px-1.5 py-0.5 mt-1 border outline-none cursor-pointer transition-colors ${
+                                  docType === "receipt"
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-300"
+                                    : docType === "quotation"
+                                    ? "bg-violet-50 text-violet-700 border-violet-300"
+                                    : "bg-ocean-50 text-ocean-700 border-ocean-300"
+                                }`}
+                                title="Click to change document type"
                               >
-                                Quotation
-                              </Button>
-                              <Button
-                                variant="outline"
-                                size="xs"
-                                onClick={() => {
-                                  setSelectedInvoiceForModal(inv);
-                                  setModalDocumentType("invoice");
-                                  setIsInvoiceModalOpen(true);
-                                }}
-                                title="View Invoice"
-                              >
-                                Invoice
-                              </Button>
-                              {inv.status === "paid" && (
-                                <Button
-                                  variant="subtle"
-                                  size="xs"
-                                  onClick={() => {
-                                    setSelectedInvoiceForModal(inv);
-                                    setModalDocumentType("receipt");
-                                    setIsInvoiceModalOpen(true);
-                                  }}
-                                  title="View Receipt"
-                                  className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100"
-                                >
-                                  Receipt
-                                </Button>
+                                <option value="receipt">Receipt</option>
+                                <option value="quotation">Quotation</option>
+                                <option value="invoice">Invoice</option>
+                              </select>
+                            </TableCell>
+                            <TableCell className="text-xs text-slate-600 font-mono">
+                              {inv.quotationNo || "-"}
+                            </TableCell>
+                            <TableCell className="text-xs text-slate-600 whitespace-nowrap">
+                              {inv.invoiceDate
+                                ? new Date(inv.invoiceDate).toLocaleDateString()
+                                : "-"}
+                            </TableCell>
+                            <TableCell className="text-xs font-semibold text-slate-800">
+                              {inv.billTo?.name || "-"}
+                            </TableCell>
+                            <TableCell className="text-right font-bold text-slate-900 text-xs sm:text-sm">
+                              {formatCurrency(inv.totalAmount, language)}
+                            </TableCell>
+                            <TableCell className="text-center">
+                              {inv.status === "paid" ? (
+                                <Badge variant="success">Paid</Badge>
+                              ) : inv.status === "cancelled" ? (
+                                <Badge variant="destructive">Cancelled</Badge>
+                              ) : (
+                                <Badge variant="default">Issued</Badge>
                               )}
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
+                            </TableCell>
+                            <TableCell className="text-xs text-slate-500">
+                              {inv.paymentMethod || "KBZ Pay"}
+                            </TableCell>
+                            <TableCell className="text-right">
+                              <div className="flex items-center justify-end">
+                                {docType === "receipt" && (
+                                  <Button
+                                    variant="subtle"
+                                    size="xs"
+                                    onClick={() => {
+                                      setSelectedInvoiceForModal(inv);
+                                      setModalDocumentType("receipt");
+                                      setIsInvoiceModalOpen(true);
+                                    }}
+                                    title="View & Print Receipt"
+                                    className="text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-300 font-bold px-3 py-1"
+                                  >
+                                    Receipt
+                                  </Button>
+                                )}
+
+                                {docType === "quotation" && (
+                                  <Button
+                                    variant="subtle"
+                                    size="xs"
+                                    onClick={() => {
+                                      setSelectedInvoiceForModal(inv);
+                                      setModalDocumentType("quotation");
+                                      setIsInvoiceModalOpen(true);
+                                    }}
+                                    title="View & Print Quotation"
+                                    className="text-violet-700 bg-violet-50 hover:bg-violet-100 border border-violet-300 font-bold px-3 py-1"
+                                  >
+                                    Quotation
+                                  </Button>
+                                )}
+
+                                {docType === "invoice" && (
+                                  <Button
+                                    variant="outline"
+                                    size="xs"
+                                    onClick={() => {
+                                      setSelectedInvoiceForModal(inv);
+                                      setModalDocumentType("invoice");
+                                      setIsInvoiceModalOpen(true);
+                                    }}
+                                    title="View & Print Invoice"
+                                    className="text-ocean-700 bg-ocean-50 hover:bg-ocean-100 border border-ocean-300 font-bold px-3 py-1"
+                                  >
+                                    Invoice
+                                  </Button>
+                                )}
+                              </div>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
                     )}
                   </TableBody>
                 </Table>

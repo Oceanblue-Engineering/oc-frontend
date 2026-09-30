@@ -638,7 +638,10 @@ export const InvoiceGenerator: React.FC = () => {
 
     setIsSaving(true);
     try {
-      const res = await createInvoice(invoiceData);
+      const res = await createInvoice({
+        ...invoiceData,
+        documentType: previewDocType,
+      });
       if (res && res.success) {
         toast.success("Document saved successfully!");
         loadInvoices();

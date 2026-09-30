@@ -60,7 +60,7 @@ export const Tickets: React.FC = () => {
     if (stored) {
       try {
         setAdminData(JSON.parse(stored));
-      } catch {}
+      } catch { }
     }
   }, []);
 
@@ -118,32 +118,32 @@ export const Tickets: React.FC = () => {
         type: form.type,
         ...(form.type === "Project"
           ? {
-              project_details: {
-                project_name: form.project_details.project_name,
-                time: form.project_details.time || undefined,
-                desc: form.project_details.desc,
-                number_of_worker: form.project_details.number_of_worker
-                  ? Number(form.project_details.number_of_worker)
-                  : undefined,
-                time_duration: form.project_details.time_duration,
-                note: form.project_details.note,
-              },
-            }
+            project_details: {
+              project_name: form.project_details.project_name,
+              time: form.project_details.time || undefined,
+              desc: form.project_details.desc,
+              number_of_worker: form.project_details.number_of_worker
+                ? Number(form.project_details.number_of_worker)
+                : undefined,
+              time_duration: form.project_details.time_duration,
+              note: form.project_details.note,
+            },
+          }
           : {}),
         ...(form.type !== "Project"
           ? {
-              retail_details: {
-                deli_location: form.retail_details.deli_location,
-                deli_time: form.retail_details.deli_time || undefined,
-                number_of_people: form.retail_details.number_of_people
-                  ? Number(form.retail_details.number_of_people)
-                  : undefined,
-                deli_expense: form.retail_details.deli_expense
-                  ? Number(form.retail_details.deli_expense)
-                  : undefined,
-                note: form.retail_details.note,
-              },
-            }
+            retail_details: {
+              deli_location: form.retail_details.deli_location,
+              deli_time: form.retail_details.deli_time || undefined,
+              number_of_people: form.retail_details.number_of_people
+                ? Number(form.retail_details.number_of_people)
+                : undefined,
+              deli_expense: form.retail_details.deli_expense
+                ? Number(form.retail_details.deli_expense)
+                : undefined,
+              note: form.retail_details.note,
+            },
+          }
           : {}),
       });
       if (res.success) {
@@ -179,7 +179,7 @@ export const Tickets: React.FC = () => {
     }
   };
 
-  
+
   return (
     <div className="min-h-screen bg-ocean-50/30 px-4 sm:px-6 lg:px-8 py-8">
       <div className="max-w-7xl mx-auto">
@@ -237,7 +237,7 @@ export const Tickets: React.FC = () => {
                   <th className="px-4 py-3 font-bold hidden sm:table-cell">{t("tickets.type")}</th>
                   <th className="px-4 py-3 font-bold">{t("tickets.status")}</th>
                   <th className="px-4 py-3 font-bold hidden sm:table-cell">{t("tickets.priority")}</th>
-                  <th className="px-4 py-3 font-bold hidden lg:table-cell">{t("tickets.assignedTo")}</th>
+                  {/* <th className="px-4 py-3 font-bold hidden lg:table-cell">{t("tickets.assignedTo")}</th> */}
                   <th className="px-4 py-3 font-bold text-center">{t("tickets.actions")}</th>
                 </tr>
               </thead>
@@ -255,11 +255,10 @@ export const Tickets: React.FC = () => {
                     </td>
                     <td className="px-4 py-3 hidden sm:table-cell">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-bold ${
-                          tk.type === "Project"
+                        className={`px-2 py-0.5 rounded-full text-xs font-bold ${tk.type === "Project"
                             ? "bg-zinc-50 text-zinc-700"
                             : "bg-slate-100 text-slate-600"
-                        }`}
+                          }`}
                       >
                         {tk.type === "Project" ? t("tickets.project") : t("tickets.retailSale")}
                       </span>
@@ -274,7 +273,7 @@ export const Tickets: React.FC = () => {
                         {tk.priority}
                       </span>
                     </td>
-                    <td className="px-4 py-3 hidden lg:table-cell">
+                    {/* <td className="px-4 py-3 hidden lg:table-cell">
                       {isAdminOrOwner ? (
                         <select
                           className="w-full min-w-[120px] px-2 py-1.5 border border-slate-200 rounded-xl text-xs focus:ring-2 focus:ring-ocean-600 outline-none bg-white cursor-pointer"
@@ -291,7 +290,7 @@ export const Tickets: React.FC = () => {
                           {assignedName(tk.assigned_to) || "—"}
                         </span>
                       )}
-                    </td>
+                    </td> */}
                     <td className="px-4 py-3 text-center">
                       <button
                         onClick={() => navigate(`/tickets/${tk._id}`)}
@@ -339,11 +338,10 @@ export const Tickets: React.FC = () => {
                   key={opt.id}
                   type="button"
                   onClick={() => setForm({ ...form, type: opt.id })}
-                  className={`flex-1 px-4 py-2 text-sm font-semibold rounded-lg transition-all cursor-pointer ${
-                    form.type === opt.id
+                  className={`flex-1 px-4 py-2 text-sm font-semibold rounded-lg transition-all cursor-pointer ${form.type === opt.id
                       ? "bg-ocean-600 text-white shadow-sm"
                       : "text-slate-500 hover:bg-white"
-                  }`}
+                    }`}
                 >
                   {opt.label}
                 </button>
