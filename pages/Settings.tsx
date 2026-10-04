@@ -47,8 +47,19 @@ export const Settings: React.FC = () => {
   );
   const [isTransferDetailModalOpen, setIsTransferDetailModalOpen] =
     useState(false);
+  const userRole = (() => {
+    try {
+      const stored = localStorage.getItem("adminData");
+      return stored ? JSON.parse(stored).role : "";
+    } catch {
+      return "";
+    }
+  })();
+
   type SettingTab = "audit" | "transfer" | "activity" | "voucher";
-  const validTabs: SettingTab[] = ["audit", "transfer", "activity", "voucher"];
+  const validTabs: SettingTab[] = userRole === "manager"
+    ? ["audit", "transfer", "voucher"]
+    : ["audit", "transfer", "activity", "voucher"];
   const initialTab = (searchParams.get("tab") as SettingTab) || "audit";
   const [activeTab, setActiveTab] = useState<SettingTab>(
     validTabs.includes(initialTab) ? initialTab : "audit",
@@ -156,17 +167,19 @@ export const Settings: React.FC = () => {
             <Truck className="w-4 h-4" />
             <span>{t("settings.transferManagementTab")}</span>
           </button>
-          <button
-            onClick={() => handleTabChange("activity")}
-            className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
-              activeTab === "activity"
-                ? "border-[#27272a] text-[#27272a]"
-                : "border-transparent text-slate-400 hover:text-slate-600"
-            }`}
-          >
-            <Activity className="w-4 h-4" />
-            <span>{t("settings.activityLogsTab") || "Activity Logs"}</span>
-          </button>
+          {userRole !== "manager" && (
+            <button
+              onClick={() => handleTabChange("activity")}
+              className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
+                activeTab === "activity"
+                  ? "border-[#27272a] text-[#27272a]"
+                  : "border-transparent text-slate-400 hover:text-slate-600"
+              }`}
+            >
+              <Activity className="w-4 h-4" />
+              <span>{t("settings.activityLogsTab") || "Activity Logs"}</span>
+            </button>
+          )}
           <button
             onClick={() => handleTabChange("voucher")}
             className={`px-4 py-2 font-semibold text-sm flex items-center gap-2 border-b-2 transition-all whitespace-nowrap cursor-pointer ${
@@ -509,7 +522,7 @@ export const Settings: React.FC = () => {
       )}
 
       {/* Activity Logs Tab */}
-      {activeTab === "activity" && <ActivityLogsTab />}
+      {activeTab === "activity" && userRole !== "manager" && <ActivityLogsTab />}
 
       {/* Voucher Settings Tab */}
       {activeTab === "voucher" && (

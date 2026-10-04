@@ -49,8 +49,9 @@ export const OrdersTable: React.FC<OrdersTableProps> = ({
   // console.log(userRole);
   const [deletingOrderId, setDeletingOrderId] = useState<string | null>(null);
 
-  // Check if user can delete orders (admin or owner only)
-  const canDeleteOrder = userRole.role === "owner";
+  // Check if user can delete orders (owner or manager only)
+  const roleStr = typeof userRole === "object" ? userRole?.role : userRole;
+  const canDeleteOrder = roleStr === "owner" || roleStr === "manager";
 
   const handleDeleteOrder = async (orderId: string, orderNumber: string) => {
     if (

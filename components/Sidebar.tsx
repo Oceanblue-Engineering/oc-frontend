@@ -108,12 +108,19 @@ export const Sidebar: React.FC<SidebarProps> = ({
     ) {
       return false;
     }
+    if (path === "/reports" && userRole === "manager") {
+      return false;
+    }
+    if (path === "/activity-logs" && userRole !== "owner" && userRole !== "admin") {
+      return false;
+    }
     if (
       ["/purchasing", "/inventory", "/warehouse", "/suppliers", "/tool-inventory"].includes(
         path,
       ) &&
       userRole !== "admin" &&
-      userRole !== "owner"
+      userRole !== "owner" &&
+      userRole !== "manager"
     ) {
       return false;
     }

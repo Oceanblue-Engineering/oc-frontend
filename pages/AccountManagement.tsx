@@ -223,7 +223,7 @@ export const AccountManagement: React.FC = () => {
   );
 
   // Available roles for selection
-  const availableRoles = ["owner", "cashier"];
+  const availableRoles = ["owner", "manager", "admin", "cashier"];
 
   const handleOpenEditModal = (account: AdminAccount) => {
     setSelectedAccount(account);
@@ -1192,8 +1192,11 @@ export const AccountManagement: React.FC = () => {
                     })
                   }
                 >
-                  <option value="cashier">Cashier</option>
-                  <option value="owner">Owner</option>
+                  {availableRoles.map((role) => (
+                    <option key={role} value={role}>
+                      {role.charAt(0).toUpperCase() + role.slice(1)}
+                    </option>
+                  ))}
                 </select>
               </div>
 

@@ -70,6 +70,25 @@ const getToday = () => {
 };
 
 export const Reports: React.FC = () => {
+  const userRole = (() => {
+    try {
+      const stored = localStorage.getItem("adminData");
+      return stored ? JSON.parse(stored).role : "";
+    } catch {
+      return "";
+    }
+  })();
+
+  if (userRole === "manager") {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-3 text-slate-400">
+        <Store className="w-12 h-12" />
+        <p className="text-lg font-bold text-slate-800">Access Denied</p>
+        <p className="text-xs text-slate-500">Managers are not authorized to view Sale Reports.</p>
+      </div>
+    );
+  }
+
   const [storefronts, setStorefronts] = useState<LocationProfile[]>([]);
   const [saleReports, setSaleReports] = useState<SaleReportResponse[]>([]);
   const [allStorefrontsReport, setAllStorefrontsReport] =

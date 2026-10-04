@@ -254,17 +254,27 @@ export const navigationItems: NavigationItem[] = [
  * Accepts a role string as used in the app ("owner" | "admin" | "cashier" | undefined).
  */
 export const hasPermission = (path: string, role?: string): boolean => {
+  // Owner only: Accounts & Personal Expenses
   if (
     (path === "/accounts" || path === "/personal-expenses") &&
     role !== "owner"
   ) {
     return false;
   }
-  if (path === "/activity-logs" && role !== "owner" && role !== "admin") return false;
+  // Sale Report: Restricted for manager
+  if (path === "/reports" && role === "manager") {
+    return false;
+  }
+  // Activity Logs: Restricted for manager (only owner and admin)
+  if (path === "/activity-logs" && role !== "owner" && role !== "admin") {
+    return false;
+  }
+  // Management modules: Accessible to owner, admin, and manager
   if (
     ["/purchasing", "/inventory", "/warehouse", "/suppliers", "/tool-inventory"].includes(path) &&
     role !== "admin" &&
-    role !== "owner"
+    role !== "owner" &&
+    role !== "manager"
   ) {
     return false;
   }

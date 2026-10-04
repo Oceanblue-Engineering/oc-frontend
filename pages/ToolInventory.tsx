@@ -49,12 +49,12 @@ const ToolInventory: React.FC = () => {
   const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
   const userRole  = adminData?.role || currentUser?.role;
 
-  if (userRole !== "owner" && userRole !== "admin") {
+  if (userRole !== "owner" && userRole !== "admin" && userRole !== "manager") {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-3 text-slate-400">
         <Wrench className="w-12 h-12" />
         <p className="text-lg font-bold text-slate-800">Access Denied</p>
-        <p className="text-xs text-slate-500">Only Owner and Admin roles can access Tool Inventory.</p>
+        <p className="text-xs text-slate-500">Only Owner, Admin, and Manager roles can access Tool Inventory.</p>
       </div>
     );
   }
