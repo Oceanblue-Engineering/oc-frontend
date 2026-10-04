@@ -19,7 +19,6 @@ import {
   PlusCircle,
   Edit3,
   Trash2,
-  User,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -29,6 +28,7 @@ import {
   ActivityLogStats,
 } from "../../services/ActivityLog/fetchActivityLogs";
 import { useLanguage } from "../../context/LanguageContext";
+import { DateRangePicker } from "../Reports/DateRangePicker";
 
 export const ActivityLogsTab: React.FC = () => {
   const { t } = useLanguage();
@@ -43,8 +43,8 @@ export const ActivityLogsTab: React.FC = () => {
   const [selectedModule, setSelectedModule] = useState<string>("ALL");
   const [selectedMethod, setSelectedMethod] = useState<string>("ALL");
   const [selectedStatus, setSelectedStatus] = useState<string>("ALL");
-  const [startDate, setStartDate] = useState<string>("");
-  const [endDate, setEndDate] = useState<string>("");
+  const [startDate, setStartDate] = useState<Date | null>(null);
+  const [endDate, setEndDate] = useState<Date | null>(null);
   const [page, setPage] = useState<number>(1);
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
@@ -89,6 +89,14 @@ export const ActivityLogsTab: React.FC = () => {
     }
   };
 
+  const formatDateForAPI = (date: Date | null): string | undefined => {
+    if (!date) return undefined;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const loadLogs = async (targetPage = page) => {
     setLoading(true);
     try {
@@ -99,8 +107,8 @@ export const ActivityLogsTab: React.FC = () => {
         module: selectedModule,
         method: selectedMethod,
         status: selectedStatus,
-        startDate: startDate || undefined,
-        endDate: endDate || undefined,
+        startDate: formatDateForAPI(startDate),
+        endDate: formatDateForAPI(endDate),
       });
 
       if (res.success && res.data) {
@@ -214,7 +222,10 @@ export const ActivityLogsTab: React.FC = () => {
     };
   };
 
-  const getTargetName = (body: any): string => {
+  const getTargetName = (log: ActivityLog): string => {
+    if (log.targetDetails?.targetName) return log.targetDetails.targetName;
+    if (log.targetDetails?.targetCode) return log.targetDetails.targetCode;
+    const body = log.requestBody;
     if (!body || typeof body !== "object") return "";
     return (
       body.storefrontName ||
@@ -371,18 +382,14 @@ export const ActivityLogsTab: React.FC = () => {
             <span>Date Range:</span>
           </div>
           <div className="flex items-center gap-2 flex-wrap">
-            <input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:ring-2 focus:ring-[#27272a] outline-none"
-            />
-            <span className="text-slate-400 font-bold">to</span>
-            <input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="px-2.5 py-1 bg-white border border-slate-200 rounded-lg text-xs font-medium text-slate-700 focus:ring-2 focus:ring-[#27272a] outline-none"
+            <DateRangePicker
+              startDate={startDate}
+              endDate={endDate}
+              onChange={(start, end) => {
+                setStartDate(start);
+                setEndDate(end);
+              }}
+              className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all shadow-2xs flex items-center gap-2 cursor-pointer"
             />
             {(startDate || endDate || search || selectedModule !== "ALL" || selectedMethod !== "ALL" || selectedStatus !== "ALL") && (
               <button
@@ -391,8 +398,8 @@ export const ActivityLogsTab: React.FC = () => {
                   setSelectedModule("ALL");
                   setSelectedMethod("ALL");
                   setSelectedStatus("ALL");
-                  setStartDate("");
-                  setEndDate("");
+                  setStartDate(null);
+                  setEndDate(null);
                 }}
                 className="px-2.5 py-1 text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg transition-colors cursor-pointer"
               >
@@ -486,12 +493,31 @@ export const ActivityLogsTab: React.FC = () => {
                     {/* Module & Action */}
                     <td className="py-2.5 px-4">
                       <div>
-                        <span className="inline-block text-[10px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200 mr-1.5">
-                          {log.module}
-                        </span>
-                        <span className="font-bold text-slate-800 text-xs">
-                          {log.action}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="inline-block text-[10px] font-bold text-slate-700 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
+                            {log.module}
+                          </span>
+                          <span className="font-bold text-slate-800 text-xs">
+                            {log.action}
+                          </span>
+                        </div>
+                        {getTargetName(log) && (
+                          <div className="text-[11px] text-slate-500 font-medium truncate max-w-[220px] mt-0.5 flex items-center gap-1">
+                            <span className="text-slate-400">Target:</span>
+                            <span className="font-bold text-slate-700 bg-slate-100/80 px-1.5 py-0.2 rounded border border-slate-200/60">
+                              {getTargetName(log)}
+                            </span>
+                          </div>
+                        )}
+                        {log.changedFields && log.changedFields.length > 0 && (
+                          <div className="text-[10px] text-blue-600 font-semibold mt-0.5 flex items-center gap-1">
+                            <span>Modified:</span>
+                            <span className="truncate max-w-[200px]">
+                              {log.changedFields.slice(0, 3).join(", ")}
+                              {log.changedFields.length > 3 ? ` +${log.changedFields.length - 3}` : ""}
+                            </span>
+                          </div>
+                        )}
                       </div>
                     </td>
 
@@ -584,122 +610,239 @@ export const ActivityLogsTab: React.FC = () => {
       {/* Activity Log Detail Inspection Modal */}
       {selectedLog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
-            <div className="flex items-center justify-between p-4 border-b bg-slate-50/80 shrink-0">
-              <div className="flex items-center gap-2.5">
-                <span
-                  className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-black border font-mono ${getMethodBadge(
-                    selectedLog.method
-                  )}`}
-                >
-                  {selectedLog.method}
-                </span>
-                <div>
-                  <h3 className="font-black text-sm sm:text-base text-slate-800">
-                    {selectedLog.action}
-                  </h3>
-                  <p className="text-[11px] text-slate-400 font-medium">
-                    Module: <span className="text-slate-700 font-bold">{selectedLog.module}</span>
-                  </p>
+            <div className="p-4 border-b bg-slate-50/80 shrink-0">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-lg text-xs font-black border font-mono shrink-0 ${getMethodBadge(
+                      selectedLog.method
+                    )}`}
+                  >
+                    {selectedLog.method}
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="font-black text-sm sm:text-base text-slate-800 truncate">
+                      {selectedLog.action}
+                    </h3>
+                    <p className="text-[11px] text-slate-400 font-medium">
+                      Module: <span className="text-slate-700 font-bold">{selectedLog.module}</span>
+                    </p>
+                  </div>
                 </div>
+                <button
+                  onClick={() => setSelectedLog(null)}
+                  className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer shrink-0"
+                >
+                  <X className="w-4 h-4" />
+                </button>
               </div>
-              <button
-                onClick={() => setSelectedLog(null)}
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-200 transition-colors cursor-pointer"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
 
             {/* Modal Body */}
             <div className="p-5 overflow-y-auto flex-1 space-y-4 text-xs sm:text-sm">
-              {/* Action Banner (Create / Update / Delete) */}
-              {(() => {
-                const actionInfo = getActionTypeInfo(selectedLog.method, selectedLog.action);
-                const ActionIcon = actionInfo.icon;
-                const targetName = getTargetName(selectedLog.requestBody);
+                  {/* Action Banner (Create / Update / Delete) */}
+                  {(() => {
+                    const actionInfo = getActionTypeInfo(selectedLog.method, selectedLog.action);
+                    const ActionIcon = actionInfo.icon;
+                    const targetName = getTargetName(selectedLog);
 
-                return (
-                  <div className={`p-4 rounded-2xl border flex items-start gap-3.5 ${actionInfo.cardBg}`}>
-                    <div className={`p-2.5 rounded-xl bg-white shadow-xs shrink-0 ${actionInfo.iconColor}`}>
-                      <ActionIcon className="w-5 h-5" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap mb-1">
-                        <span className={`px-2 py-0.5 rounded-md text-[11px] font-black border uppercase tracking-wide ${actionInfo.badgeBg}`}>
-                          {actionInfo.myanmarType}
+                    return (
+                      <div className={`p-4 rounded-2xl border flex items-start gap-3.5 ${actionInfo.cardBg}`}>
+                        <div className={`p-2.5 rounded-xl bg-white shadow-xs shrink-0 ${actionInfo.iconColor}`}>
+                          <ActionIcon className="w-5 h-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap mb-1">
+                            <span className={`px-2 py-0.5 rounded-md text-[11px] font-black border uppercase tracking-wide ${actionInfo.badgeBg}`}>
+                              {actionInfo.myanmarType}
+                            </span>
+                            <span className="text-[11px] font-bold text-slate-500 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60">
+                              {selectedLog.module}
+                            </span>
+                          </div>
+                          <h4 className="text-sm sm:text-base font-black text-slate-900 leading-tight">
+                            {selectedLog.action}
+                          </h4>
+                          {targetName && (
+                            <p className="text-xs text-slate-700 font-bold mt-1.5 bg-white/90 px-2.5 py-1 rounded-lg border border-slate-200/80 inline-block shadow-2xs">
+                              Target: <span className="text-slate-900">{targetName}</span>
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
+
+                  {/* What Changed (For PUT / PATCH) */}
+                  {(selectedLog.method === "PUT" || selectedLog.method === "PATCH") && (
+                    <div className="p-4 bg-blue-50/60 border border-blue-200 rounded-2xl space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-black text-blue-900 uppercase tracking-wider flex items-center gap-1.5">
+                          <Edit3 className="w-4 h-4 text-blue-600" />
+                          Changed Fields (ပြင်ဆင်ခဲ့သော ကဏ္ဍများ)
                         </span>
-                        <span className="text-[11px] font-bold text-slate-500 bg-white/80 px-2 py-0.5 rounded-md border border-slate-200/60">
-                          {selectedLog.module}
+                        <span className="text-[11px] font-bold text-blue-700 bg-blue-100 px-2 py-0.5 rounded-md">
+                          {selectedLog.changedFields?.length || Object.keys(selectedLog.requestBody || {}).length} fields modified
                         </span>
                       </div>
-                      <h4 className="text-sm sm:text-base font-black text-slate-900 leading-tight">
-                        {selectedLog.action}
-                      </h4>
-                      {targetName && (
-                        <p className="text-xs text-slate-700 font-bold mt-1.5 bg-white/90 px-2.5 py-1 rounded-lg border border-slate-200/80 inline-block shadow-2xs">
-                          Target: <span className="text-slate-900">{targetName}</span>
-                        </p>
+                      
+                      {selectedLog.changedFields && selectedLog.changedFields.length > 0 ? (
+                        <div className="flex flex-wrap gap-1.5 pt-1">
+                          {selectedLog.changedFields.map((field) => (
+                            <span
+                              key={field}
+                              className="px-2 py-1 bg-white border border-blue-200/80 text-blue-800 rounded-lg text-xs font-bold font-mono shadow-2xs"
+                            >
+                              {field}
+                            </span>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-xs text-slate-500 italic">No specific changed field list extracted.</p>
+                      )}
+
+                      {/* Key-Value View of Submitted Values */}
+                      {selectedLog.requestBody && typeof selectedLog.requestBody === "object" && (
+                        <div className="mt-2 pt-2 border-t border-blue-200/60 space-y-1.5">
+                          <p className="text-[11px] font-bold text-blue-800">Submitted New Values:</p>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            {Object.entries(selectedLog.requestBody)
+                              .filter(([k]) => k !== "_id" && k !== "__v" && !k.toLowerCase().includes("password"))
+                              .slice(0, 8)
+                              .map(([k, v]) => (
+                                <div key={k} className="p-2 bg-white rounded-lg border border-blue-100 flex flex-col">
+                                  <span className="text-[10px] font-bold text-slate-400 font-mono">{k}</span>
+                                  <span className="font-bold text-slate-800 truncate">
+                                    {typeof v === "object" ? JSON.stringify(v) : String(v)}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
                       )}
                     </div>
-                  </div>
-                );
-              })()}
+                  )}
 
-              {/* Information Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {/* User Card */}
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
-                    {selectedLog.user?.name?.charAt(0) || "U"}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">လုပ်ဆောင်ခဲ့သူ (User)</p>
-                    <p className="font-black text-slate-800 text-xs sm:text-sm truncate">
-                      {selectedLog.user?.name || "System"}
-                    </p>
-                    <p className="text-[10px] text-slate-500 font-semibold capitalize">
-                      {selectedLog.user?.email || selectedLog.user?.role || "User"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Time & Status Card */}
-                <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center shrink-0 shadow-2xs">
-                    <Clock className="w-4 h-4 text-slate-600" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">အချိန် (Date & Time)</p>
-                    <p className="font-bold text-slate-800 text-xs sm:text-sm">
-                      {formatDateTime(selectedLog.createdAt)}
-                    </p>
-                    <div className="mt-0.5">
-                      <span
-                        className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold border ${
-                          selectedLog.status === "SUCCESS"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : "bg-rose-50 text-rose-700 border-rose-200"
-                        }`}
-                      >
-                        {selectedLog.status === "SUCCESS" ? "✓ အောင်မြင်သည် (Success)" : "✕ မအောင်မြင်ပါ (Failed)"}
+                  {/* What Was Created (For POST) */}
+                  {selectedLog.method === "POST" && (
+                    <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-2xl space-y-2">
+                      <span className="text-xs font-black text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <PlusCircle className="w-4 h-4 text-emerald-600" />
+                        Created Record Info (အသစ်ဖန်တီးလိုက်သော စာရင်း)
                       </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
+                        {selectedLog.targetDetails?.targetId && (
+                          <div className="p-2 bg-white rounded-lg border border-emerald-100">
+                            <span className="text-[10px] font-bold text-slate-400">Created ID:</span>
+                            <p className="font-mono font-bold text-slate-800 text-[11px] truncate">
+                              {selectedLog.targetDetails.targetId}
+                            </p>
+                          </div>
+                        )}
+                        {selectedLog.targetDetails?.targetCode && (
+                          <div className="p-2 bg-white rounded-lg border border-emerald-100">
+                            <span className="text-[10px] font-bold text-slate-400">Code / Number:</span>
+                            <p className="font-bold text-emerald-700">
+                              {selectedLog.targetDetails.targetCode}
+                            </p>
+                          </div>
+                        )}
+                        {selectedLog.targetDetails?.targetName && (
+                          <div className="p-2 bg-white rounded-lg border border-emerald-100 col-span-full">
+                            <span className="text-[10px] font-bold text-slate-400">Name / Title:</span>
+                            <p className="font-bold text-slate-800">
+                              {selectedLog.targetDetails.targetName}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* What Was Deleted (For DELETE) */}
+                  {selectedLog.method === "DELETE" && (
+                    <div className="p-4 bg-rose-50/60 border border-rose-200 rounded-2xl space-y-2">
+                      <span className="text-xs font-black text-rose-900 uppercase tracking-wider flex items-center gap-1.5">
+                        <Trash2 className="w-4 h-4 text-rose-600" />
+                        Deleted Record Info (ဖျက်သိမ်းခဲ့သော စာရင်း)
+                      </span>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-xs">
+                        {selectedLog.targetDetails?.targetId && (
+                          <div className="p-2 bg-white rounded-lg border border-rose-100">
+                            <span className="text-[10px] font-bold text-slate-400">Target ID:</span>
+                            <p className="font-mono font-bold text-slate-800 text-[11px] truncate">
+                              {selectedLog.targetDetails.targetId}
+                            </p>
+                          </div>
+                        )}
+                        {selectedLog.targetDetails?.targetName && (
+                          <div className="p-2 bg-white rounded-lg border border-rose-100">
+                            <span className="text-[10px] font-bold text-slate-400">Target Name:</span>
+                            <p className="font-bold text-slate-800 truncate">
+                              {selectedLog.targetDetails.targetName}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Information Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {/* User Card */}
+                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs shrink-0 shadow-2xs">
+                        {selectedLog.user?.name?.charAt(0) || "U"}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">လုပ်ဆောင်ခဲ့သူ (User)</p>
+                        <p className="font-black text-slate-800 text-xs sm:text-sm truncate">
+                          {selectedLog.user?.name || "System"}
+                        </p>
+                        <p className="text-[10px] text-slate-500 font-semibold capitalize">
+                          {selectedLog.user?.email || selectedLog.user?.role || "User"}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Time & Status Card */}
+                    <div className="p-3.5 bg-slate-50 rounded-xl border border-slate-100 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-lg bg-white border border-slate-200 text-slate-700 flex items-center justify-center shrink-0 shadow-2xs">
+                        <Clock className="w-4 h-4 text-slate-600" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">အချိန် (Date & Time)</p>
+                        <p className="font-bold text-slate-800 text-xs sm:text-sm">
+                          {formatDateTime(selectedLog.createdAt)}
+                        </p>
+                        <div className="mt-0.5">
+                          <span
+                            className={`inline-flex items-center gap-1 px-1.5 py-0.2 rounded text-[10px] font-bold border ${
+                              selectedLog.status === "SUCCESS"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : "bg-rose-50 text-rose-700 border-rose-200"
+                            }`}
+                          >
+                            {selectedLog.status === "SUCCESS" ? "✓ အောင်မြင်သည် (Success)" : "✕ မအောင်မြင်ပါ (Failed)"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </div>
 
-              {/* Error Message if Failed */}
-              {selectedLog.errorMessage && (
-                <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 flex items-start gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-bold text-xs">Error Description:</p>
-                    <p className="text-xs mt-0.5">{selectedLog.errorMessage}</p>
-                  </div>
-                </div>
-              )}
+
+                  {/* Error Message if Failed */}
+                  {selectedLog.errorMessage && (
+                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 flex items-start gap-2">
+                      <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-bold text-xs">Error Description:</p>
+                        <p className="text-xs mt-0.5">{selectedLog.errorMessage}</p>
+                      </div>
+                    </div>
+                  )}
             </div>
 
             {/* Modal Footer */}

@@ -7,6 +7,13 @@ export interface ActivityLogUser {
   role: string;
 }
 
+export interface ActivityLogTargetDetails {
+  targetId?: string;
+  targetCode?: string;
+  targetName?: string;
+  targetType?: string;
+}
+
 export interface ActivityLog {
   _id: string;
   user: ActivityLogUser;
@@ -17,6 +24,9 @@ export interface ActivityLog {
   statusCode: number;
   status: "SUCCESS" | "FAILED";
   requestBody?: any;
+  responseSummary?: any;
+  changedFields?: string[];
+  targetDetails?: ActivityLogTargetDetails;
   requestParams?: any;
   requestQuery?: any;
   errorMessage?: string | null;

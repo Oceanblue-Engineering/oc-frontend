@@ -161,15 +161,15 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
               receiptData.deliveryFee != null && receiptData.deliveryFee > 0
                 ? receiptData.deliveryFee
                 : Math.max(
-                    0,
-                    Math.round(
-                      receiptData.total -
-                        (receiptData.subtotal -
-                          disc +
-                          (receiptData.tax || 0) +
-                          (receiptData.serviceCharge || 0))
-                    )
-                  );
+                  0,
+                  Math.round(
+                    receiptData.total -
+                    (receiptData.subtotal -
+                      disc +
+                      (receiptData.tax || 0) +
+                      (receiptData.serviceCharge || 0))
+                  )
+                );
             return fee > 0 ? (
               <div className="voucher-summary-row">
                 <span>Delivery fee</span>
@@ -259,15 +259,15 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
     receiptData.deliveryFee != null && receiptData.deliveryFee > 0
       ? receiptData.deliveryFee
       : Math.max(
-          0,
-          Math.round(
-            receiptData.total -
-              (receiptData.subtotal -
-                discountAmount +
-                (receiptData.tax || 0) +
-                (receiptData.serviceCharge || 0))
-          )
-        );
+        0,
+        Math.round(
+          receiptData.total -
+          (receiptData.subtotal -
+            discountAmount +
+            (receiptData.tax || 0) +
+            (receiptData.serviceCharge || 0))
+        )
+      );
 
   return (
     <div
@@ -441,7 +441,7 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
               Remarks:
             </h3>
             <ul className="space-y-1 text-[11px] text-slate-800 font-semibold leading-relaxed">
-              <li className="flex items-start gap-1">
+              {/* <li className="flex items-start gap-1">
                 <span className="text-slate-600 font-bold">*</span>
                 <span>50 Years warranty for swimming pool structure.</span>
               </li>
@@ -452,7 +452,7 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
               <li className="flex items-start gap-1">
                 <span className="text-slate-600 font-bold">*</span>
                 <span>3 Years warranty for M&E accessories.</span>
-              </li>
+              </li> */}
               {receiptData.note && receiptData.paymentMethod?.toUpperCase() !== "FOC" && (
                 <li className="flex items-start gap-1 text-slate-700 italic">
                   <span className="text-slate-600 font-bold">*</span>

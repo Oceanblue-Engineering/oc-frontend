@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
@@ -55,6 +55,8 @@ enum PaymentMethod {
   FOC = "FOC",
 }
 
+const POS_STOREFRONT_STORAGE_KEY = "pos_selected_storefront_id";
+
 interface CartItem {
   stockItem: StorefrontStockItem;
   qty: number;
@@ -66,10 +68,17 @@ export const POS: React.FC = () => {
 
   // Data State
   const [storefronts, setStorefronts] = useState<StorefrontProfile[]>([]);
-  const [selectedStorefrontId, setSelectedStorefrontId] = useState<string>("");
+  const [selectedStorefrontId, setSelectedStorefrontId] = useState<string>(() => {
+    try {
+      return localStorage.getItem(POS_STOREFRONT_STORAGE_KEY) || "";
+    } catch {
+      return "";
+    }
+  });
   const [allStockItems, setAllStockItems] = useState<StorefrontStockItem[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const lastFetchedQueryRef = useRef<string>("");
 
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
@@ -138,11 +147,36 @@ export const POS: React.FC = () => {
         );
         setStorefronts(activeStorefronts);
 
-        // Auto-select first storefront
-        if (activeStorefronts.length > 0) {
-          defaultSfId = activeStorefronts[0]._id;
-          setSelectedStorefrontId(defaultSfId);
+        // Check if user has previously saved storefront in localStorage
+        let savedSfId: string | null = null;
+        try {
+          savedSfId = localStorage.getItem(POS_STOREFRONT_STORAGE_KEY);
+        } catch (e) {
+          console.error("Failed to read storefront from localStorage:", e);
         }
+
+        const savedSf = savedSfId
+          ? activeStorefronts.find((sf) => sf._id === savedSfId)
+          : undefined;
+
+        if (savedSf) {
+          defaultSfId = savedSf._id;
+        } else if (activeStorefronts.length > 0) {
+          defaultSfId = activeStorefronts[0]._id;
+          try {
+            localStorage.setItem(POS_STOREFRONT_STORAGE_KEY, defaultSfId);
+          } catch (e) {
+            console.error("Failed to save storefront to localStorage:", e);
+          }
+        } else {
+          try {
+            localStorage.removeItem(POS_STOREFRONT_STORAGE_KEY);
+          } catch (e) {
+            console.error("Failed to remove storefront from localStorage:", e);
+          }
+        }
+
+        setSelectedStorefrontId(defaultSfId);
       }
 
       // Load categories
@@ -233,11 +267,20 @@ export const POS: React.FC = () => {
     };
   }, [activeWholesalePopoverId]);
 
-  const loadStockItems = async (storefrontIdToUse?: string) => {
+  const loadStockItems = async (
+    storefrontIdToUse?: string,
+    force = false,
+  ) => {
     const targetSfId = storefrontIdToUse || selectedStorefrontId;
     if (!targetSfId) {
       return;
     }
+
+    const queryKey = `${targetSfId}_${currentPage}_${itemsPerPage}_${selectedCategory}_${search}`;
+    if (!force && lastFetchedQueryRef.current === queryKey) {
+      return;
+    }
+    lastFetchedQueryRef.current = queryKey;
 
     try {
       const response = await fetchStorefrontStock(
@@ -263,7 +306,7 @@ export const POS: React.FC = () => {
 
   const handleRefresh = async () => {
     setLoading(true);
-    await loadStockItems();
+    await loadStockItems(selectedStorefrontId, true);
     setLoading(false);
     toast.success(t("pos.productsRefreshed"));
   };
@@ -565,7 +608,7 @@ export const POS: React.FC = () => {
         const receiptData = {
           date: new Date().toISOString(),
           invoiceNumber: result.data?.orderNumber || `INV-${Date.now()}`,
-          storefrontName: "HONGCHI Myanmar",
+          storefrontName: selectedStorefront?.locationName || "HONGCHI Myanmar",
           items: cart.map((i) => ({
             name: i.stockItem.inventoryId.productName,
             code: i.stockItem.inventoryId.productCode,
@@ -641,7 +684,7 @@ export const POS: React.FC = () => {
         setShowSuccessModal(true);
 
         // Refresh stock after sale
-        await loadStockItems();
+        await loadStockItems(selectedStorefrontId, true);
       } else {
         toast.error(result.message || t("pos.failedToProcessSale"));
       }
@@ -656,6 +699,11 @@ export const POS: React.FC = () => {
   // Handle storefront change
   const handleStorefrontChange = (storefrontId: string) => {
     setSelectedStorefrontId(storefrontId);
+    try {
+      localStorage.setItem(POS_STOREFRONT_STORAGE_KEY, storefrontId);
+    } catch (e) {
+      console.error("Failed to save selected storefront to localStorage:", e);
+    }
     setCart([]); // Clear cart when switching storefronts
     setSelectedCategory("All");
   };
