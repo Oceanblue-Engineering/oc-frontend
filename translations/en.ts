@@ -1254,7 +1254,7 @@ export const en = {
     noLogs: "No activity logs found",
   },
   purchasingReport: {
-    title: "Purchasing & Profit Report",
+    title: "Purchasing Report",
     subtitle: "Comprehensive purchasing summary, quantity breakdown, and profit & loss analysis",
     loading: "Loading purchasing report & profit analysis...",
     noData: "No purchasing data available for the selected period",

@@ -12,6 +12,7 @@ import {
   TrendingDown,
   ShieldAlert,
   ArrowUpRight,
+  Receipt,
   PieChart as PieChartIcon,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -112,11 +113,39 @@ export const PersonalExpenses: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+
+  // Date formatting helpers to prevent local-to-UTC timezone rollback (e.g. UTC+6:30 Myanmar)
+  const formatDateForAPI = (date: Date | null): string | undefined => {
+    if (!date) return undefined;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const getTodayDateString = (): string => {
+    const d = new Date();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  const formatLocalDateForInput = (dateValue: string | Date | null | undefined): string => {
+    if (!dateValue) return getTodayDateString();
+    const d = typeof dateValue === "string" ? new Date(dateValue) : dateValue;
+    if (isNaN(d.getTime())) return getTodayDateString();
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const day = String(d.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const [formData, setFormData] = useState({
     title: "",
     category: "Food & Dining",
     amount: 0,
-    date: new Date().toISOString().split("T")[0],
+    date: getTodayDateString(),
     paymentMethod: "cash",
     notes: "",
   });
@@ -136,8 +165,8 @@ export const PersonalExpenses: React.FC = () => {
   const loadExpenses = async () => {
     try {
       setLoading(true);
-      const startStr = startDate ? startDate.toISOString().split("T")[0] : undefined;
-      const endStr = endDate ? endDate.toISOString().split("T")[0] : undefined;
+      const startStr = formatDateForAPI(startDate);
+      const endStr = formatDateForAPI(endDate);
 
       const response = await fetchPersonalExpenses({
         startDate: startStr,
@@ -177,7 +206,7 @@ export const PersonalExpenses: React.FC = () => {
       title: "",
       category: "Food & Dining",
       amount: 0,
-      date: new Date().toISOString().split("T")[0],
+      date: getTodayDateString(),
       paymentMethod: "cash",
       notes: "",
     });
@@ -190,7 +219,7 @@ export const PersonalExpenses: React.FC = () => {
       title: expense.title,
       category: expense.category,
       amount: expense.amount,
-      date: expense.date ? new Date(expense.date).toISOString().split("T")[0] : "",
+      date: formatLocalDateForInput(expense.date),
       paymentMethod: expense.paymentMethod || "cash",
       notes: expense.notes || "",
     });
@@ -444,42 +473,24 @@ export const PersonalExpenses: React.FC = () => {
       />
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <StatsCard
           label={isMy ? "ရွေးချယ်ထားသော ကာလ စုစုပေါင်း" : "Selected Period Total"}
           title={isMy ? "ရွေးချယ်ထားသော ကာလ စုစုပေါင်း" : "Selected Period Total"}
           value={`${rangeTotal.toLocaleString()} MMK`}
-          subValue={isMy ? `${filteredExpenses.length} ကြိမ် မှတ်တမ်း` : `${filteredExpenses.length} transactions`}
-          description={isMy ? `${filteredExpenses.length} ကြိမ် မှတ်တမ်း` : `${filteredExpenses.length} transactions`}
+          subValue={isMy ? "ကာလအတွင်း စုစုပေါင်း ကုန်ကျစရိတ်" : "Total amount for selected period"}
+          description={isMy ? "ကာလအတွင်း စုစုပေါင်း ကုန်ကျစရိတ်" : "Total amount for selected period"}
           icon={<Wallet className="w-5 h-5 text-emerald-600" />}
           variant="emerald"
         />
         <StatsCard
-          label={isMy ? "ယခုလ အသုံးစရိတ်" : "This Month"}
-          title={isMy ? "ယခုလ အသုံးစရိတ်" : "This Month"}
-          value={`${(summary?.thisMonth.totalAmount || 0).toLocaleString()} MMK`}
-          subValue={isMy ? `${summary?.thisMonth.count || 0} ကြိမ်` : `${summary?.thisMonth.count || 0} transactions`}
-          description={isMy ? `${summary?.thisMonth.count || 0} ကြိမ်` : `${summary?.thisMonth.count || 0} transactions`}
-          icon={<Calendar className="w-5 h-5 text-ocean-600" />}
+          label={isMy ? "အသုံးစရိတ် မှတ်တမ်း အရေအတွက်" : "Total Expense Records"}
+          title={isMy ? "အသုံးစရိတ် မှတ်တမ်း အရေအတွက်" : "Total Expense Records"}
+          value={`${filteredExpenses.length} ${isMy ? "ခု" : "records"}`}
+          subValue={isMy ? `${filteredExpenses.length} ကြိမ် မှတ်တမ်းတင်ထားသည်` : `${filteredExpenses.length} transactions recorded`}
+          description={isMy ? `${filteredExpenses.length} ကြိမ် မှတ်တမ်းတင်ထားသည်` : `${filteredExpenses.length} transactions recorded`}
+          icon={<Receipt className="w-5 h-5 text-ocean-600" />}
           variant="ocean"
-        />
-        <StatsCard
-          label={isMy ? "ယခုအပတ် အသုံးစရိတ်" : "This Week"}
-          title={isMy ? "ယခုအပတ် အသုံးစရိတ်" : "This Week"}
-          value={`${(summary?.thisWeek.totalAmount || 0).toLocaleString()} MMK`}
-          subValue={isMy ? `${summary?.thisWeek.count || 0} ကြိမ်` : `${summary?.thisWeek.count || 0} transactions`}
-          description={isMy ? `${summary?.thisWeek.count || 0} ကြိမ်` : `${summary?.thisWeek.count || 0} transactions`}
-          icon={<TrendingDown className="w-5 h-5 text-amber-600" />}
-          variant="amber"
-        />
-        <StatsCard
-          label={isMy ? "စုစုပေါင်း အသုံးစရိတ်" : "All-Time Total"}
-          title={isMy ? "စုစုပေါင်း အသုံးစရိတ်" : "All-Time Total"}
-          value={`${(summary?.allTime.totalAmount || 0).toLocaleString()} MMK`}
-          subValue={isMy ? `စုစုပေါင်း ${summary?.allTime.count || 0} ခု` : `Total ${summary?.allTime.count || 0} records`}
-          description={isMy ? `စုစုပေါင်း ${summary?.allTime.count || 0} ခု` : `Total ${summary?.allTime.count || 0} records`}
-          icon={<CreditCard className="w-5 h-5 text-slate-700" />}
-          variant="purple"
         />
       </div>
 

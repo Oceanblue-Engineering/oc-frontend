@@ -13,13 +13,19 @@ interface FetchSuppliersResponse {
  * @returns {Promise<FetchSuppliersResponse>} Response from API
  */
 export const fetchSuppliers = async (
-  isDeleted?: boolean
+  isDeleted?: boolean,
+  search?: string
 ): Promise<FetchSuppliersResponse> => {
   try {
-    const url =
-      isDeleted !== undefined
-        ? `/supplier-profile?isDeleted=${isDeleted}`
-        : "/supplier-profile";
+    const params = new URLSearchParams();
+    if (isDeleted !== undefined) {
+      params.append("isDeleted", String(isDeleted));
+    }
+    if (search && search.trim()) {
+      params.append("search", search.trim());
+    }
+    const queryString = params.toString();
+    const url = `/supplier-profile${queryString ? `?${queryString}` : ""}`;
     const response = await axios.get(url);
 
     return response.data;

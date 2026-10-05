@@ -15,6 +15,7 @@ import {
   MapPin,
   Home,
   Eye,
+  Search,
 } from "lucide-react";
 import { createSupplier } from "../services/Supplier/createSupplier";
 import { updateSupplier } from "../services/Supplier/updateSupplier";
@@ -49,6 +50,7 @@ export const Suppliers: React.FC = () => {
   const [supplierToPermanentlyDelete, setSupplierToPermanentlyDelete] =
     useState<Supplier | null>(null);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
+  const [search, setSearch] = useState("");
   const [formData, setFormData] = useState<SupplierFormData>({
     supplierName: "",
     contactNumber: "",
@@ -78,6 +80,17 @@ export const Suppliers: React.FC = () => {
       setIsLoading(false);
     }
   };
+
+  const filteredSuppliers = suppliers.filter((supplier) => {
+    if (!search.trim()) return true;
+    const q = search.toLowerCase();
+    return (
+      supplier.supplierName.toLowerCase().includes(q) ||
+      supplier.contactNumber.toLowerCase().includes(q) ||
+      (supplier.township && supplier.township.toLowerCase().includes(q)) ||
+      (supplier.address && supplier.address.toLowerCase().includes(q))
+    );
+  });
 
   const resetForm = () => {
     setFormData({
@@ -291,14 +304,42 @@ export const Suppliers: React.FC = () => {
       </div>
 
       <div className="bg-white p-4 sm:p-6 rounded-xl shadow-sm border">
-        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-4 mb-4">
-          <h2 className="text-lg font-semibold">
-            {showDeleted
-              ? t("suppliers.deletedSuppliers")
-              : t("suppliers.registeredSuppliers")}
-          </h2>
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center gap-4 mb-6">
+          <div className="flex items-center gap-3">
+            <h2 className="text-lg font-semibold text-slate-800">
+              {showDeleted
+                ? t("suppliers.deletedSuppliers")
+                : t("suppliers.registeredSuppliers")}
+            </h2>
+            <span className="bg-primary/10 text-primary font-bold text-xs px-2.5 py-0.5 rounded-full whitespace-nowrap">
+              {search.trim() ? `${filteredSuppliers.length} / ${suppliers.length}` : `${suppliers.length}`}
+            </span>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            {/* Search Bar */}
+            <div className="relative flex-1 sm:w-64 md:w-72">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <input
+                type="text"
+                placeholder={t("common.search") || "Search supplier, phone, township..."}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pl-9 pr-8 py-1.5 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all"
+              />
+              {search && (
+                <button
+                  type="button"
+                  onClick={() => setSearch("")}
+                  className="absolute right-2.5 top-2 text-slate-400 hover:text-slate-600 p-0.5"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+
+            {/* Active / Inactive Tabs */}
+            <div className="flex items-center bg-slate-100 rounded-lg p-1">
               <button
                 onClick={() => setShowDeleted(false)}
                 className={`px-3 py-1.5 text-sm font-medium rounded transition-colors ${!showDeleted
@@ -316,15 +357,9 @@ export const Suppliers: React.FC = () => {
                   }`}
               >
                 <Archive className="w-4 h-4" />
-                <span className="hidden sm:inline">
-                  {t("suppliers.inactive")}
-                </span>
-                <span className="sm:hidden">Inactive</span>
+                <span>{t("suppliers.inactive")}</span>
               </button>
             </div>
-            <span className="hidden md:block bg-primary/20 text-primary-700 text-xs font-medium px-2.5 py-0.5 rounded-full whitespace-nowrap">
-              {t("suppliers.total")}: {suppliers.length}
-            </span>
           </div>
         </div>
 
@@ -333,21 +368,23 @@ export const Suppliers: React.FC = () => {
             <Loader2 className="w-6 h-6 animate-spin mr-2" />
             {t("suppliers.loading")}
           </div>
-        ) : suppliers.length === 0 ? (
+        ) : filteredSuppliers.length === 0 ? (
           <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-lg border border-dashed">
             <Users className="w-12 h-12 mx-auto mb-3 text-slate-300" />
             <p>
-              {showDeleted
+              {search.trim()
+                ? `No suppliers found matching "${search}"`
+                : showDeleted
                 ? t("suppliers.noDeletedSuppliers")
                 : t("suppliers.noSuppliers")}
             </p>
-            {!showDeleted && (
+            {!showDeleted && !search.trim() && (
               <p className="text-sm mt-1">{t("suppliers.addFirstSupplier")}</p>
             )}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {suppliers.map((supplier) => (
+            {filteredSuppliers.map((supplier) => (
               <div
                 key={supplier.id || supplier._id}
                 onClick={() => {
@@ -400,7 +437,7 @@ export const Suppliers: React.FC = () => {
                   </div>
 
                   <div className="flex flex-col items-end gap-2">
-                    {userRole === "owner" && (
+                    {(userRole === "owner" || userRole === "manager") && (
                       <div className="flex items-center gap-1 sm:gap-2">
                         {!supplier.isDeleted && (
                           <button
