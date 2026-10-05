@@ -59,6 +59,13 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
   const userRole = adminData.role;
   const [showInvoiceModal, setShowInvoiceModal] = useState(false);
 
+  const isCredit = order?.paymentType?.toLowerCase() === "credit";
+  const remainingBalance =
+    order?.remainingBalance !== undefined && order?.remainingBalance !== null
+      ? order.remainingBalance
+      : Math.max(0, (order?.finalAmount || 0) - (order?.paidAmount || 0));
+  const hasRemainingBalance = isCredit && remainingBalance > 0;
+
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = "hidden";
@@ -289,6 +296,15 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                     >
                       {order.orderStatus}
                     </span>
+                    {order.paymentType && (
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getPaymentTypeColor(
+                          order.paymentType
+                        )}`}
+                      >
+                        {getPaymentTypeLabel(order.paymentType)}
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-500 flex items-center gap-1.5">
                     <Calendar className="w-3.5 h-3.5" />
@@ -300,7 +316,10 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                   {order.storefrontId && (
                     <div className="flex items-center gap-1.5 text-xs text-slate-600 bg-white px-3 py-1.5 rounded-xl border border-slate-200/60 font-semibold">
                       <Store className="w-3.5 h-3.5 text-ocean-600" />
-                      {order.storefrontId.name}
+                      {(order.storefrontId as any)?.name ||
+                        order.storefrontId.locationName ||
+                        (order.storefrontId as any)?.storefrontName ||
+                        "Storefront"}
                     </div>
                   )}
                 </div>
@@ -308,24 +327,37 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
               {/* Customer & Credit Person Info */}
               {(order.creditPersonId || order.customer) && (
-                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-ocean-50 text-ocean-600 flex items-center justify-center border border-ocean-200/60 shrink-0">
-                    <User className="w-5 h-5" />
+                <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-ocean-50 text-ocean-600 flex items-center justify-center border border-ocean-200/60 shrink-0">
+                      <User className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                        Customer / Client
+                      </p>
+                      <p className="text-sm font-black text-slate-800">
+                        {typeof order.creditPersonId === "object"
+                          ? order.creditPersonId?.name
+                          : order.customer || "General Customer"}
+                        {typeof order.creditPersonId === "object" &&
+                        order.creditPersonId?.phone
+                          ? ` (${order.creditPersonId.phone})`
+                          : ""}
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                      Customer / Client
-                    </p>
-                    <p className="text-sm font-black text-slate-800">
-                      {typeof order.creditPersonId === "object"
-                        ? order.creditPersonId?.name
-                        : order.customer || "General Customer"}
-                      {typeof order.creditPersonId === "object" &&
-                      order.creditPersonId?.phone
-                        ? ` (${order.creditPersonId.phone})`
-                        : ""}
-                    </p>
-                  </div>
+
+                  {hasRemainingBalance && (
+                    <div className="text-right shrink-0">
+                      <p className="text-[11px] font-bold text-rose-600 uppercase tracking-wider">
+                        {t("orders.remainingBalance") || "Remaining Balance"}
+                      </p>
+                      <p className="text-sm sm:text-base font-black text-rose-600">
+                        {remainingBalance.toLocaleString()} MMK
+                      </p>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -455,10 +487,22 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
               {/* Payment Summary */}
               <div className="bg-slate-50 p-5 rounded-2xl border border-slate-200/80 space-y-3">
-                <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
-                  <CreditCard className="w-4 h-4 text-ocean-600" />
-                  Payment Summary
-                </h4>
+                <div className="flex items-center justify-between">
+                  <h4 className="font-bold text-sm text-slate-800 flex items-center gap-2">
+                    <CreditCard className="w-4 h-4 text-ocean-600" />
+                    Payment Summary
+                  </h4>
+                  {order.paymentType && (
+                    <span
+                      className={`px-2.5 py-0.5 rounded-full text-xs font-bold ${getPaymentTypeColor(
+                        order.paymentType
+                      )}`}
+                    >
+                      {getPaymentTypeLabel(order.paymentType)}
+                      {order.paymentMethod ? ` • ${getPaymentMethodLabel(order.paymentMethod)}` : ""}
+                    </span>
+                  )}
+                </div>
                 <div className="space-y-2 text-xs sm:text-sm">
                   <div className="flex justify-between text-slate-600">
                     <span>Subtotal</span>
@@ -500,6 +544,27 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
                       {order.finalAmount?.toLocaleString()} MMK
                     </span>
                   </div>
+
+                  {isCredit && (
+                    <div className="flex justify-between text-slate-600 font-medium pt-1">
+                      <span>{t("pos.paidAmount") || "Paid Amount"}</span>
+                      <span className="font-semibold text-emerald-600">
+                        {(order.paidAmount || 0).toLocaleString()} MMK
+                      </span>
+                    </div>
+                  )}
+
+                  {hasRemainingBalance && (
+                    <div className="flex justify-between items-center bg-rose-50 text-rose-700 px-3.5 py-2.5 rounded-xl border border-rose-200/80 font-bold mt-2">
+                      <span className="text-xs sm:text-sm flex items-center gap-1.5">
+                        <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                        {t("orders.remainingBalance") || "Remaining Balance"}
+                      </span>
+                      <span className="text-sm sm:text-base font-black">
+                        {remainingBalance.toLocaleString()} MMK
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
             </>
