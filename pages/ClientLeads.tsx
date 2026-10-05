@@ -26,6 +26,7 @@ export const ClientLeads: React.FC = () => {
       const res = await fetchLeads({
         leadType: activeTab,
         search,
+        limit: 0,
       });
       if (res.success) setClients(res.data.clients);
     } finally {

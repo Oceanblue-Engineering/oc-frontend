@@ -894,6 +894,9 @@ export const en = {
     totalProfit: "Total Profit",
     outstandingCredits: "Outstanding Credits",
     totalOrders: "Total Orders",
+    totalDeliveryFee: "Total Delivery Fee",
+    deliveryOrders: "deliveries",
+    deliveryFee: "Delivery Fee",
     loadingReports: "Loading financial reports...",
   },
   accountManagement: {

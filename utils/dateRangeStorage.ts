@@ -1,6 +1,6 @@
 export interface StoredDateRange {
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | null;
+  endDate: Date | null;
 }
 
 export const DATE_RANGE_STORAGE_KEYS = {
@@ -29,7 +29,12 @@ export const loadStoredDateRange = (storageKey: string): StoredDateRange => {
   try {
     const raw = sessionStorage.getItem(storageKey);
     if (!raw) return { startDate: getToday(), endDate: getToday() };
-    const parsed = JSON.parse(raw) as { startDate?: string; endDate?: string };
+    const parsed = JSON.parse(raw) as {
+      startDate?: string;
+      endDate?: string;
+      isAll?: boolean;
+    };
+    if (parsed.isAll) return { startDate: null, endDate: null };
     const start = parseStoredDate(parsed.startDate);
     const end = parseStoredDate(parsed.endDate);
     if (start && end) return { startDate: start, endDate: end };
@@ -47,7 +52,10 @@ export const saveStoredDateRange = (
   start: Date | null,
   end: Date | null,
 ) => {
-  if (!start || !end) return;
+  if (!start || !end) {
+    sessionStorage.setItem(storageKey, JSON.stringify({ isAll: true }));
+    return;
+  }
   sessionStorage.setItem(
     storageKey,
     JSON.stringify({

@@ -21,6 +21,8 @@ export interface SaleReportData {
   creditPaidAmount?: number;
   focAmount?: number;
   focOrderCount?: number;
+  deliveryFee?: number;
+  deliveryOrderCount?: number;
   subTotal: number;
   tax: number;
   discount: number;

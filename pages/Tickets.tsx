@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
-import { Plus, Ticket as TicketIcon, Search, Loader2, Eye } from "lucide-react";
+import { Plus, Ticket as TicketIcon, Search, Loader2, Eye, ChevronLeft, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { fetchTickets, Ticket } from "../services/Ticket/fetchTickets";
 import { createTicket } from "../services/Ticket/createTicket";
@@ -29,6 +29,13 @@ export const Tickets: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 15,
+  });
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState({
     title: "",
@@ -67,19 +74,34 @@ export const Tickets: React.FC = () => {
   const isAdminOrOwner =
     adminData?.role === "admin" || adminData?.role === "owner";
 
-  const load = useCallback(async () => {
+  const load = useCallback(async (targetPage = page) => {
     setLoading(true);
     try {
-      const res = await fetchTickets({ search, status: statusFilter || undefined });
-      if (res.success) setTickets(res.data.tickets);
+      const res = await fetchTickets({
+        search,
+        status: statusFilter || undefined,
+        page: targetPage,
+        limit: 15,
+      });
+      if (res.success && res.data) {
+        setTickets(res.data.tickets);
+        if (res.pagination) {
+          setPagination(res.pagination);
+        }
+      }
     } finally {
       setLoading(false);
     }
-  }, [search, statusFilter]);
+  }, [search, statusFilter, page]);
 
   useEffect(() => {
-    load();
-  }, [load]);
+    load(page);
+  }, [page, search, statusFilter]);
+
+  const handlePageChange = (newPage: number) => {
+    if (newPage < 1 || newPage > pagination.totalPages || loading) return;
+    setPage(newPage);
+  };
 
   useEffect(() => {
     if (isAdminOrOwner) {
@@ -93,7 +115,7 @@ export const Tickets: React.FC = () => {
     const res = await assignTicket(ticketId, value || null);
     if (res.success) {
       toast.success(t("tickets.assigned"));
-      load();
+      load(page);
     } else {
       toast.error(res.message || t("tickets.assignFailed"));
     }
@@ -170,7 +192,8 @@ export const Tickets: React.FC = () => {
             note: "",
           },
         });
-        load();
+        setPage(1);
+        load(1);
       } else {
         toast.error(res.message || t("tickets.createFailed"));
       }
@@ -198,13 +221,19 @@ export const Tickets: React.FC = () => {
                 className="pl-9 pr-3 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-ocean-600 outline-none bg-white"
                 placeholder={t("tickets.search")}
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setPage(1);
+                }}
               />
             </div>
             <select
               className="border border-slate-200 rounded-xl px-3 py-2 text-sm bg-white focus:ring-2 focus:ring-ocean-600 outline-none"
               value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
+              onChange={(e) => {
+                setStatusFilter(e.target.value);
+                setPage(1);
+              }}
             >
               <option value="">{t("tickets.allStatus")}</option>
               <option value="Open">Open</option>
@@ -304,6 +333,36 @@ export const Tickets: React.FC = () => {
                 ))}
               </tbody>
             </table>
+
+            {/* Pagination Footer */}
+            {pagination.totalItems > 0 && (
+              <div className="flex flex-col sm:flex-row items-center justify-between px-4 py-3 border-t border-slate-100 bg-slate-50/50 text-xs text-slate-500 gap-3">
+                <div>
+                  Page <span className="font-bold text-slate-800">{pagination.currentPage}</span> of{" "}
+                  <span className="font-bold text-slate-800">{pagination.totalPages}</span> ({pagination.totalItems} total tickets)
+                </div>
+                {pagination.totalPages > 1 && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      disabled={pagination.currentPage <= 1 || loading}
+                      onClick={() => handlePageChange(pagination.currentPage - 1)}
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 font-medium transition-all shadow-xs"
+                    >
+                      <ChevronLeft className="w-3.5 h-3.5" />
+                      <span>Prev</span>
+                    </button>
+                    <button
+                      disabled={pagination.currentPage >= pagination.totalPages || loading}
+                      onClick={() => handlePageChange(pagination.currentPage + 1)}
+                      className="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer flex items-center gap-1 font-medium transition-all shadow-xs"
+                    >
+                      <span>Next</span>
+                      <ChevronRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>

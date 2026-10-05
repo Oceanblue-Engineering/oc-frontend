@@ -244,10 +244,20 @@ export const Expenses: React.FC = () => {
     }
   };
 
+  const formatDateForAPI = (date: Date | null): string | null => {
+    if (!date) return null;
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
   const loadExpenses = async () => {
     try {
       setLoading(true);
-      const response = await fetchExpenses(startDate, endDate);
+      const startStr = formatDateForAPI(startDate);
+      const endStr = formatDateForAPI(endDate);
+      const response = await fetchExpenses(startStr, endStr);
       if (response.success && response.data) {
         setExpenses(response.data);
       } else {
@@ -425,7 +435,6 @@ export const Expenses: React.FC = () => {
               startDate={startDate}
               endDate={endDate}
               onChange={(newStartDate, newEndDate) => {
-                if (!newStartDate || !newEndDate) return;
                 setDateRange({
                   startDate: newStartDate,
                   endDate: newEndDate,
@@ -438,6 +447,24 @@ export const Expenses: React.FC = () => {
               }}
               className="px-4 py-2 text-xs sm:text-sm font-semibold rounded-xl bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition-all shadow-xs flex items-center gap-2 cursor-pointer"
             />
+            <Button
+              variant={!startDate && !endDate ? "default" : "outline"}
+              size="default"
+              onClick={() => {
+                setDateRange({
+                  startDate: null,
+                  endDate: null,
+                });
+                saveStoredDateRange(
+                  DATE_RANGE_STORAGE_KEYS.expenses,
+                  null,
+                  null,
+                );
+              }}
+              className={!startDate && !endDate ? "bg-[#27272a] text-white hover:bg-[#27272a]/90 font-semibold" : ""}
+            >
+              {language === "my" ? "အားလုံး" : "All"}
+            </Button>
             <Button
               variant="default"
               size="default"

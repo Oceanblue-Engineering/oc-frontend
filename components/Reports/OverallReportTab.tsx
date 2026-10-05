@@ -1,5 +1,5 @@
 import React from "react";
-import { Store, DollarSign, Wallet, FileText, CheckCircle } from "lucide-react";
+import { Store, DollarSign, Wallet, FileText, CheckCircle, Truck } from "lucide-react";
 import { SaleReportResponse } from "../../services/Reports/fetchSaleReport";
 import { useLanguage } from "../../context/LanguageContext";
 
@@ -12,6 +12,8 @@ interface OverallReportTabProps {
     creditPaidAmount?: number;
     focAmount?: number;
     focOrderCount?: number;
+    deliveryFee?: number;
+    deliveryOrderCount?: number;
     subTotal: number;
     tax: number;
     discount: number;
@@ -55,7 +57,7 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
   return (
     <div className="space-y-6">
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 stagger-children">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 stagger-children">
         {/* Total Sales */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
@@ -104,6 +106,27 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
           </div>
         </div>
 
+        {/* Total Delivery Fee */}
+        <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
+          <div className="p-3 bg-ocean-50 rounded-xl">
+            <Truck className="w-5 h-5 text-[#27272a]" />
+          </div>
+          <div>
+            <p className="text-[11px] font-bold text-[#27272a] uppercase tracking-wider">
+              {t("reports.totalDeliveryFee") || "Total Delivery Fee"}
+            </p>
+            <p className="text-lg font-black text-slate-800 mt-1">
+              {(displayReport.deliveryFee || 0).toLocaleString()}{" "}
+              <span className="text-xs font-semibold text-slate-400">MMK</span>
+            </p>
+            {Boolean(displayReport.deliveryOrderCount && displayReport.deliveryOrderCount > 0) && (
+              <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                ({displayReport.deliveryOrderCount} {t("reports.deliveryOrders") || "deliveries"})
+              </p>
+            )}
+          </div>
+        </div>
+
         {/* Total Orders */}
         <div className="bg-white border border-gray-150 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow flex items-center gap-4">
           <div className="p-3 bg-ocean-50 rounded-xl">
@@ -116,6 +139,11 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
             <p className="text-lg font-black text-slate-800 mt-1">
               {displayReport.orderCount}
             </p>
+            {Boolean(displayReport.focOrderCount && displayReport.focOrderCount > 0) && (
+              <p className="text-[10px] text-slate-400 font-medium mt-0.5">
+                ({displayReport.focOrderCount} FOC / {(displayReport.focAmount || 0).toLocaleString()} MMK)
+              </p>
+            )}
           </div>
         </div>
       </div>
@@ -138,6 +166,7 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
                     <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Final Amount</th>
                     <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Paid Amount</th>
                     <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Sub Total</th>
+                    <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">{t("reports.deliveryFee") || "Delivery Fee"}</th>
                     <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Discount</th>
                     <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Total Orders</th>
                     <th className="px-4 py-4 text-right text-xs font-bold uppercase tracking-wider text-slate-400 bg-slate-50">Paid Orders</th>
@@ -180,6 +209,12 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
                         <span className="text-[10px] text-slate-400 font-medium">MMK</span>
                       </td>
 
+                      {/* Delivery Fee */}
+                      <td className="px-4 py-4 text-right font-bold text-slate-800 text-xs whitespace-nowrap">
+                        {(report.data.report.deliveryFee || 0).toLocaleString()}{" "}
+                        <span className="text-[10px] text-slate-400 font-medium">MMK</span>
+                      </td>
+
                       {/* Discount */}
                       <td className="px-4 py-4 text-right font-bold text-slate-800 text-xs whitespace-nowrap">
                         {report.data.report.discount.toLocaleString()}{" "}
@@ -188,20 +223,17 @@ export const OverallReportTab: React.FC<OverallReportTabProps> = ({
 
                       {/* Total Orders */}
                       <td className="px-4 py-4 text-right font-bold text-slate-800 text-xs whitespace-nowrap">
-                        {report.data.report.orderCount.toLocaleString()}{" "}
-                        <span className="text-[10px] text-slate-400 font-medium">MMK</span>
+                        {report.data.report.orderCount.toLocaleString()}
                       </td>
 
                       {/* Paid Orders */}
                       <td className="px-4 py-4 text-right font-bold text-slate-800 text-xs whitespace-nowrap">
-                        {report.data.report.paidOrderCount.toLocaleString()}{" "}
-                        <span className="text-[10px] text-slate-400 font-medium">MMK</span>
+                        {report.data.report.paidOrderCount.toLocaleString()}
                       </td>
 
                       {/* Credit Orders */}
                       <td className="px-4 py-4 text-right font-bold text-slate-800 text-xs whitespace-nowrap">
-                        {report.data.report.creditOrderCount.toLocaleString()}{" "}
-                        <span className="text-[10px] text-slate-400 font-medium">MMK</span>
+                        {report.data.report.creditOrderCount.toLocaleString()}
                       </td>
                     </tr>
                   ))}

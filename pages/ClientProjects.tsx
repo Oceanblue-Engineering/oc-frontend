@@ -27,7 +27,7 @@ export const ClientProjects: React.FC = () => {
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const res = await fetchProjects();
+      const res = await fetchProjects({ limit: 0 });
       if (res.success) setProjects(res.data.clients);
     } finally {
       setLoading(false);

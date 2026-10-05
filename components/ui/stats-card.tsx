@@ -11,9 +11,11 @@ export type StatsCardVariant =
   | "neutral";
 
 export interface StatsCardProps {
-  label: React.ReactNode;
+  label?: React.ReactNode;
+  title?: React.ReactNode;
   value: React.ReactNode;
   subValue?: React.ReactNode;
+  description?: React.ReactNode;
   icon: React.ReactNode;
   variant?: StatsCardVariant;
   className?: string;
@@ -22,13 +24,18 @@ export interface StatsCardProps {
 
 export function StatsCard({
   label,
+  title,
   value,
   subValue,
+  description,
   icon,
   variant = "ocean",
   className,
   onClick,
 }: StatsCardProps) {
+  const displayLabel = label ?? title;
+  const displaySubValue = subValue ?? description;
+
   const iconVariants: Record<StatsCardVariant, string> = {
     ocean: "bg-ocean-50 text-ocean-600 border-ocean-200/60",
     navy: "bg-slate-100 text-slate-800 border-slate-200/80",
@@ -49,14 +56,16 @@ export function StatsCard({
       )}
     >
       <div className="space-y-1">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-          {label}
-        </p>
+        {displayLabel && (
+          <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            {displayLabel}
+          </p>
+        )}
         <div className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
           {value}
         </div>
-        {subValue && (
-          <p className="text-xs font-medium text-slate-400">{subValue}</p>
+        {displaySubValue && (
+          <p className="text-xs font-medium text-slate-400">{displaySubValue}</p>
         )}
       </div>
 

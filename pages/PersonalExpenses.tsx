@@ -401,7 +401,6 @@ export const PersonalExpenses: React.FC = () => {
               startDate={startDate}
               endDate={endDate}
               onChange={(newStartDate, newEndDate) => {
-                if (!newStartDate || !newEndDate) return;
                 setDateRange({
                   startDate: newStartDate,
                   endDate: newEndDate,
@@ -413,6 +412,24 @@ export const PersonalExpenses: React.FC = () => {
                 );
               }}
             />
+            <Button
+              variant={!startDate && !endDate ? "default" : "outline"}
+              size="default"
+              onClick={() => {
+                setDateRange({
+                  startDate: null,
+                  endDate: null,
+                });
+                saveStoredDateRange(
+                  DATE_RANGE_STORAGE_KEYS.personalExpenses,
+                  null,
+                  null
+                );
+              }}
+              className={!startDate && !endDate ? "bg-[#27272a] text-white hover:bg-[#27272a]/90 font-semibold" : ""}
+            >
+              {isMy ? "အားလုံး" : "All"}
+            </Button>
             <Button
               variant="default"
               size="default"
@@ -429,28 +446,40 @@ export const PersonalExpenses: React.FC = () => {
       {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatsCard
-          title={isMy ? "ရွေးချယ်ထားသော ကာလစုစုပေါင်း" : "Selected Period Total"}
+          label={isMy ? "ရွေးချယ်ထားသော ကာလ စုစုပေါင်း" : "Selected Period Total"}
+          title={isMy ? "ရွေးချယ်ထားသော ကာလ စုစုပေါင်း" : "Selected Period Total"}
           value={`${rangeTotal.toLocaleString()} MMK`}
-          description={isMy ? `${filteredExpenses.length} ကြိမ် အသုံးပြုထားသည်` : `${filteredExpenses.length} transactions`}
+          subValue={isMy ? `${filteredExpenses.length} ကြိမ် မှတ်တမ်း` : `${filteredExpenses.length} transactions`}
+          description={isMy ? `${filteredExpenses.length} ကြိမ် မှတ်တမ်း` : `${filteredExpenses.length} transactions`}
           icon={<Wallet className="w-5 h-5 text-emerald-600" />}
+          variant="emerald"
         />
         <StatsCard
+          label={isMy ? "ယခုလ အသုံးစရိတ်" : "This Month"}
           title={isMy ? "ယခုလ အသုံးစရိတ်" : "This Month"}
           value={`${(summary?.thisMonth.totalAmount || 0).toLocaleString()} MMK`}
+          subValue={isMy ? `${summary?.thisMonth.count || 0} ကြိမ်` : `${summary?.thisMonth.count || 0} transactions`}
           description={isMy ? `${summary?.thisMonth.count || 0} ကြိမ်` : `${summary?.thisMonth.count || 0} transactions`}
-          icon={<Calendar className="w-5 h-5 text-blue-600" />}
+          icon={<Calendar className="w-5 h-5 text-ocean-600" />}
+          variant="ocean"
         />
         <StatsCard
+          label={isMy ? "ယခုအပတ် အသုံးစရိတ်" : "This Week"}
           title={isMy ? "ယခုအပတ် အသုံးစရိတ်" : "This Week"}
           value={`${(summary?.thisWeek.totalAmount || 0).toLocaleString()} MMK`}
+          subValue={isMy ? `${summary?.thisWeek.count || 0} ကြိမ်` : `${summary?.thisWeek.count || 0} transactions`}
           description={isMy ? `${summary?.thisWeek.count || 0} ကြိမ်` : `${summary?.thisWeek.count || 0} transactions`}
           icon={<TrendingDown className="w-5 h-5 text-amber-600" />}
+          variant="amber"
         />
         <StatsCard
-          title={isMy ? "စုစုပေါင်း မှတ်တမ်း" : "All-Time Total"}
+          label={isMy ? "စုစုပေါင်း အသုံးစရိတ်" : "All-Time Total"}
+          title={isMy ? "စုစုပေါင်း အသုံးစရိတ်" : "All-Time Total"}
           value={`${(summary?.allTime.totalAmount || 0).toLocaleString()} MMK`}
+          subValue={isMy ? `စုစုပေါင်း ${summary?.allTime.count || 0} ခု` : `Total ${summary?.allTime.count || 0} records`}
           description={isMy ? `စုစုပေါင်း ${summary?.allTime.count || 0} ခု` : `Total ${summary?.allTime.count || 0} records`}
-          icon={<CreditCard className="w-5 h-5 text-purple-600" />}
+          icon={<CreditCard className="w-5 h-5 text-slate-700" />}
+          variant="purple"
         />
       </div>
 

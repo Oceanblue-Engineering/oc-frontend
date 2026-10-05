@@ -900,6 +900,9 @@ export const my = {
     totalProfit: "စုစုပေါင်း ကျန်ငွေ",
     outstandingCredits: "ရရန်ကျန်သေးတဲ့ အကြွေးများ",
     totalOrders: "စုစုပေါင်း Order",
+    totalDeliveryFee: "စုစုပေါင်း ပို့ဆောင်ခ",
+    deliveryOrders: "ပို့ဆောင်မှု",
+    deliveryFee: "ပို့ဆောင်ခ",
     loadingReports: "အရောင်းစာရင်းများ ခေတ္တစောင့်ဆိုင်းနေသည်...",
   },
   accountManagement: {

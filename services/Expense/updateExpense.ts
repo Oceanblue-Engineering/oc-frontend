@@ -5,6 +5,7 @@ export interface UpdateExpensePayload {
   amount?: number;
   date?: string; // Format: YYYY-MM-DD
   notes?: string;
+  locationId?: string | null;
   projectId?: string | null;
 }
 

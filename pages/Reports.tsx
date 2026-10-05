@@ -681,6 +681,11 @@ export const Reports: React.FC = () => {
           (acc.focAmount || 0) + (report.data.report.focAmount || 0);
         acc.focOrderCount =
           (acc.focOrderCount || 0) + (report.data.report.focOrderCount || 0);
+        acc.deliveryFee =
+          (acc.deliveryFee || 0) + (report.data.report.deliveryFee || 0);
+        acc.deliveryOrderCount =
+          (acc.deliveryOrderCount || 0) +
+          (report.data.report.deliveryOrderCount || 0);
         acc.subTotal += report.data.report.subTotal;
         acc.tax += report.data.report.tax;
         acc.discount += report.data.report.discount;
@@ -699,6 +704,8 @@ export const Reports: React.FC = () => {
       creditPaidAmount: 0,
       focAmount: 0,
       focOrderCount: 0,
+      deliveryFee: 0,
+      deliveryOrderCount: 0,
       subTotal: 0,
       tax: 0,
       discount: 0,
