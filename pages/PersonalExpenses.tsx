@@ -525,13 +525,13 @@ export const PersonalExpenses: React.FC = () => {
 
       {/* Filter and Search Bar */}
       <div className="bg-white rounded-2xl border border-slate-100 p-4 shadow-sm flex flex-col sm:flex-row gap-3 items-center justify-between">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+        <div className="w-full sm:w-80">
           <Input
-            placeholder={isMy ? "ခေါင်းစဉ်၊ မှတ်ချက်ဖြင့် ရှာရန်..." : "Search title or notes..."}
+            leftIcon={<Search className="w-4 h-4" />}
+            placeholder={isMy ? "အသုံးစရိတ် ရှာရန် (ခေါင်းစဉ်၊ မှတ်ချက်)..." : "Search expenses by title or notes..."}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 w-full"
+            className="w-full"
           />
         </div>
 

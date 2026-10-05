@@ -490,7 +490,7 @@ export const Expenses: React.FC = () => {
         <div className="md:col-span-2 flex items-end">
           <Input
             leftIcon={<Search className="w-4 h-4" />}
-            placeholder={t("credits.searchPlaceholder")}
+            placeholder={t("expenses.searchPlaceholder")}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full"

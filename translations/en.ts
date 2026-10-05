@@ -839,6 +839,7 @@ export const en = {
   expenses: {
     title: "Expenses",
     subtitle: "Manage and record shop expenses",
+    searchPlaceholder: "Search expenses by category, location, notes...",
     addExpense: "Add Expense",
     totalExpenses: "Total Expenses",
     date: "Date",
