@@ -571,7 +571,7 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
               <div className="text-[10px] leading-tight">
                 <p className="font-extrabold text-slate-800">KBZ PAY</p>
                 <p className="font-bold text-slate-700">09448799120</p>
-                <p className="text-slate-500 font-medium text-[9px]">Phyo Maung</p>
+                <p className="text-slate-500 font-medium text-[9px]">Pyae Phyo Maung</p>
               </div>
             </div>
 
@@ -582,7 +582,7 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
               <div className="text-[10px] leading-tight">
                 <p className="font-extrabold text-slate-800">CB PAY</p>
                 <p className="font-bold text-slate-700">09448799120</p>
-                <p className="text-slate-500 font-medium text-[9px]">Phyo Maung</p>
+                <p className="text-slate-500 font-medium text-[9px]">Pyae Phyo Maung</p>
               </div>
             </div>
 
@@ -593,7 +593,7 @@ export const VoucherContent: React.FC<VoucherContentProps> = ({
               <div className="text-[10px] leading-tight">
                 <p className="font-extrabold text-slate-800">AYA PAY</p>
                 <p className="font-bold text-slate-700">09448799120</p>
-                <p className="text-slate-500 font-medium text-[9px]">Phyo Maung</p>
+                <p className="text-slate-500 font-medium text-[9px]">Pyae Phyo Maung</p>
               </div>
             </div>
           </div>

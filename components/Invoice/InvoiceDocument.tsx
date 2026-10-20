@@ -53,19 +53,19 @@ export const DEFAULT_PAYMENT_ACCOUNTS = [
     type: "kbz" as const,
     title: "KBZ PAY",
     phone: "09448799120",
-    name: "Phyo Maung",
+    name: "Pyae Phyo Maung",
   },
   {
     type: "rainbow" as const,
     title: "CB PAY",
     phone: "09448799120",
-    name: "Phyo Maung",
+    name: "Pyae Phyo Maung",
   },
   {
     type: "aya" as const,
     title: "AYA PAY",
     phone: "09448799120",
-    name: "Phyo Maung",
+    name: "Pyae Phyo Maung",
   },
 ];
 
