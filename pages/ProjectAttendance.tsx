@@ -40,6 +40,7 @@ import {
 } from "../services/Worker/worker.service";
 import { fetchProjectById, Project } from "../services/Project/project.service";
 import { useLanguage } from "../context/LanguageContext";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import {
   Button,
   Card,
@@ -181,17 +182,7 @@ export const ProjectAttendance: React.FC = () => {
     }
   }, [activeTab, loadSummary]);
 
-  // Lock body scroll when modal is active to prevent background scroll
-  useEffect(() => {
-    if (isModalOpen || !!recordToDelete) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isModalOpen, recordToDelete]);
+  useBodyScrollLock(isModalOpen || !!recordToDelete);
 
   // Helper for wage calculation
   const calculateWage = (
@@ -722,7 +713,7 @@ export const ProjectAttendance: React.FC = () => {
       {/* ADD / EDIT ATTENDANCE MODAL WITH SEARCHABLE WORKER SELECTOR */}
       {isModalOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overscroll-contain">
             <div className="bg-white rounded-3xl shadow-2xl max-w-xl w-full max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
               {/* Modal Header */}
               <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 shrink-0">
@@ -755,7 +746,7 @@ export const ProjectAttendance: React.FC = () => {
               {/* Modal Body / Form */}
               <form
                 onSubmit={handleSaveModalForm}
-                className="p-6 space-y-5 overflow-y-auto flex-1"
+                className="p-6 space-y-5 overflow-y-auto overscroll-contain flex-1"
               >
                 {/* Date Row */}
                 <div className="space-y-1.5">

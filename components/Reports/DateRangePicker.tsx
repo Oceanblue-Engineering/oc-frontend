@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Calendar as CalendarIcon, X, Lock } from "lucide-react";
 import { Calendar, DateRange, RangeKeyDict } from "react-date-range";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import "react-date-range/dist/styles.css";
 import "react-date-range/dist/theme/default.css";
 
@@ -36,6 +37,8 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
   });
 
   const pickerRef = useRef<HTMLDivElement>(null);
+
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     const handleResize = () => {
@@ -179,11 +182,11 @@ export const DateRangePicker: React.FC<DateRangePickerProps> = ({
 
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4 overscroll-contain"
           onClick={() => setIsOpen(false)}
         >
           <div 
-            className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 sm:p-5 flex flex-col items-center justify-center max-w-full overflow-y-auto max-h-[95vh] animate-in fade-in zoom-in-95 duration-150"
+            className="bg-white rounded-2xl shadow-2xl border border-gray-100 p-4 sm:p-5 flex flex-col items-center justify-center max-w-full overflow-y-auto max-h-[95vh] overscroll-contain animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
             {singleDate ? (

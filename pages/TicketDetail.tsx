@@ -11,6 +11,7 @@ import { deleteTicket } from "../services/Ticket/deleteTicket";
 import { fetchAdminAccounts } from "../services/Admin/fetchAdminAccounts";
 import { fetchWorkers, Worker as WorkerType } from "../services/Worker/worker.service";
 import { useLanguage } from "../context/LanguageContext";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 const statusColor: Record<string, string> = {
   Open: "bg-amber-50 text-amber-700 border border-amber-100",
@@ -36,6 +37,8 @@ export const TicketDetail: React.FC = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [assigning, setAssigning] = useState(false);
+
+  useBodyScrollLock(showDeleteConfirm);
 
   useEffect(() => {
     const stored = localStorage.getItem("adminData");
@@ -378,7 +381,7 @@ export const TicketDetail: React.FC = () => {
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 overscroll-contain">
           <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
             <h3 className="text-lg font-bold text-slate-800 mb-2">Delete Ticket?</h3>
             <p className="text-sm text-slate-500 mb-6">

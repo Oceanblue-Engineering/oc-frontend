@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { AlertTriangle } from "lucide-react";
 import { useLanguage } from "../../context/LanguageContext";
 import { Button } from "../ui/button";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface ConfirmModalProps {
   isOpen: boolean;
@@ -29,16 +30,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 }) => {
   const { t } = useLanguage();
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) return null;
 
@@ -58,7 +50,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overscroll-contain">
       <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-100 p-6 animate-in zoom-in-95 duration-200">
         <div className="flex items-start gap-4">
           <div className="w-11 h-11 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center shrink-0 border border-red-200/60">

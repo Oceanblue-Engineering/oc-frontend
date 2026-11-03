@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { ProductDetail } from "../../services/Inventory/fetchProductById";
 import { useLanguage } from "../../context/LanguageContext";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface ProductDetailModalProps {
   isOpen: boolean;
@@ -29,6 +30,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
     "storefront",
   );
 
+  useBodyScrollLock(isOpen);
+
   if (!isOpen) return null;
 
   const formatDate = (dateString: string) => {
@@ -43,8 +46,8 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm overscroll-contain">
+      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-y-auto overscroll-contain">
         {/* Modal Header */}
         <div className="flex justify-between items-center p-4 border-b bg-slate-50">
           <h3 className="font-bold text-lg text-slate-800 flex items-center gap-2">

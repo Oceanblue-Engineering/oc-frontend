@@ -40,6 +40,7 @@ import {
   Township,
 } from "../services/Township/fetchTownships";
 import { deviceDetect } from "react-device-detect";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 // Payment methods
 enum PaymentMethod {
@@ -129,6 +130,15 @@ export const POS: React.FC = () => {
     new Date().toISOString().split("T")[0],
   );
   const devices = detectDevice();
+
+  useBodyScrollLock(
+    showCheckoutModal ||
+    showDiscountCalculator ||
+    showAddCreditPersonModal ||
+    showSuccessModal ||
+    showMobileCart ||
+    isProcessing
+  );
 
   // Load storefronts and stock on mount
   useEffect(() => {
@@ -1211,7 +1221,7 @@ export const POS: React.FC = () => {
 
       {/* Mobile Cart Panel */}
       {showMobileCart && (
-        <div className="lg:hidden fixed inset-0 z-50">
+        <div className="lg:hidden fixed inset-0 z-50 overscroll-contain">
           <div
             className="absolute inset-0 bg-black/50"
             onClick={() => setShowMobileCart(false)}
@@ -1229,7 +1239,7 @@ export const POS: React.FC = () => {
             </div>
 
             {/* Mobile Cart Items */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4">
               {cart.length === 0 ? (
                 <div className="text-center text-gray-400 mt-10">
                   {t("pos.emptyCart")}
@@ -1334,7 +1344,7 @@ export const POS: React.FC = () => {
 
       {/* Loading Overlay */}
       {isProcessing && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm overscroll-contain">
           <div className="bg-white rounded-2xl shadow-2xl p-8 flex flex-col items-center gap-4">
             <Loader2 className="w-16 h-16 animate-spin text-primary" />
             <div className="text-center">
@@ -1351,7 +1361,7 @@ export const POS: React.FC = () => {
 
       {/* Checkout Modal */}
       {showCheckoutModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4">
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-sm p-0 sm:p-4 overscroll-contain">
           <div className="bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl w-full max-w-md sm:mx-4 max-h-[100vh] sm:max-h-[90vh] overflow-hidden flex flex-col border border-slate-100">
             {/* Modal Header */}
             <div className="p-5 border-b border-slate-100 bg-[#27272a]/5">
@@ -1373,7 +1383,7 @@ export const POS: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="flex-1 overflow-y-auto p-5 space-y-4 no-scrollbar">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-5 space-y-4 no-scrollbar">
               {/* Payment Type */}
               <div>
                 <label className="block text-sm font-semibold text-slate-500 mb-1.5">
@@ -1752,7 +1762,7 @@ export const POS: React.FC = () => {
 
       {/* Percentage Discount Calculator Modal */}
       {showDiscountCalculator && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs flex items-center justify-center z-[9999] p-4 overscroll-contain">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-100">
             <div className="p-5 border-b border-slate-100 bg-[#27272a]/5 flex justify-between items-center">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -1902,7 +1912,7 @@ export const POS: React.FC = () => {
 
       {/* Add Credit Person Modal */}
       {showAddCreditPersonModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm overscroll-contain">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm mx-4 overflow-hidden border border-slate-100">
             {/* Header */}
             <div className="p-5 border-b border-slate-100 bg-[#27272a]/5">
@@ -2019,7 +2029,7 @@ export const POS: React.FC = () => {
 
       {/* Success Modal */}
       {showSuccessModal && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm overscroll-contain">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
             {/* Success Icon and Header */}
             <div className="bg-gradient-to-br from-green-500 to-green-600 p-8 text-center">

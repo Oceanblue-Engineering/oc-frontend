@@ -5,6 +5,7 @@ import { Order } from "../../services/Order/fetchOrders";
 import { removeItemsFromOrder } from "../../services/Order/removeItemsFromOrder";
 import { AddItemToOrderRequest } from "../../services/Order/addItemsToOrder";
 import { useLanguage } from "../../context/LanguageContext";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface SelectedItemToRemove {
   inventoryId: string;
@@ -277,12 +278,14 @@ export const RemoveItemsFromOrderModal: React.FC<
     }
   };
 
+  useBodyScrollLock(isOpen);
+
   if (!isOpen || !order) return null;
 
   const itemsToRemove = selectedItems.filter((item) => item.removeQuantity > 0);
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/10 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/10 backdrop-blur-sm overscroll-contain">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         {/* Modal Header */}
         <div className="flex justify-between items-center p-4 border-b bg-slate-50">
@@ -310,7 +313,7 @@ export const RemoveItemsFromOrderModal: React.FC<
               </h4>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4">
               {selectedItems.length === 0 ? (
                 <div className="text-center py-12">
                   <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
@@ -409,7 +412,7 @@ export const RemoveItemsFromOrderModal: React.FC<
           {/* Right Column: Items to Remove & Totals */}
           <div className="flex-1 overflow-hidden flex flex-col">
             {/* Items to Remove */}
-            <div className="flex-1 overflow-y-auto p-4 border-b bg-white">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 border-b bg-white">
               <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 <Minus className="w-4 h-4 text-red-600" />
                 {t("orders.itemsToRemove") || "Items to Remove"} (

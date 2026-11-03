@@ -28,10 +28,10 @@ import {
 import { useLanguage } from "../../context/LanguageContext";
 import { getSavedPrintPaperSize } from "../../utils/printPaperSize";
 import { useNavigate } from "react-router-dom";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 import { InvoiceModal } from "../Invoice/InvoiceModal";
 import {
   InvoiceData,
-  DEFAULT_REMARKS,
   DEFAULT_PAYMENT_ACCOUNTS,
 } from "../Invoice/InvoiceDocument";
 import { Button } from "../ui/button";
@@ -66,16 +66,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
       : Math.max(0, (order?.finalAmount || 0) - (order?.paidAmount || 0));
   const hasRemainingBalance = isCredit && remainingBalance > 0;
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   const getInvoiceDataFromOrder = (ord: Order): InvoiceData => {
     const rawDate = ord.createdAt || (ord as any).date || new Date().toISOString();
@@ -136,7 +127,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
       discountOrTaxAmount: ord.discount || 0,
       deliveryFee: ord.deliveryDetails?.deliveryFee || 0,
       totalAmount: ord.finalAmount || 0,
-      remarks: ord.note && ord.note.trim() ? [...DEFAULT_REMARKS, `Note: ${ord.note.trim()}`] : [...DEFAULT_REMARKS],
+      remarks: ord.note && ord.note.trim() ? [`Note: ${ord.note.trim()}`] : [],
       paymentAccounts: [...DEFAULT_PAYMENT_ACCOUNTS],
       preparedBy: `Prepared By: ${adminData.name || "Ocean Blue"}`,
       currency: "MMK",
@@ -211,7 +202,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overscroll-contain"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -272,7 +263,7 @@ export const OrderDetailModal: React.FC<OrderDetailModalProps> = ({
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 overflow-y-auto flex-1 space-y-6">
+        <div className="p-6 overflow-y-auto overscroll-contain flex-1 space-y-6">
           {loading ? (
             <div className="flex flex-col items-center justify-center py-16">
               <RefreshCw className="w-8 h-8 animate-spin text-ocean-600 mb-3" />

@@ -37,7 +37,6 @@ import {
   InvoiceDocument,
   InvoiceData,
   InvoiceItem,
-  DEFAULT_REMARKS,
   DEFAULT_PAYMENT_ACCOUNTS,
 } from "../components/Invoice/InvoiceDocument";
 import { ReceiptDocument } from "../components/Invoice/ReceiptDocument";
@@ -88,6 +87,7 @@ import {
   StatsCard,
 } from "../components/ui";
 import { ConfirmModal } from "../components/Common/ConfirmModal";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 export const InvoiceGenerator: React.FC = () => {
   const documentRef = useRef<HTMLDivElement>(null);
@@ -133,6 +133,8 @@ export const InvoiceGenerator: React.FC = () => {
   const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState("all");
   const [targetSectionIndex, setTargetSectionIndex] = useState<number>(0);
   const [targetRowIndex, setTargetRowIndex] = useState<number | null>(null);
+
+  useBodyScrollLock(isInventoryPickerOpen);
 
   // Database Quotation Categories state
   const [dbCategories, setDbCategories] = useState<QuotationCategoryItem[]>([]);
@@ -193,7 +195,7 @@ export const InvoiceGenerator: React.FC = () => {
       discountOrTaxLabel: "Discount / Tax (%)",
       discountOrTaxAmount: 0,
       totalAmount: subTotal,
-      remarks: [...DEFAULT_REMARKS],
+      remarks: [],
       paymentAccounts: [...DEFAULT_PAYMENT_ACCOUNTS],
       preparedBy: "Prepared By: Ocean Blue",
       currency: "MMK",
@@ -620,7 +622,7 @@ export const InvoiceGenerator: React.FC = () => {
   };
 
   const handleAddRemark = () => {
-    const remarks = [...(invoiceData.remarks || []), "New warranty / note"];
+    const remarks = [...(invoiceData.remarks || []), ""];
     setInvoiceData({ ...invoiceData, remarks });
   };
 
@@ -640,6 +642,7 @@ export const InvoiceGenerator: React.FC = () => {
     try {
       const res = await createInvoice({
         ...invoiceData,
+        remarks: (invoiceData.remarks || []).map((r) => r.trim()).filter(Boolean),
         documentType: previewDocType,
       });
       if (res && res.success) {
@@ -746,10 +749,7 @@ export const InvoiceGenerator: React.FC = () => {
       discountOrTaxLabel: inv.discountOrTaxLabel || "Discount / Tax (%)",
       discountOrTaxAmount: inv.discountOrTaxAmount || 0,
       totalAmount: inv.totalAmount,
-      remarks:
-        inv.remarks && inv.remarks.length > 0
-          ? [...inv.remarks]
-          : [...DEFAULT_REMARKS],
+      remarks: [...(inv.remarks || [])],
       paymentAccounts: [...DEFAULT_PAYMENT_ACCOUNTS],
       preparedBy: inv.preparedBy || "Prepared By: Ocean Blue",
       currency: inv.currency || "MMK",
@@ -1535,6 +1535,50 @@ export const InvoiceGenerator: React.FC = () => {
                 </CardContent>
               </Card>
 
+              {/* Remarks */}
+              <Card>
+                <CardHeader className="border-b border-slate-100 pb-3">
+                  <CardTitle className="text-sm">Remarks</CardTitle>
+                </CardHeader>
+                <CardContent className="pt-4 space-y-2">
+                  {(invoiceData.remarks || []).length === 0 && (
+                    <p className="text-xs text-slate-400 italic">
+                      No remarks. They will not appear on the document.
+                    </p>
+                  )}
+                  {(invoiceData.remarks || []).map((rem, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <span className="text-xs font-bold text-slate-400 w-4 shrink-0">
+                        *
+                      </span>
+                      <Input
+                        value={rem}
+                        placeholder="e.g. 5 Years warranty for water proofing services."
+                        onChange={(e) =>
+                          handleRemarkChange(idx, e.target.value)
+                        }
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveRemark(idx)}
+                        className="text-red-500 hover:text-red-700 text-xs flex items-center gap-1 cursor-pointer shrink-0"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" /> Remove
+                      </button>
+                    </div>
+                  ))}
+                  <Button
+                    type="button"
+                    variant="subtle"
+                    size="sm"
+                    onClick={handleAddRemark}
+                    leftIcon={<Plus className="w-3.5 h-3.5" />}
+                  >
+                    + Add Remark
+                  </Button>
+                </CardContent>
+              </Card>
+
               {/* DYNAMIC CATEGORY SECTIONS LINE ITEMS EDITOR */}
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-1">
@@ -1926,7 +1970,7 @@ export const InvoiceGenerator: React.FC = () => {
       {/* INVENTORY PRODUCT PICKER MODAL */}
       {isInventoryPickerOpen &&
         createPortal(
-          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/70 backdrop-blur-xs overscroll-contain animate-in fade-in duration-200">
             <div className="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
               {/* Modal Header */}
               <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/80 shrink-0">
@@ -1993,7 +2037,7 @@ export const InvoiceGenerator: React.FC = () => {
               </div>
 
               {/* Products List */}
-              <div className="p-4 overflow-y-auto flex-1 space-y-2 bg-slate-50/40">
+              <div className="p-4 overflow-y-auto overscroll-contain flex-1 space-y-2 bg-slate-50/40">
                 {isLoadingInventory ? (
                   <div className="py-12 text-center">
                     <RefreshCw className="w-6 h-6 animate-spin text-ocean-600 mx-auto mb-2" />

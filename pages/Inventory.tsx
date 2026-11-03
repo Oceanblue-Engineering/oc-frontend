@@ -35,6 +35,7 @@ import {
 } from "../services/Inventory/importExcel";
 import { useRef } from "react";
 import { ImportResultModal } from "../components/Inventory/ImportResultModal";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 export const Inventory: React.FC = () => {
   const { t } = useLanguage();
@@ -77,6 +78,12 @@ export const Inventory: React.FC = () => {
   const [suppliersList, setSuppliersList] = useState<any[]>([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState("");
   const [isTransferringToSupplier, setIsTransferringToSupplier] = useState(false);
+
+  useBodyScrollLock(
+    isTransferModalOpen ||
+    isTransferStorefrontModalOpen ||
+    isTransferSupplierModalOpen
+  );
 
   // Search State
   const [searchQuery, setSearchQuery] = useState("");
@@ -980,8 +987,8 @@ export const Inventory: React.FC = () => {
       />
 
       {isTransferModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto overscroll-contain">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                 <Building2 className="w-5 h-5 text-primary" />
@@ -1071,8 +1078,8 @@ export const Inventory: React.FC = () => {
       )}
 
       {isTransferStorefrontModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto overscroll-contain">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                 <Store className="w-5 h-5 text-primary" />
@@ -1162,8 +1169,8 @@ export const Inventory: React.FC = () => {
       )}
 
       {isTransferSupplierModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto overscroll-contain">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
                 <Truck className="w-5 h-5 text-[#27272a]" />

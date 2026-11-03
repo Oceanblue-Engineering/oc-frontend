@@ -1,7 +1,8 @@
 # OB-frontend (OceanBlue CMS Dashboard) — Project Instructions
 
 > **🗣️ ဘာသာစကား သတ်မှတ်ချက် (Language Requirement):**
-> ဤ app တွင် Claude Code ၏ အကြောင်းပြန်ချက်များ၊ အခြေအနေ အသစ်ပြန်တင်မှုများနှင့် အကောင်အထည်ဖော်မှု အစီအစဉ်များကို **မြန်မာဘာသာဖြင့်** ရေးသားရမည်။ ကုဒ်နှင့် technical identifier များကိုမူ English အတိုင်း ထားရမည်။
+> User နှင့် chat တွင် **မြန်မာဘာသာဖြင့်** ပြောရမည်။ Plan၊ Antigravity prompt နှင့် report ဖိုင်များကို **English ဖြင့်** ရေးရမည်။ ကုဒ်နှင့် technical identifier များကို English အတိုင်း ထားရမည်။
+> Chat in **Myanmar**; plans, prompts, and reports in **English**; code and identifiers in English.
 
 **App role:** `dashboard` — the admin / POS single-page application for the OceanBlue monorepo.
 **Physical directory:** `OB-frontend/`
@@ -113,7 +114,10 @@ Interpret creatively and make unexpected choices that feel genuinely designed fo
 
 ## Strict Workflow (MANDATORY)
 
-1. **Language Requirement** — All responses, status updates, and implementation plans in this app MUST be written in **Myanmar (မြန်မာဘာသာ)**.
-2. **Plan First Principle** — When asked to change/add/fix anything, **NEVER write or modify code directly**. First draft a detailed Implementation Plan in Myanmar.
-3. **Auto-Save Plan Files** — Save every plan to `OB-frontend/plans/YYYY-MM-DD-short-description-plan.md` (e.g. `2026-08-05-fix-inventory-total-plan.md`) before implementing.
-4. **Wait for Explicit Approval** — Show the plan in Myanmar. **DO NOT touch code or run file-modifying/executing commands** until the user explicitly says **"OK"** / **"Go ahead"** / gives permission. Only then implement, following the saved plan.
+Claude Code plans; Antigravity implements. Full rules + templates: root [`CLAUDE.md`](../CLAUDE.md) and [`plans/rules/planning-rules.md`](../plans/rules/planning-rules.md).
+
+1. **Language Requirement** — Chat with the user in **Myanmar (မြန်မာဘာသာ)**. Plans, prompts, and reports in **English**.
+2. **Plan First Principle** — When asked to change/add/fix anything, **NEVER write or modify code directly**. First draft a detailed Implementation Plan in English.
+3. **Auto-Save Plan Files** — Save every plan to `OB-frontend/plans/YYYY-MM-DD-<slug>-plan.md` (Status: `Draft`) before showing it.
+4. **Wait for Explicit Approval** — Explain the plan in Myanmar. **DO NOT touch code or run file-modifying/executing commands** until the user explicitly says **"OK"** / **"Go ahead"** / gives permission.
+5. **After Approval — Antigravity Prompt** — Set the plan to `Approved`, write the prompt to `OB-frontend/prompts/YYYY-MM-DD-<slug>-prompt.md`, and show it as a copy-paste block. Do not implement the code yourself unless the user explicitly asks. Antigravity writes its report to `OB-frontend/reports/YYYY-MM-DD-<slug>-report.md`; review it against the plan when asked.

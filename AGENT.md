@@ -27,9 +27,12 @@ OceanBlue-CMS-Dashboard/
 ## Modular Guidelines Reference
 Please refer to the following sub-rulesets in the `.agent/rules` folder:
 
-1. [Code Style & Conventions](file:///c:/Users/PC/Desktop/Autoshop_folder/Autoshop-Frontend/.agent/rules/code-style.md)
+1. [Code Style & Conventions](.agent/rules/code-style.md)
    - Component naming conventions, TypeScript guidelines, and props best practices.
-2. [Design System & UI Tokens](file:///c:/Users/PC/Desktop/Autoshop_folder/Autoshop-Frontend/.agent/rules/design-system.md)
+2. [Design System & UI Tokens](.agent/rules/design-system.md)
    - Colors, typography, custom pill buttons, and reusable UI standards.
-3. [Error Handling & API Rules](file:///c:/Users/PC/Desktop/Autoshop_folder/Autoshop-Frontend/.agent/rules/error-handling.md)
+3. [Error Handling & API Rules](.agent/rules/error-handling.md)
    - Async/Await standards, loading overlays, and user-facing notifications.
+
+## Workflow
+Antigravity implements approved plans and writes a report for each one. See the monorepo workflow rules: [`../.agent/rules/oceanblue-workflow.md`](../.agent/rules/oceanblue-workflow.md).

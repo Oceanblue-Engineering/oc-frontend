@@ -20,6 +20,7 @@ import {
   DailyReport,
 } from "../services/Reports/fetchDailyReports";
 import { useLanguage } from "../context/LanguageContext";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 // ─── Formatting Helpers ───────────────────────────────
 
@@ -73,6 +74,8 @@ export const DailyReports: React.FC = () => {
   const [totalItems, setTotalItems] = useState(0);
   const [selectedReport, setSelectedReport] = useState<DailyReport | null>(null);
   const limit = 15;
+
+  useBodyScrollLock(!!selectedReport);
 
   const loadReports = async (page = 1) => {
     setLoading(true);
@@ -226,8 +229,8 @@ export const DailyReports: React.FC = () => {
 
           {/* Selected Report Detail Modal */}
           {selectedReport && (
-            <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4" onClick={() => setSelectedReport(null)}>
-              <div className="bg-white rounded-3xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+            <div className="fixed inset-0 bg-black/40 z-50 flex items-center justify-center p-4 overscroll-contain" onClick={() => setSelectedReport(null)}>
+              <div className="bg-white rounded-3xl shadow-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto overscroll-contain" onClick={(e) => e.stopPropagation()}>
                 <div className="p-6">
                   <div className="flex items-center justify-between mb-4">
                     <h3 className="text-lg font-bold text-slate-800">

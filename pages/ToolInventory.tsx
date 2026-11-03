@@ -16,6 +16,7 @@ import {
 import {
   fetchAllocations, ProjectToolAllocation,
 } from "../services/ProjectToolAllocation/projectToolAllocation.service";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import {
   PageHeader,
   Button,
@@ -80,6 +81,8 @@ const ToolInventory: React.FC = () => {
   const [editTool, setEditTool]                 = useState<ToolItem | null>(null);
   const [showCheckinModal, setShowCheckinModal] = useState(false);
   const [checkinTx, setCheckinTx]               = useState<ToolTransaction | null>(null);
+
+  useBodyScrollLock(showAddToolModal || showCheckinModal);
 
   // Checkout form
   const [coProjectId, setCoProjectId]         = useState("");
@@ -710,7 +713,7 @@ const ToolInventory: React.FC = () => {
 
       {/* ══ MODAL: ADD/EDIT TOOL ══ */}
       {showAddToolModal && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overscroll-contain animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-5 border-b">
               <h2 className="font-bold text-slate-900 text-base">{editTool ? "Edit Tool" : "Add New Tool"}</h2>
@@ -776,7 +779,7 @@ const ToolInventory: React.FC = () => {
 
       {/* ══ MODAL: CHECK-IN / RETURN ══ */}
       {showCheckinModal && checkinTx && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overscroll-contain animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-5 border-b">
               <h2 className="font-bold text-slate-900 text-base">Return Tool</h2>

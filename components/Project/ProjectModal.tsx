@@ -5,6 +5,7 @@ import { Project, createProject, updateProject, deleteProject } from "../../serv
 import { fetchCreditPersonas, CreditPersona } from "../../services/Credit/fetchCreditPersonas";
 import { fetchWorkers, Worker as WorkerType } from "../../services/Worker/worker.service";
 import { useLanguage } from "../../context/LanguageContext";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface ProjectModalProps {
   isOpen: boolean;
@@ -102,6 +103,8 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
     }
   }, [isOpen, project]);
 
+  useBodyScrollLock(isOpen);
+
   if (!isOpen) return null;
 
   const set = (field: keyof Project, value: any) =>
@@ -168,9 +171,9 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
-        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overscroll-contain">
+      <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[90vh]">
+        <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-10 h-10 bg-ocean-50 text-ocean-600 rounded-xl flex items-center justify-center">
               <Briefcase className="w-5 h-5" />
@@ -189,7 +192,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-6 space-y-4 flex-1 min-h-0 overflow-y-auto overscroll-contain">
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase mb-1">Site Name</label>
             <input
@@ -312,7 +315,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
           </div>
         </div>
 
-        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-between gap-3">
+        <div className="p-6 border-t border-slate-100 bg-slate-50/50 flex justify-between gap-3 shrink-0">
           {project ? (
             <button
               onClick={handleDeleteClick}
@@ -346,7 +349,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 overscroll-contain">
           <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
             <h3 className="text-lg font-bold text-slate-800 mb-2">Delete Project?</h3>
             <p className="text-sm text-slate-500 mb-6">
@@ -372,7 +375,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
       )}
 
       {showWorkerModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 animate-in fade-in duration-200 overscroll-contain">
           <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200 flex flex-col max-h-[80vh]">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100 mb-4">
               <h3 className="text-sm font-bold text-slate-800">Assign Workers</h3>
@@ -385,7 +388,7 @@ export const ProjectModal: React.FC<ProjectModalProps> = ({
               </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto space-y-2 pr-1 min-h-0">
+            <div className="flex-1 overflow-y-auto overscroll-contain space-y-2 pr-1 min-h-0">
               {allWorkers.length === 0 ? (
                 <p className="text-xs text-slate-400 italic py-4 text-center">No workers found in system.</p>
               ) : (

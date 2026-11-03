@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { X, DollarSign, CreditCard, FileText, CheckCircle2 } from "lucide-react";
 import { toast } from "sonner";
 import { createPurchasePayment } from "../../services/Purchase/createPurchasePayment";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface AddPaymentModalProps {
   isOpen: boolean;
@@ -45,6 +46,8 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
       setError("");
     }
   }, [isOpen]);
+
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) return null;
 
@@ -122,7 +125,7 @@ export const AddPaymentModal: React.FC<AddPaymentModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-in fade-in duration-200 overscroll-contain">
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden border border-slate-200 flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-gradient-to-r from-emerald-50 via-zinc-50 to-white">

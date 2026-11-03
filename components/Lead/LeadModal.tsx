@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { Lead, createLead, updateLead, addLeadLog, fetchLeadById } from "../../services/Lead/lead.service";
 import { useLanguage } from "../../context/LanguageContext";
 import { PIPELINES, initialStageFor, LeadType } from "../../config/clientPipelines";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface LeadModalProps {
   isOpen: boolean;
@@ -35,6 +36,8 @@ export const LeadModal: React.FC<LeadModalProps> = ({
   const [logsLoading, setLogsLoading] = useState(false);
   const [logText, setLogText] = useState("");
   const [addingLog, setAddingLog] = useState(false);
+
+  useBodyScrollLock(isOpen);
 
   useEffect(() => {
     if (isOpen) {
@@ -311,7 +314,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overscroll-contain">
       <div className="bg-white rounded-3xl w-full max-w-3xl max-h-[90vh] flex flex-col shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2.5">
@@ -352,7 +355,7 @@ export const LeadModal: React.FC<LeadModalProps> = ({
           </div>
         )}
 
-        <div className="flex-1 overflow-y-auto p-6 min-h-0">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-6 min-h-0">
           {activeTab === "details" && renderDetails()}
 
           {activeTab === "logs" && (

@@ -3,6 +3,7 @@ import { Plus, Trash2, Check, ChevronDown } from "lucide-react";
 import { Product, Supplier } from "../../types";
 import { useLanguage } from "../../context/LanguageContext";
 import { fetchSuppliers } from "../../services/Supplier/fetchSuppliers";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 // const UNIT_OF_MEASURE_OPTIONS = [
 //   "piece",
@@ -232,11 +233,13 @@ export const ProductModal: React.FC<ProductModalProps> = ({
     });
   };
 
+  useBodyScrollLock(isOpen);
+
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto">
-      <div className="bg-white p-6 rounded-lg w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto">
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 overflow-y-auto overscroll-contain">
+      <div className="bg-white p-6 rounded-lg w-full max-w-2xl my-8 max-h-[90vh] overflow-y-auto overscroll-contain">
         <h2 className="text-xl font-bold mb-4">
           {editingId
             ? t("inventory.editProduct")

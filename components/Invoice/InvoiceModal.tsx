@@ -19,6 +19,7 @@ import {
   printInvoice,
 } from "../../utils/invoiceExporter";
 import { Button } from "../ui/button";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 export type DocumentType = "invoice" | "receipt" | "quotation";
 
@@ -53,16 +54,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
     setDocumentType(initialDocumentType);
   }, [initialDocumentType, isOpen]);
 
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   if (!isOpen) return null;
 
@@ -122,7 +114,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-2 sm:p-4 bg-slate-900/70 backdrop-blur-xs animate-in fade-in duration-200 overscroll-contain">
       <div className="bg-slate-100 rounded-3xl shadow-2xl w-full max-w-5xl h-[94vh] flex flex-col overflow-hidden border border-slate-200 animate-in zoom-in-95 duration-200">
         {/* Top Control Bar */}
         <div className="bg-white px-5 py-3.5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0">
@@ -210,7 +202,7 @@ export const InvoiceModal: React.FC<InvoiceModalProps> = ({
         </div>
 
         {/* Scrollable Document Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 flex justify-center bg-slate-100">
+        <div className="flex-1 overflow-y-auto overscroll-contain p-4 sm:p-8 flex justify-center bg-slate-100">
           <div className="w-full max-w-[820px] transition-all flex justify-center">
             {documentType === "invoice" && (
               <InvoiceDocument ref={documentRef} data={invoiceData} />

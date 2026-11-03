@@ -42,6 +42,7 @@ import {
   StorefrontProfile,
 } from "../services/Storefront/fetchStorefrontProfiles";
 import { DateRangePicker } from "../components/Reports/DateRangePicker";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 // ─── Types ──────────────────────────────────────────────────────
 interface InventoryProduct {
@@ -108,6 +109,8 @@ export const LuckyDraw: React.FC = () => {
 
   // ── Redeem Modal State ── (အသစ်ထည့်ထားသော State)
   const [isRedeemModalOpen, setIsRedeemModalOpen] = useState(false);
+
+  useBodyScrollLock(isRedeemModalOpen || isModalOpen);
 
   // ── Delete State ──
   const [promotionToDelete, setPromotionToDelete] =
@@ -1110,7 +1113,7 @@ export const LuckyDraw: React.FC = () => {
 
       {/* ══════════════════ Redeem (လဲလှယ်ရန်) Modal အသစ် ══════════════════ */}
       {isRedeemModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl">
             <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10 rounded-t-xl">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -1125,7 +1128,7 @@ export const LuckyDraw: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-6 max-h-[80vh] overflow-y-auto">
+            <div className="p-6 max-h-[80vh] overflow-y-auto overscroll-contain">
               <form
                 onSubmit={handleSubmitRedemption}
                 className="grid grid-cols-1 md:grid-cols-2 gap-5"
@@ -1304,7 +1307,7 @@ export const LuckyDraw: React.FC = () => {
 
       {/* ══════════════════ Create/Edit Promotion Modal ══════════════════ */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg">
             <div className="p-6 border-b flex justify-between items-center sticky top-0 bg-white z-10 rounded-t-xl">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">

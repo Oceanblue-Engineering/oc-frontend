@@ -28,6 +28,7 @@ import {
 } from "../services/Credit/fetchCreditPersonaRecords";
 import { createCreditRecord } from "../services/Credit/createCreditRecord";
 import { fetchOrderById } from "../services/Order/fetchOrderById";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 import { createOrder } from "../services/Order/createOrder";
 import {
   fetchStorefrontProfiles,
@@ -108,6 +109,8 @@ export const CreditDetail: React.FC = () => {
     paidAmount: 0,
     paymentMethod: "normal",
   });
+
+  useBodyScrollLock(showAddPaymentModal || showAddCreditModal);
 
   useEffect(() => {
     if (id) {
@@ -949,7 +952,7 @@ export const CreditDetail: React.FC = () => {
 
       {/* Modals remain same as before */}
       {showAddPaymentModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="p-4 border-b flex justify-between items-center bg-green-50">
               <h2 className="text-lg font-bold text-slate-800 flex items-center gap-2">
@@ -1075,7 +1078,7 @@ export const CreditDetail: React.FC = () => {
       />
       {/* Add Credit Model */}
       {showAddCreditModal && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 overscroll-contain animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl w-full max-lg overflow-hidden flex flex-col animate-in zoom-in duration-200">
             <div className="p-4 border-b flex justify-between items-center bg-zinc-50">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -1090,7 +1093,7 @@ export const CreditDetail: React.FC = () => {
               </button>
             </div>
 
-            <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh]">
+            <div className="p-6 space-y-5 overflow-y-auto max-h-[70vh] overscroll-contain">
               {/* Storefront Selection */}
               <div>
                 <label className="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">

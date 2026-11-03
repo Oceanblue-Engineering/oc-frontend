@@ -8,6 +8,7 @@ import {
   deleteWorker,
 } from "../../services/Worker/worker.service";
 import { useLanguage } from "../../context/LanguageContext";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface WorkerModalProps {
   isOpen: boolean;
@@ -227,6 +228,8 @@ export const WorkerModal: React.FC<WorkerModalProps> = ({
     setPositionShowDropdown(false);
   };
 
+  useBodyScrollLock(isOpen);
+
   if (!isOpen) return null;
 
   const set = (field: keyof Worker, value: any) =>
@@ -297,7 +300,7 @@ export const WorkerModal: React.FC<WorkerModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4 overscroll-contain">
       <div className="bg-white rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
           <div className="flex items-center gap-2.5">
@@ -324,7 +327,7 @@ export const WorkerModal: React.FC<WorkerModalProps> = ({
           </button>
         </div>
 
-        <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+        <div className="p-6 space-y-4 max-h-[75vh] overflow-y-auto overscroll-contain">
           {/* Full Name */}
           <div>
             <label className="block text-xs font-bold text-slate-500 uppercase mb-1">
@@ -574,7 +577,7 @@ export const WorkerModal: React.FC<WorkerModalProps> = ({
       </div>
 
       {showDeleteConfirm && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[60] p-4 overscroll-contain">
           <div className="bg-white rounded-3xl w-full max-w-sm p-6 shadow-2xl border border-slate-100 animate-in fade-in zoom-in-95 duration-200">
             <h3 className="text-lg font-bold text-slate-800 mb-2">
               {isMy ? "လုပ်သား ဖျက်ရန် သေချာပါသလား?" : "Delete Worker?"}

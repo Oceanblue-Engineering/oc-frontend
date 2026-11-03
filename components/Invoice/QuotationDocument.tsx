@@ -147,6 +147,7 @@ export const QuotationDocument = React.forwardRef<
   }, 0);
 
   const grandTotal = data.totalAmount || calculatedGrandTotal;
+  const remarks = (data.remarks || []).filter((r) => r.trim());
 
   return (
     <div
@@ -357,9 +358,26 @@ export const QuotationDocument = React.forwardRef<
             </div>
           </div>
         </div>
+
+        {/* 5. REMARKS */}
+        {remarks.length > 0 && (
+          <div className="pt-4">
+            <h3 className="font-black text-[#00b4d8] text-xs sm:text-sm mb-2">
+              Remarks:
+            </h3>
+            <ul className="space-y-1 text-[11px] text-slate-800 font-semibold leading-relaxed">
+              {remarks.map((rem, idx) => (
+                <li key={idx} className="flex items-start gap-1">
+                  <span className="text-slate-600 font-bold">*</span>
+                  <span>{rem}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
 
-      {/* 5. BOTTOM SOLID NAVY BLUE CONTACT BANNER */}
+      {/* 6. BOTTOM SOLID NAVY BLUE CONTACT BANNER */}
       <div className="relative z-10 pt-4">
         <div className="bg-[#1c3d73] text-white rounded-2xl px-5 py-3 flex items-center justify-between text-[11px] font-semibold">
           <div className="flex items-center gap-2">

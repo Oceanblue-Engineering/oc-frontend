@@ -29,6 +29,7 @@ import {
 } from "../services/ActivityLog/fetchActivityLogs";
 import { useLanguage } from "../context/LanguageContext";
 import { DateRangePicker } from "../components/Reports/DateRangePicker";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 export const ActivityLogs: React.FC = () => {
   const { t } = useLanguage();
@@ -49,6 +50,8 @@ export const ActivityLogs: React.FC = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [totalItems, setTotalItems] = useState<number>(0);
   const limit = 15;
+
+  useBodyScrollLock(!!selectedLog);
 
   const modulesList = [
     "ALL",
@@ -636,7 +639,7 @@ export const ActivityLogs: React.FC = () => {
 
       {/* Activity Log Detail Inspection Modal */}
       {selectedLog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overscroll-contain animate-in fade-in duration-200">
           <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col border border-slate-100 animate-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-4 sm:p-5 border-b bg-slate-50/80 shrink-0">
@@ -668,7 +671,7 @@ export const ActivityLogs: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-6 overflow-y-auto flex-1 space-y-4 text-xs sm:text-sm">
+            <div className="p-6 overflow-y-auto overscroll-contain flex-1 space-y-4 text-xs sm:text-sm">
                   {/* Action Banner (Create / Update / Delete) */}
                   {(() => {
                     const actionInfo = getActionTypeInfo(selectedLog.method, selectedLog.action);

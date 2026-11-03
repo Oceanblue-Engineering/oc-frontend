@@ -2,6 +2,7 @@ import React from "react";
 import { X, CheckCircle2, AlertCircle, Info, ChevronRight } from "lucide-react";
 import { ImportExcelResponse } from "../../services/Inventory/importExcel";
 import { useLanguage } from "../../context/LanguageContext";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface ImportResultModalProps {
   isOpen: boolean;
@@ -16,12 +17,14 @@ export const ImportResultModal: React.FC<ImportResultModalProps> = ({
 }) => {
   const { t } = useLanguage();
 
+  useBodyScrollLock(isOpen);
+
   if (!isOpen || !result) return null;
 
   const { total, success, failed, errors } = result.data;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overscroll-contain">
       <div className="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200">
         {/* Header */}
         <div className="flex justify-between items-center p-5 border-b bg-slate-50/50">
@@ -45,7 +48,7 @@ export const ImportResultModal: React.FC<ImportResultModalProps> = ({
         </div>
 
         {/* Body */}
-        <div className="p-6 overflow-y-auto">
+        <div className="p-6 overflow-y-auto overscroll-contain">
           {/* Stats Cards */}
           <div className="grid grid-cols-3 gap-4 mb-8">
             <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100 text-center">

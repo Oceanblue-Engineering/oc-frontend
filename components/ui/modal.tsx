@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { cn } from "./cn";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 export type ModalSize = "sm" | "default" | "lg" | "xl" | "full";
 
@@ -28,6 +29,8 @@ export function Modal({
 }: ModalProps) {
   const modalRef = useRef<HTMLDivElement>(null);
 
+  useBodyScrollLock(isOpen);
+
   useEffect(() => {
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
@@ -35,12 +38,12 @@ export function Modal({
 
     if (isOpen) {
       document.addEventListener("keydown", handleEscape);
-      document.body.style.overflow = "hidden";
+
     }
 
     return () => {
       document.removeEventListener("keydown", handleEscape);
-      document.body.style.overflow = "unset";
+
     };
   }, [isOpen, onClose]);
 
@@ -56,7 +59,7 @@ export function Modal({
 
   const modalContent = (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200 overscroll-contain"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
@@ -90,7 +93,7 @@ export function Modal({
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6">{children}</div>
+        <div className="flex-1 overflow-y-auto overscroll-contain p-5 sm:p-6">{children}</div>
 
         {/* Optional Footer */}
         {footer && (

@@ -11,6 +11,7 @@ import {
   AddItemToOrderRequest,
 } from "../../services/Order/addItemsToOrder";
 import { useLanguage } from "../../context/LanguageContext";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface InventoryProduct {
   _id: string;
@@ -384,10 +385,12 @@ export const AddItemsToOrderModal: React.FC<AddItemsToOrderModalProps> = ({
     }
   };
 
+  useBodyScrollLock(isOpen);
+
   if (!isOpen || !order) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/10 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[60] flex items-center justify-center bg-white/10 backdrop-blur-sm overscroll-contain">
       <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] overflow-hidden flex flex-col">
         {/* Modal Header */}
         <div className="flex justify-between items-center p-4 border-b bg-slate-50">
@@ -434,7 +437,7 @@ export const AddItemsToOrderModal: React.FC<AddItemsToOrderModalProps> = ({
               </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4">
               {loadingProducts ? (
                 <div className="flex items-center justify-center py-12">
                   <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -507,7 +510,7 @@ export const AddItemsToOrderModal: React.FC<AddItemsToOrderModalProps> = ({
                   {t("orders.originalItems") || "Original Order Items"} (
                   {order.ordersProducts.length})
                 </h4>
-                <div className="max-h-32 overflow-y-auto border rounded-lg bg-white">
+                <div className="max-h-32 overflow-y-auto overscroll-contain border rounded-lg bg-white">
                   <table className="w-full text-sm">
                     <thead className="bg-slate-50 sticky top-0">
                       <tr>
@@ -566,7 +569,7 @@ export const AddItemsToOrderModal: React.FC<AddItemsToOrderModalProps> = ({
             )} */}
 
             {/* New Items to Add */}
-            <div className="flex-1 overflow-y-auto p-4 border-b bg-white">
+            <div className="flex-1 overflow-y-auto overscroll-contain p-4 border-b bg-white">
               <h4 className="font-semibold text-slate-700 mb-3 flex items-center gap-2">
                 <Plus className="w-4 h-4 text-green-600" />
                 {t("orders.newItemsToAdd") || "New Items to Add"} (

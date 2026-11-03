@@ -41,6 +41,7 @@ import {
   updateEntireOrder,
   UpdateEntireOrderPayload,
 } from "../services/Order/updateEntireOrder";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 // Payment methods
 enum PaymentMethod {
@@ -165,6 +166,12 @@ export const OrderEditPOS: React.FC = () => {
   // Discount calculator modal
   const [showDiscountCalculator, setShowDiscountCalculator] = useState(false);
   const [discountPercentInput, setDiscountPercentInput] = useState("");
+
+  useBodyScrollLock(
+    showCheckoutModal ||
+    showAddCreditPersonModal ||
+    showDiscountCalculator
+  );
 
   // Helper to extract inventory ID string safely
   const getInventoryIdStr = (stockItem: StorefrontStockItem): string => {
@@ -1100,7 +1107,7 @@ export const OrderEditPOS: React.FC = () => {
 
       {/* Checkout / Modify Order Modal */}
       {showCheckoutModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overscroll-contain">
           <div className="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             {/* Modal Header */}
             <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
@@ -1121,7 +1128,7 @@ export const OrderEditPOS: React.FC = () => {
             </div>
 
             {/* Modal Body */}
-            <div className="p-5 overflow-y-auto space-y-4 text-sm flex-1">
+            <div className="p-5 overflow-y-auto overscroll-contain space-y-4 text-sm flex-1">
               {/* Payment Type: Paid vs Credit */}
               <div>
                 <label className="block text-xs font-semibold text-slate-500 mb-1.5">
@@ -1468,7 +1475,7 @@ export const OrderEditPOS: React.FC = () => {
 
       {/* Add New Customer Modal */}
       {showAddCreditPersonModal && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4 overscroll-contain">
           <div className="bg-white rounded-2xl max-w-sm w-full p-5 shadow-2xl space-y-4">
             <div className="flex items-center justify-between border-b pb-2">
               <h4 className="font-bold text-slate-800 text-sm">
@@ -1543,7 +1550,7 @@ export const OrderEditPOS: React.FC = () => {
 
       {/* Percentage Discount Calculator Modal */}
       {showDiscountCalculator && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4 overscroll-contain">
           <div className="bg-white rounded-3xl shadow-2xl w-full max-w-sm overflow-hidden border border-slate-100">
             {/* Header */}
             <div className="p-5 border-b border-slate-100 bg-[#27272a]/5 flex justify-between items-center">

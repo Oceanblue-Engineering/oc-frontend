@@ -1,6 +1,6 @@
 import React from "react";
 import { FileText, Calendar, CreditCard, Phone, Mail, MapPin } from "lucide-react";
-import { InvoiceData, InvoiceItem, DEFAULT_REMARKS } from "./InvoiceDocument";
+import { InvoiceData, InvoiceItem } from "./InvoiceDocument";
 
 export interface ReceiptData extends InvoiceData {
   paymentReceivedDate?: string;
@@ -17,8 +17,7 @@ export const ReceiptDocument = React.forwardRef<
   ReceiptDocumentProps
 >(({ data, className }, ref) => {
   const currency = data.currency || "MMK";
-  const remarks =
-    data.remarks && data.remarks.length > 0 ? data.remarks : DEFAULT_REMARKS;
+  const remarks = (data.remarks || []).filter((r) => r.trim());
 
   const displayItems: InvoiceItem[] = [...data.items];
   while (displayItems.length < 4) {
@@ -187,19 +186,21 @@ export const ReceiptDocument = React.forwardRef<
         <div className="flex items-stretch justify-between mt-[-1px] mb-8">
           {/* Left: Remarks & Appreciation */}
           <div className="flex-1 pr-6 pt-3 space-y-4">
-            <div>
-              <h3 className="font-black text-[#00b4d8] text-xs sm:text-sm mb-2">
-                Remarks:
-              </h3>
-              <ul className="space-y-1 text-[11px] text-slate-800 font-semibold leading-relaxed">
-                {remarks.map((rem, idx) => (
-                  <li key={idx} className="flex items-start gap-1">
-                    <span className="text-slate-600 font-bold">*</span>
-                    <span>{rem}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+            {remarks.length > 0 && (
+              <div>
+                <h3 className="font-black text-[#00b4d8] text-xs sm:text-sm mb-2">
+                  Remarks:
+                </h3>
+                <ul className="space-y-1 text-[11px] text-slate-800 font-semibold leading-relaxed">
+                  {remarks.map((rem, idx) => (
+                    <li key={idx} className="flex items-start gap-1">
+                      <span className="text-slate-600 font-bold">*</span>
+                      <span>{rem}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
 
             {/* Thank you note */}
             <div className="pt-2 text-xs font-bold text-[#0077b6] space-y-0.5">

@@ -39,15 +39,6 @@ export interface InvoiceData {
   currency?: string;
 }
 
-export const DEFAULT_REMARKS = [
-  "50 Years warranty for swimming pool structure.",
-  "5 Years warranty for water proofing services.",
-  "3 Years warranty for M&E accessories.",
-  "One-time treatment and on-site Training also included.",
-  "Prices can change according to time.",
-  "This quotation only available within 2 weeks.",
-];
-
 export const DEFAULT_PAYMENT_ACCOUNTS = [
   {
     type: "kbz" as const,
@@ -79,8 +70,7 @@ export const InvoiceDocument = React.forwardRef<
   InvoiceDocumentProps
 >(({ data, className }, ref) => {
   const currency = data.currency || "MMK";
-  const remarks =
-    data.remarks && data.remarks.length > 0 ? data.remarks : DEFAULT_REMARKS;
+  const remarks = (data.remarks || []).filter((r) => r.trim());
   const paymentAccounts =
     data.paymentAccounts && data.paymentAccounts.length > 0
       ? data.paymentAccounts
@@ -260,17 +250,21 @@ export const InvoiceDocument = React.forwardRef<
         <div className="flex items-stretch justify-between mt-[-1px] mb-6">
           {/* Left: Remarks (Clean plain background, no borders) */}
           <div className="flex-1 pr-6 pt-3">
-            <h3 className="font-black text-[#00b4d8] text-xs sm:text-sm mb-2">
-              Remarks:
-            </h3>
-            <ul className="space-y-1 text-[11px] text-slate-800 font-semibold leading-relaxed">
-              {remarks.map((rem, idx) => (
-                <li key={idx} className="flex items-start gap-1">
-                  <span className="text-slate-600 font-bold">*</span>
-                  <span>{rem}</span>
-                </li>
-              ))}
-            </ul>
+            {remarks.length > 0 && (
+              <>
+                <h3 className="font-black text-[#00b4d8] text-xs sm:text-sm mb-2">
+                  Remarks:
+                </h3>
+                <ul className="space-y-1 text-[11px] text-slate-800 font-semibold leading-relaxed">
+                  {remarks.map((rem, idx) => (
+                    <li key={idx} className="flex items-start gap-1">
+                      <span className="text-slate-600 font-bold">*</span>
+                      <span>{rem}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
           </div>
 
           {/* Right: Totals Grid (Width 288px exact match to Unit Price w-36 + Amount w-36) */}

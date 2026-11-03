@@ -4,6 +4,7 @@ import { X, Search, Check, Wrench, Loader2, Plus, Minus, Layers } from "lucide-r
 import { toast } from "sonner";
 import { fetchTools, ToolItem } from "../../services/ToolInventory/toolInventory.service";
 import { addAllocation } from "../../services/ProjectToolAllocation/projectToolAllocation.service";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface Props {
   projectId: string;
@@ -25,6 +26,8 @@ const AddToolToProjectModal: React.FC<Props> = ({ projectId, onClose, onAdded })
 
   // Multi-select map: toolId -> { tool, quantity }
   const [selectedTools, setSelectedTools] = useState<Record<string, SelectedToolConfig>>({});
+
+  useBodyScrollLock(true);
 
   useEffect(() => {
     const loadTools = async () => {
@@ -130,7 +133,7 @@ const AddToolToProjectModal: React.FC<Props> = ({ projectId, onClose, onAdded })
   };
 
   return createPortal(
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overscroll-contain">
       <div className="bg-white rounded-2xl w-full max-w-2xl shadow-2xl flex flex-col max-h-[90vh] animate-in zoom-in-95 duration-200">
         {/* Header */}
         <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
@@ -152,7 +155,7 @@ const AddToolToProjectModal: React.FC<Props> = ({ projectId, onClose, onAdded })
         </div>
 
         {/* Content Body */}
-        <div className="p-5 space-y-4 overflow-y-auto flex-1">
+        <div className="p-5 space-y-4 overflow-y-auto overscroll-contain flex-1">
           {/* Search Box + Quick Filter Bar */}
           <div className="flex flex-col sm:flex-row gap-2.5 items-stretch sm:items-center">
             <div className="relative flex-1">
@@ -227,7 +230,7 @@ const AddToolToProjectModal: React.FC<Props> = ({ projectId, onClose, onAdded })
           </div>
 
           {/* Tools List */}
-          <div className="border border-gray-200 rounded-xl max-h-72 overflow-y-auto divide-y divide-gray-100 bg-white shadow-inner">
+          <div className="border border-gray-200 rounded-xl max-h-72 overflow-y-auto overscroll-contain divide-y divide-gray-100 bg-white shadow-inner">
             {loading ? (
               <div className="flex items-center justify-center gap-2 py-12 text-gray-400 text-sm">
                 <Loader2 className="w-4 h-4 animate-spin text-slate-700" />

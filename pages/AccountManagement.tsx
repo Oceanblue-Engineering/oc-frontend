@@ -35,6 +35,7 @@ import {
   fetchLocationProfiles,
   LocationProfile,
 } from "../services/Location/fetchLocationProfiles";
+import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 export const AccountManagement: React.FC = () => {
   const [accounts, setAccounts] = useState<AdminAccount[]>([]);
@@ -84,6 +85,13 @@ export const AccountManagement: React.FC = () => {
     role: "cashier",
     telegramChatId: "",
   });
+
+  useBodyScrollLock(
+    isEditModalOpen ||
+    isDeleteModalOpen ||
+    isHardDeleteModalOpen ||
+    isCreateModalOpen
+  );
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [locationProfiles, setLocationProfiles] = useState<LocationProfile[]>(
@@ -814,7 +822,7 @@ export const AccountManagement: React.FC = () => {
 
       {/* Edit Account Modal */}
       {isEditModalOpen && selectedAccount && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -949,7 +957,7 @@ export const AccountManagement: React.FC = () => {
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && accountToDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -1034,7 +1042,7 @@ export const AccountManagement: React.FC = () => {
 
       {/* Hard Delete Confirmation Modal */}
       {isHardDeleteModalOpen && accountToHardDelete && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="p-6 border-b flex justify-between items-center bg-red-50">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
@@ -1131,7 +1139,7 @@ export const AccountManagement: React.FC = () => {
 
       {/* Create Account Modal */}
       {isCreateModalOpen && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4 overscroll-contain">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="p-6 border-b flex justify-between items-center">
               <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">

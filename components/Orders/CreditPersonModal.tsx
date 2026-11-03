@@ -1,8 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { createPortal } from "react-dom";
 import { X, UserPlus, User } from "lucide-react";
 import { Order } from "../../services/Order/fetchOrders";
 import { CreditPersona } from "../../services/Credit/fetchCreditPersonas";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface CreditPersonModalProps {
   isOpen: boolean;
@@ -21,22 +22,13 @@ export const CreditPersonModal: React.FC<CreditPersonModalProps> = ({
   onClose,
   onAssign,
 }) => {
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isOpen]);
+  useBodyScrollLock(isOpen);
 
   if (!isOpen || !order) return null;
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm overscroll-contain"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -83,7 +75,7 @@ export const CreditPersonModal: React.FC<CreditPersonModalProps> = ({
               <p>No credit persons available</p>
             </div>
           ) : (
-            <div className="max-h-64 overflow-y-auto space-y-2">
+            <div className="max-h-64 overflow-y-auto overscroll-contain space-y-2">
               {creditPersonas.map((persona) => (
                 <button
                   key={persona._id}
@@ -122,4 +114,3 @@ export const CreditPersonModal: React.FC<CreditPersonModalProps> = ({
     document.body
   );
 };
-

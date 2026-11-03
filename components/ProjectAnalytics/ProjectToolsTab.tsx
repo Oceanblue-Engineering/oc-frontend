@@ -18,6 +18,7 @@ import {
 import { checkoutTool, checkinTool } from "../../services/ToolInventory/toolInventory.service";
 import { fetchWorkers, Worker } from "../../services/Worker/worker.service";
 import AddToolToProjectModal from "./AddToolToProjectModal";
+import { useBodyScrollLock } from "../../hooks/useBodyScrollLock";
 
 interface ToolTransaction {
   _id: string;
@@ -78,6 +79,8 @@ const ProjectToolsTab: React.FC<Props> = ({ projectId }) => {
   const [retLostQty, setRetLostQty] = useState(0);
   const [retNotes, setRetNotes] = useState("");
   const [retSubmitting, setRetSubmitting] = useState(false);
+
+  useBodyScrollLock(showCheckoutModal || showReturnModal || showAddModal);
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -587,7 +590,7 @@ const ProjectToolsTab: React.FC<Props> = ({ projectId }) => {
 
       {/* Checkout Tool Modal */}
       {showCheckoutModal && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overscroll-contain">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <div className="flex items-center gap-2">
@@ -712,7 +715,7 @@ const ProjectToolsTab: React.FC<Props> = ({ projectId }) => {
 
       {/* Return Tool Modal */}
       {showReturnModal && retTx && createPortal(
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200 overscroll-contain">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl animate-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <div className="flex items-center gap-2">
