@@ -461,7 +461,10 @@ export const InvoiceGenerator: React.FC = () => {
     const updatedSections = [...invoiceData.categorySections];
     const section = { ...updatedSections[sectionIdx] };
     const items = [...section.items];
-    const currentItem = { ...items[itemIdx], [field]: value };
+    const currentItem = {
+      ...items[itemIdx],
+      [field]: field === "unit" ? String(value) : value,
+    };
 
     if (field === "qty" || field === "unitPrice") {
       const qty = field === "qty" ? Number(value) : currentItem.qty;
@@ -495,6 +498,7 @@ export const InvoiceGenerator: React.FC = () => {
       no: section.items.length + 1,
       description: "",
       qty: 1,
+      unit: "",
       unitPrice: 0,
       amount: 0,
     };
@@ -563,6 +567,7 @@ export const InvoiceGenerator: React.FC = () => {
       items[targetRowIndex] = {
         ...items[targetRowIndex],
         description: productName,
+        unit: product.unitOfMeasure || "",
         unitPrice,
         qty,
         amount,
@@ -576,6 +581,7 @@ export const InvoiceGenerator: React.FC = () => {
         no: items.length + 1,
         description: productName,
         qty,
+        unit: product.unitOfMeasure || "",
         unitPrice,
         amount,
       });
@@ -1798,7 +1804,7 @@ export const InvoiceGenerator: React.FC = () => {
                               className="font-medium text-xs sm:text-sm bg-white"
                             />
 
-                            <div className="grid grid-cols-2 gap-2">
+                            <div className="grid grid-cols-3 gap-2">
                               <div className="space-y-1">
                                 <label className="text-[10px] font-bold text-slate-500 uppercase">
                                   Qty
@@ -1814,6 +1820,24 @@ export const InvoiceGenerator: React.FC = () => {
                                       itemIdx,
                                       "qty",
                                       Number(e.target.value)
+                                    )
+                                  }
+                                  className="bg-white"
+                                />
+                              </div>
+                              <div className="space-y-1">
+                                <label className="text-[10px] font-bold text-slate-500 uppercase">
+                                  Unit
+                                </label>
+                                <Input
+                                  placeholder="pcs / set / sqft"
+                                  value={item.unit || ""}
+                                  onChange={(e) =>
+                                    handleItemFieldChange(
+                                      secIdx,
+                                      itemIdx,
+                                      "unit",
+                                      e.target.value
                                     )
                                   }
                                   className="bg-white"

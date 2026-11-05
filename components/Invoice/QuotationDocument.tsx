@@ -264,6 +264,9 @@ export const QuotationDocument = React.forwardRef<
                       <th className="py-1 px-3 text-center border-r border-slate-300 w-16">
                         Qty:
                       </th>
+                      <th className="py-1 px-3 text-center border-r border-slate-300 w-16">
+                        Unit:
+                      </th>
                       <th className="py-1 px-4 text-center border-r border-slate-300 w-36">
                         Unit Price:
                       </th>
@@ -281,6 +284,9 @@ export const QuotationDocument = React.forwardRef<
                         </td>
                         <td className="py-1 px-3 text-center border-r border-slate-300 align-middle">
                           {item.qty > 0 ? item.qty : ""}
+                        </td>
+                        <td className="py-1 px-3 text-center border-r border-slate-300 align-middle">
+                          {item.unit || ""}
                         </td>
                         <td className="py-1 px-4 text-right border-r border-slate-300 align-middle">
                           {item.unitPrice > 0 ? formatMoney(item.unitPrice) : ""}

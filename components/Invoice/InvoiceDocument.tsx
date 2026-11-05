@@ -5,6 +5,7 @@ export interface InvoiceItem {
   no?: string | number;
   description: string;
   qty: number;
+  unit?: string;
   unitPrice: number;
   amount: number;
 }
@@ -217,6 +218,7 @@ export const InvoiceDocument = React.forwardRef<
                 <th className="py-2.5 px-3 text-center border-r border-slate-300 w-14">No:</th>
                 <th className="py-2.5 px-4 text-center border-r border-slate-300">Description:</th>
                 <th className="py-2.5 px-3 text-center border-r border-slate-300 w-16">Qty:</th>
+                <th className="py-2.5 px-3 text-center border-r border-slate-300 w-16">Unit:</th>
                 <th className="py-2.5 px-4 text-center border-r border-slate-300 w-36">Unit Price:</th>
                 <th className="py-2.5 px-4 text-center w-36">Amount:</th>
               </tr>
@@ -233,6 +235,9 @@ export const InvoiceDocument = React.forwardRef<
                   </td>
                   <td className="py-2 px-3 text-center border-r border-slate-300 align-middle">
                     {item.qty > 0 ? item.qty : ""}
+                  </td>
+                  <td className="py-2 px-3 text-center border-r border-slate-300 align-middle">
+                    {item.unit || ""}
                   </td>
                   <td className="py-2 px-4 text-right border-r border-slate-300 align-middle">
                     {item.unitPrice > 0 ? formatMoney(item.unitPrice) : ""}

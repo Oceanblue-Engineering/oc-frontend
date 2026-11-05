@@ -40,6 +40,7 @@ export interface Product {
   lowStockThreshold: number;
   status?: "active" | "inactive";
   suppliers?: string[];
+  unitOfMeasure?: string;
 }
 
 export interface CartItem extends Product {
