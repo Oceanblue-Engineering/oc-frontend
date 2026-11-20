@@ -233,6 +233,16 @@ export const AccountManagement: React.FC = () => {
   // Available roles for selection
   const availableRoles = ["owner", "manager", "admin", "cashier"];
 
+  // Role of the logged-in user. Only an owner may create owners or other
+  // admins; an admin is limited to non-privileged roles, mirroring the
+  // backend guard on POST /admin/signup.
+  const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
+  const currentRole = adminData?.role;
+  const creatableRoles =
+    currentRole === "owner"
+      ? availableRoles
+      : availableRoles.filter((r) => r !== "owner" && r !== "admin");
+
   const handleOpenEditModal = (account: AdminAccount) => {
     setSelectedAccount(account);
     setEditFormData({
@@ -1200,7 +1210,7 @@ export const AccountManagement: React.FC = () => {
                     })
                   }
                 >
-                  {availableRoles.map((role) => (
+                  {creatableRoles.map((role) => (
                     <option key={role} value={role}>
                       {role.charAt(0).toUpperCase() + role.slice(1)}
                     </option>

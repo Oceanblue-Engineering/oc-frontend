@@ -74,6 +74,10 @@ const ProjectDetailAnalytics: React.FC = () => {
   const navigate = useNavigate();
   const { t, language } = useLanguage();
 
+  const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
+  const userRole = adminData?.role;
+  const isManager = userRole === "manager";
+
   const [loading, setLoading] = useState(true);
   const [payrollLoading, setPayrollLoading] = useState(false);
   const [financialSummary, setFinancialSummary] =
@@ -159,7 +163,9 @@ const ProjectDetailAnalytics: React.FC = () => {
           fetchProjectFinancialSummary(id),
           fetchProjectExpenses(id),
           fetchProjectPayrollSummary(id),
-          fetchInvoices({ projectId: id }),
+          isManager
+            ? Promise.resolve({ success: false, data: [], stats: undefined })
+            : fetchInvoices({ projectId: id }),
           fetchProjectTasks(id),
         ]);
 
@@ -280,7 +286,7 @@ const ProjectDetailAnalytics: React.FC = () => {
     return <Badge variant="warning">{status}</Badge>;
   };
 
-  const TABS: Array<{ id: string; label: string; icon: any; badge?: number }> = [
+  const ALL_TABS: Array<{ id: string; label: string; icon: any; badge?: number }> = [
     {
       id: "overview",
       label: t("projects.tabOverview") || "Overview",
@@ -316,6 +322,7 @@ const ProjectDetailAnalytics: React.FC = () => {
       icon: Wrench,
     },
   ];
+  const TABS = ALL_TABS.filter((tab) => !(isManager && tab.id === "invoices"));
 
   return (
     <div className="min-h-screen bg-slate-50/50 p-4 sm:p-6 lg:p-8 space-y-6">
@@ -746,7 +753,7 @@ const ProjectDetailAnalytics: React.FC = () => {
       )}
 
       {/* TAB 4: QUOTATIONS, INVOICES & RECEIPTS */}
-      {activeTab === "invoices" && (
+      {activeTab === "invoices" && !isManager && (
         <div className="space-y-6 animate-in fade-in duration-200">
           {/* KPI Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

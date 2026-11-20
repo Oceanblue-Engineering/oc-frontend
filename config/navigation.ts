@@ -265,6 +265,10 @@ export const hasPermission = (path: string, role?: string): boolean => {
   if (path === "/reports" && role === "manager") {
     return false;
   }
+  // Invoice Generator: financial documents are owner/admin/cashier only
+  if (path === "/invoice-generator" && role === "manager") {
+    return false;
+  }
   // Activity Logs: Restricted for manager (only owner and admin)
   if (path === "/activity-logs" && role !== "owner" && role !== "admin") {
     return false;

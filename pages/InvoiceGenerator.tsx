@@ -90,6 +90,10 @@ import { ConfirmModal } from "../components/Common/ConfirmModal";
 import { useBodyScrollLock } from "../hooks/useBodyScrollLock";
 
 export const InvoiceGenerator: React.FC = () => {
+  const adminData = JSON.parse(localStorage.getItem("adminData") || "{}");
+  const userRole = adminData?.role;
+  const isManager = userRole === "manager";
+
   const documentRef = useRef<HTMLDivElement>(null);
   const [activeTab, setActiveTab] = useState<"list" | "create">("list");
   const [previewDocType, setPreviewDocType] =
@@ -825,6 +829,16 @@ export const InvoiceGenerator: React.FC = () => {
     setInvoiceData(getInitialInvoiceData());
     toast.info("Invoice form reset to default template");
   };
+
+  if (isManager) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-3 text-slate-400">
+        <FileText className="w-12 h-12" />
+        <p className="text-lg font-bold text-slate-800">Access Denied</p>
+        <p className="text-xs text-slate-500">Only Owner, Admin, and Cashier roles can access the Invoice Generator.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-slate-50/40 p-4 sm:p-6 lg:p-8 space-y-6">
