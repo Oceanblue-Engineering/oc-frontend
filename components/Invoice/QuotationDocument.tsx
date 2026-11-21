@@ -388,7 +388,7 @@ export const QuotationDocument = React.forwardRef<
         <div className="bg-[#1c3d73] text-white rounded-2xl px-5 py-3 flex items-center justify-between text-[11px] font-semibold">
           <div className="flex items-center gap-2">
             <Phone className="w-3.5 h-3.5 text-cyan-300" />
-            <span>+959420190123</span>
+            <span>09768972250</span>
           </div>
           <div className="h-3 w-px bg-white/30" />
           <div className="flex items-center gap-2">
